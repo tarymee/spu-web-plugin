@@ -27,9 +27,6 @@ const install = (app: any, options: SPUWebPluginOptions) => {
   urlquery.init()
   login.startRefreshtoken()
 
-
-
-
   // setTimeout(async () => {
   //   const a = await downloadService.getUrl({
   //     // source: 'a1b9954a-fb39-4bb2-aa0b-501f4af0d99e.jpeg',

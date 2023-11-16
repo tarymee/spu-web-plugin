@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "rollup -c -w",
     "build": "rollup -c && npm run build:types",
-    "build:types": "node script/build-types.js"
+    "build:types": "node script/build-types.js",
+    "docs": "docsify serve ./docs"
   },
   "author": "tarymee <tarymee@qq.com>",
   "type": "module",
