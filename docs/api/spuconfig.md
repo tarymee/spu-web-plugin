@@ -1,8 +1,8 @@
 
-## spuConfig
+# spuConfig
 `SPU` 模块配置信息相关服务。
 
-### spuConfig.get()
+## spuConfig.get()
 + 类型：
 
 ```js
