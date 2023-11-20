@@ -8,7 +8,7 @@
 使用该插件时，自动拥有该能力，插件会在 `token` 过期前15秒重新刷新 `token`，以保持持续登录状态。
 
 
-## getToken
+## getToken()
 + 类型：
 
 ```js
@@ -23,7 +23,7 @@ const token = getToken()
 console.log(token)
 ```
 
-## getTokenExpires
+## getTokenExpires()
 + 类型：
 
 ```js
@@ -38,7 +38,7 @@ const tokenexpires = getTokenExpires()
 console.log(tokenexpires)
 ```
 
-## getRefreshToken
+## getRefreshToken()
 + 类型：
 
 ```js

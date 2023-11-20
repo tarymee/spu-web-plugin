@@ -14,9 +14,12 @@ function get (key: string | null): object | object[] | null
 例子：
 ```js
 import { spuConfig } from '@smart100/spu-web-plugin'
+
+// 获取所有配置项
 const allSpuConfig = spuConfig.get()
 console.log(allSpuConfig)
 
-const xx = spuConfig.get('xx')
-console.log(xx)
+// 获取单个配置项
+const purposeConfig = spuConfig.get('customervisit.purpose')
+console.log(purposeConfig)
 ```

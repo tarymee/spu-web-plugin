@@ -1,5 +1,5 @@
 
-## getUser
+## getUser()
 + 类型：
 
 ```js
