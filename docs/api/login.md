@@ -16,7 +16,7 @@ function getToken (): string
 ```
 获取当前 `token`。
 
-例子：
+示例：
 ```js
 import { getToken } from '@smart100/spu-web-plugin'
 const token = getToken()
@@ -31,7 +31,7 @@ function getTokenExpires (): string
 ```
 获取当前 `tokenexpires`。
 
-例子：
+示例：
 ```js
 import { getTokenExpires } from '@smart100/spu-web-plugin'
 const tokenexpires = getTokenExpires()
@@ -46,7 +46,7 @@ function getRefreshToken (): string
 ```
 获取当前 `refreshtoken`。
 
-例子：
+示例：
 ```js
 import { getRefreshToken } from '@smart100/spu-web-plugin'
 const refreshtoken = getRefreshToken()

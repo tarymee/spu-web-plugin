@@ -30,7 +30,7 @@ function upload ({
 
 上传文件。
 
-例子：
+示例：
 ```js
 import { uploadService } from '@smart100/spu-web-plugin'
 
@@ -73,7 +73,7 @@ function getUrl ({
 
 获取文件URL。
 
-例子：
+示例：
 ```js
 import { downloadService } from '@smart100/spu-web-plugin'
 
