@@ -5,7 +5,7 @@ import { getLocation, getDistance } from './location'
 import { spuAxios, apaasAxios } from './axios'
 import { spuConfig } from './spuConfig'
 import { downloadService, uploadService } from './oss'
-import { getUniqueid } from './utils'
+import { getUniqueid, functionCheck } from './utils'
 import AMapLoader from './AMapLoader'
 import login from './login'
 import { v4 as getUuid } from 'uuid'
@@ -44,6 +44,7 @@ export {
   uploadService,
   getUniqueid,
   getUuid,
+  functionCheck,
   AMapLoader,
   getToken,
   getTokenExpires,

@@ -81,6 +81,7 @@ export const downloadService: IDownloadService
 export const uploadService: IUploadService
 export const getUniqueid: () => string
 export const getUuid: () => string
+export const functionCheck: (functioncode?: string) => boolean
 export const AMapLoader: IAMapLoader
 export const getToken: () => string
 export const getTokenExpires: () => string

@@ -1,3 +1,5 @@
+import login from './login'
+
 const isIOS = () => {
   const ua = navigator.userAgent
   return /(iPhone|iPad|iPod|IOS)/i.test(ua)
@@ -27,10 +29,20 @@ const getUniqueid = () => {
 }
 
 
+const functionCheck = (functioncode?: string): boolean => {
+  if (!functioncode) return false
+  const functioncodes = login.getUser('functioncodes') || []
+  // console.log(functioncodes)
+  // debugger
+  const check = functioncodes.includes(functioncode)
+  return !!check
+}
+
 export {
   isIOS,
   isInWxwork,
   isInPcWxwork,
   isInAppWxwork,
-  getUniqueid
+  getUniqueid,
+  functionCheck
 }

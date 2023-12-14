@@ -3,6 +3,7 @@ import jwtDecode from 'jwt-decode'
 import { apaasAxios } from './axios'
 import tenantInfo from './tenantInfo'
 import { lsProxy } from './storageProxy'
+// import { functionCheck } from './utils'
 
 type JwtResult = {
   LoginUser: IAny
@@ -191,6 +192,22 @@ class Login {
     return haslogged
   }
 
+  // 接口请求回来的 userInfo 有 functioncodes 以便做权限校验
+  async getAndSetUserInfo () {
+    return apaasAxios.post('/api/teapi/rolepermission/account/getaccountinfo', {
+      positionid: this.getUser('positioncode'),
+      deviceinfo: 'h5',
+      sysversion: 'h5',
+      clientversion: 'h5'
+    }).then((res: any) => {
+      // console.log(res)
+      // debugger
+      if (res.code === 200 && res.data) {
+        this.setUser(res.data)
+      }
+    })
+  }
+
   // 单点登录
   async singleLogin (query: IAny) {
     // 自动登录
@@ -219,18 +236,11 @@ class Login {
         delete query.context
       }
 
-      // const tenant = await apassRequest.get('/api/auth/tenantlist', {}).then((res) => {
-      //   return res?.data?.tenants?.[0]
-      // })
-      // if (tenant) {
-      //   lsProxy.setItem('tenant', JSON.stringify(tenant))
-      //   const normalizedTenant = tenantInfoApi.format(tenant as Tenant)
-      //   normalizedTenant && tenantInfoApi.save(normalizedTenant)
-      // }
-      // console.log(tenant)
-
       await tenantInfo.getAndSave()
-      // debugger
+      await this.getAndSetUserInfo()
+
+      // const ischeck = functionCheck('1429379220684842752')
+      // console.log(ischeck)
     } else {
       console.error('query 中没有 token，无法单点登录。')
     }
@@ -238,7 +248,7 @@ class Login {
     delete query.token
     delete query.refreshtoken
     delete query.tokenexpires
-    delete query.context
+    // debugger
     return {
       query
     }
