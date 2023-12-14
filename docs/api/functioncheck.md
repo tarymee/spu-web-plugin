@@ -7,7 +7,8 @@ function functionCheck (functioncode?: string): boolean
 
 用于校验当前登录人是否拥有某个表单/功能点的权限。
 
-示例：
++ 示例：
+
 ```js
 import { functionCheck } from '@smart100/spu-web-plugin'
 

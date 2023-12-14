@@ -11,7 +11,8 @@ function getLocation (): Promise<{
 
 获取当前定位信息。
 
-示例：
++ 示例：
+
 ```js
 import { getLocation } from '@smart100/spu-web-plugin'
 
@@ -29,7 +30,8 @@ function getDistance (p1: [number, number], p2: [number, number]): Promise<numbe
 
 计算两个经纬度距离。
 
-示例：
++ 示例：
+
 ```js
 import { getDistance } from '@smart100/spu-web-plugin'
 

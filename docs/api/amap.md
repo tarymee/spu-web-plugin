@@ -17,7 +17,8 @@ function load (options?: {
 
 插件对其进行了封装，不需要申请填写高德key(插件已处理)，使之能结合 Vue3 使用。
 
-示例：
++ 示例：
+
 ```vue
 <template>
   <div class="amap" id="mapid"></div>

@@ -14,7 +14,8 @@ const lsProxy: Storage
 
 代理 `localStorage`。
 
-示例：
++ 示例：
+
 ```js
 import { lsProxy } from '@smart100/spu-web-plugin'
 lsProxy.setItem('data', 'xxx') // 会在 localStorage 中设置 demospu-data = 'xxx'
@@ -31,7 +32,8 @@ const ssProxy: Storage
 
 代理 `sessionStorage`。
 
-示例：
++ 示例：
+
 ```js
 import { ssProxy } from '@smart100/spu-web-plugin'
 ssProxy.setItem('data', 'xxx') // 会在 sessionStorage 中设置 demospu-data = 'xxx'

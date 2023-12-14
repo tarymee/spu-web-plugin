@@ -7,7 +7,8 @@ function getUuid (): string
 
 生成并返回 `uuid`。
 
-示例：
++ 示例：
+
 ```js
 import { getUuid } from '@smart100/spu-web-plugin'
 
@@ -26,7 +27,8 @@ function getUniqueid (): string
 
 生成并返回唯一 `id`。
 
-示例：
++ 示例：
+
 ```js
 import { getUniqueid } from '@smart100/spu-web-plugin'
 
