@@ -14,6 +14,7 @@
   * [地理位置信息服务](api/location)
   * [高德地图JSAPI](api/amap)
   * [生成唯一 id 服务](api/id)
+  * [功能权限校验服务](api/functioncheck)
   <!-- * [基础信息](api/index)
   * [layout 布局](api/layout)
   * [filter 搜索栏](api/filter)
