@@ -1,4 +1,4 @@
-## functioncheck()
+## functionCheck()
 + 类型：
 
 ```js
