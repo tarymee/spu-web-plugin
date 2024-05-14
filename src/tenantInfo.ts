@@ -30,13 +30,6 @@ class TenantInfo {
     }
   }
 
-  save (tenant: NormalizedCloudServ) {
-    if (!tenant) {
-      return
-    }
-    cloudServ.set(tenant)
-  }
-
   format (tenant: ITenantInfo) {
     if (!tenant) {
       return null
@@ -65,11 +58,16 @@ class TenantInfo {
   async getAndSave (tenantCode?: string) {
     const tenant: ITenantInfo | null = await this.get(tenantCode)
     if (!tenant) {
+      lsProxy.removeItem('tenant')
+      cloudServ.remove()
       return
     }
+
     lsProxy.setItem('tenant', JSON.stringify(tenant))
     const normalizedTenant = this.format(tenant)
-    normalizedTenant && this.save(normalizedTenant)
+    if (normalizedTenant) {
+      cloudServ.set(normalizedTenant)
+    }
   }
 }
 

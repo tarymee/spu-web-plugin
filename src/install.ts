@@ -52,6 +52,7 @@ const install = (app: any, options: SPUWebPluginOptions) => {
       // console.log(to)
       // const isInitVisit = from.path === '/' && from.name === undefined // 路由初始化访问
       // console.log('isInitVisit', isInitVisit)
+      // console.error(444444)
 
       // 自动登录
       if (to.query.token) {

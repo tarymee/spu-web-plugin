@@ -194,18 +194,41 @@ class Login {
 
   // 接口请求回来的 userInfo 有 functioncodes 以便做权限校验
   async getAndSetUserInfo () {
-    return apaasAxios.post('/api/teapi/rolepermission/account/getaccountinfo', {
-      positionid: this.getUser('positioncode'),
-      deviceinfo: 'h5',
-      sysversion: 'h5',
-      clientversion: 'h5'
-    }).then((res: any) => {
-      // console.log(res)
-      // debugger
-      if (res.code === 200 && res.data) {
-        this.setUser(res.data)
+    // return apaasAxios.post('/api/teapi/rolepermission/account/getaccountinfo', {
+    //   positionid: this.getUser('positioncode'),
+    //   deviceinfo: '',
+    //   sysversion: '',
+    //   clientversion: ''
+    // }).then((res: any) => {
+    //   // console.log(res)
+    //   // debugger
+    //   if (res.code === 200 && res.data) {
+    //     this.setUser(res.data)
+    //   }
+    // }).catch((err: Error) => {
+    //   console.error(22)
+    //   console.error(err)
+    // })
+
+    try {
+      const accountinfo: null | any = await apaasAxios.post('/api/teapi/rolepermission/account/getaccountinfo', {
+        positionid: this.getUser('positioncode'),
+        deviceinfo: '',
+        sysversion: '',
+        clientversion: ''
+      }).then((res: any) => {
+        if (res.code === 200 && res.data) {
+          return res.data
+        } else {
+          return null
+        }
+      })
+      if (accountinfo) {
+        this.setUser(accountinfo)
       }
-    })
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   // 单点登录
@@ -222,11 +245,14 @@ class Login {
       const tokenexpires = query.tokenexpires
       if (refreshtoken) {
         this.setRefreshToken(refreshtoken)
+      } else {
+        this.removeRefreshToken()
       }
       if (tokenexpires) {
         this.setTokenExpires(tokenexpires)
+      } else {
+        this.removeTokenExpires()
       }
-      // debugger
 
       // context 上下文字段 产品运营中心安装 卸载 配置 和 产品配置中心业务配置 页面需要用到
       let context = query.context

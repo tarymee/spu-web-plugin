@@ -84,6 +84,10 @@ class CloudServ {
     lsProxy.setItem(this.CLOUD_SERVE_KEY, storage)
   }
 
+  public remove () {
+    lsProxy.removeItem(this.CLOUD_SERVE_KEY)
+  }
+
   private getProvider (sign: StorageType = 'storage') {
     const storage: NormalizedCloudServItem | null = this.get(sign)
     if (!storage) {
