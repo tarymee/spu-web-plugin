@@ -6,7 +6,7 @@ interface SPUWebPluginOptions {
   modulekey: string;
   modulename: string;
   moduleversion: string;
-  router: any;
+  router?: any;
 }
 
 type StorageType = 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y'

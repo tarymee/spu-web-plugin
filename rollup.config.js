@@ -18,7 +18,7 @@ export default {
       file: pkg.module,
       format: 'es',
       plugins: [
-        terser()
+        terser() // 压缩
       ]
     },
     // {

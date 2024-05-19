@@ -5,7 +5,7 @@ interface ISPUWebPluginOptions {
   modulekey: string
   modulename: string
   moduleversion: string
-  router: any
+  router?: any
 }
 
 interface IAMapLoader {

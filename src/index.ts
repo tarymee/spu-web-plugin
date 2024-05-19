@@ -23,13 +23,11 @@ const SPUWebPlugin = {
   version
 }
 
-
 const getToken = login.getToken.bind(login)
 const getTokenExpires = login.getTokenExpires.bind(login)
 const getRefreshToken = login.getRefreshToken.bind(login)
 const getUser = login.getUser.bind(login)
 const checkLogin = login.checkLogin.bind(login)
-
 
 export {
   SPUWebPlugin as default,
