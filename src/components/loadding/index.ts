@@ -108,4 +108,6 @@ class SpuLoadding extends HTMLElement {
   }
 }
 
-window.customElements.define(componentName, SpuLoadding)
+if (!window.customElements.get(componentName)) {
+  window.customElements.define(componentName, SpuLoadding)
+}
