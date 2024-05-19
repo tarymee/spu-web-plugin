@@ -3,6 +3,7 @@ import login from './login'
 import { initAxios } from './axios'
 import urlquery from './urlquery'
 import { initSpuConfig } from './spuConfig'
+import { initTest } from './test'
 // import tenantInfo from './tenantInfo'
 // import { downloadService } from './oss'
 
@@ -24,6 +25,7 @@ const install = (app: any, options: SPUWebPluginOptions) => {
   initStorageProxy(options)
   initAxios(options)
   initSpuConfig(options)
+  initTest(options)
   urlquery.init()
   login.startRefreshtoken()
 
@@ -52,7 +54,6 @@ const install = (app: any, options: SPUWebPluginOptions) => {
       // console.log(to)
       // const isInitVisit = from.path === '/' && from.name === undefined // 路由初始化访问
       // console.log('isInitVisit', isInitVisit)
-      // console.error(444444)
 
       // 自动登录
       if (to.query.token) {

@@ -2,6 +2,7 @@
 * 入门
 
   * [快速开始](introduction/quickstart)
+  * [更新日志](introduction/changelog)
 
 * API
   * [登录相关服务](api/login)

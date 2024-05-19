@@ -1,8 +1,8 @@
 import loadding from './loadding'
 
 function initTest (options: SPUWebPluginOptions) {
-  console.error('initTest')
-  loadding.open()
+  console.log('initTest')
+  // loadding.open()
 }
 
 export {

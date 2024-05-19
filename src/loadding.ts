@@ -9,7 +9,7 @@ class Loadding {
     this.count++
     if (!this.ele) {
       this.ele = document.createElement('spu-loadding')
-      console.log(this.ele)
+      // console.log(this.ele)
       document.body.appendChild(this.ele)
     }
   }
