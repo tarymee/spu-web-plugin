@@ -1,6 +1,3 @@
-
-const componentName = 'spu-loadding'
-
 const styletext = `
   :host {
     width: 100%;
@@ -35,7 +32,15 @@ const template = `
   </div>
 `
 
-class SpuLoadding extends HTMLElement {
+export default class SpuLoadding extends HTMLElement {
+
+  static componentName: string = 'spu-loadding'
+  static register () {
+    if (!window.customElements.get(SpuLoadding.componentName)) {
+      window.customElements.define(SpuLoadding.componentName, SpuLoadding)
+    }
+  }
+
   isuseshadow = true
   // isuseshadow = false
   shadow: ShadowRoot | null = null
@@ -90,7 +95,7 @@ class SpuLoadding extends HTMLElement {
   createStyleEle () {
     var styleElement = document.createElement('style')
     styleElement.type = 'text/css'
-    styleElement.id = componentName
+    styleElement.id = SpuLoadding.componentName
     styleElement.innerHTML = styletext
     return styleElement
   }
@@ -100,7 +105,7 @@ class SpuLoadding extends HTMLElement {
       const style = this.createStyleEle()
       this.shadow!.appendChild(style)
     } else {
-      if (!document.getElementById(componentName)) {
+      if (!document.getElementById(SpuLoadding.componentName)) {
         const style = this.createStyleEle()
         document.getElementsByTagName('head')[0].appendChild(style)
       }
@@ -108,6 +113,40 @@ class SpuLoadding extends HTMLElement {
   }
 }
 
-if (!window.customElements.get(componentName)) {
-  window.customElements.define(componentName, SpuLoadding)
+
+
+class Loadding {
+  count = 0
+
+  ele: null | HTMLElement = null
+
+  constructor () {
+    SpuLoadding.register()
+  }
+
+  open () {
+    this.count++
+    if (!this.ele) {
+      this.ele = document.createElement('spu-loadding')
+      // console.log(this.ele)
+      document.body.appendChild(this.ele)
+    }
+  }
+
+  close () {
+    this.count--
+    if (this.count <= 0) {
+      this.count = 0
+      if (this.ele) {
+        document.body.removeChild(this.ele)
+        this.ele = null
+      }
+    }
+  }
+}
+
+const loadding = new Loadding()
+
+export {
+  loadding
 }

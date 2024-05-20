@@ -6,7 +6,7 @@ import type {
 } from 'axios'
 import { get } from 'lodash-es'
 // import { Message } from 'element-ui'
-import loadding from './loadding'
+import { loadding } from './components/loadding'
 import login from './login'
 
 interface Response {

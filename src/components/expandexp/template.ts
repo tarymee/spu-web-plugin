@@ -1,8 +1,8 @@
-import SpuWebExport from './index'
+import SpuExpandexp from './index'
 
-export default (ele: SpuWebExport) => {
+export default (ele: SpuExpandexp) => {
   // const { buttonRadius, buttonText, buttonType } = config
-  console.log(ele)
+  // console.log(ele)
 
   return `
 <style>
@@ -17,7 +17,7 @@ export default (ele: SpuWebExport) => {
   bottom: 0px;
 }
 
-.spu-web-export {
+.spu-expandexp {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
@@ -67,20 +67,51 @@ export default (ele: SpuWebExport) => {
 }
 
 .export {}
-.export-tip {
+.export-wait {
   line-height: 32px;
   height: 32px;
   text-align: center;
   background-color: rgba(255, 73, 73, .1);
   color: #333;
 }
-.export-tip span {
+.export-wait span {
   color: red;
   margin: 0 4px;
 }
 .export-tit {}
 .export-sel {}
 .export-sel .title {}
+
+
+
+.export-progress {}
+.export-result {
+  height: 28px;
+  line-height: 28px;
+  text-align: right;
+  font-size: 12px;
+  padding: 0px 8px;
+}
+.export-result.error {
+  background: #fdf1ef;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+.export-result.success {
+  background: #e5f7f3;
+}
+
+
+.export-tip {
+  height: 28px;
+  line-height: 28px;
+  margin-top: 8px;
+  font-size: 12px;
+  text-align: right;
+  color: #999;
+}
+
 .export-btnwrap {
   margin-top: 12px;
   display: flex;
@@ -89,7 +120,7 @@ export default (ele: SpuWebExport) => {
 
 </style>
 
-    <div class="spu-web-export">
+    <div class="spu-expandexp">
       <div class="modal">
         <div class="modal-th">
           <div class="title">
@@ -101,7 +132,7 @@ export default (ele: SpuWebExport) => {
         </div>
         <div class="modal-tb">
           <div class="export">
-            <div class="export-tip">
+            <div class="export-wait">
               导出等待队列中：还有<span>${ ele.config.text }</span>位，请耐心稍等...
             </div>
             <div class="export-tit">导出中</div>
@@ -111,14 +142,31 @@ export default (ele: SpuWebExport) => {
             <div class="export-sel">
               <section class="title">请选择导出文件类型</section>
             </div>
+
+            <div class="export-file">
+              export-file
+            </div>
+
+            <div class="export-progress">
+              export-progress
+            </div>
+
+            <div class="export-result success">
+              export-result
+            </div>
+
+            <div class="export-tip">您可以随时关闭该弹框，之后在导入导出列表中查看结果。</div>
+
+
+            <div class="export-btnwrap">
+              <div class="btn">导出</div>
+            </div>
           </div>
 
 
 
 
-          <div class="export-btnwrap">
-            <div class="btn">导出</div>
-          </div>
+
 
 
         </div>
