@@ -23,12 +23,12 @@ const getAttributes = (elem: any) => {
 
 const componentName = 'spu-web-export'
 
-const defaultConfig = {
-  // 属性
-  disableButton: false,
 
-  // 事件
-  onButtonClick: null
+const defaultConfig = {
+  exportApi: '',
+  sheetname: '',
+  pagecode: '',
+  data: null,
 }
 
 export default class SpuWebExport extends HTMLElement {
@@ -43,15 +43,19 @@ export default class SpuWebExport extends HTMLElement {
 
   // 当自定义元素第一次被连接到文档DOM时被调用。
   connectedCallback () {
+    this.initConfig()
+    this.shadow.innerHTML = renderTemplate(this)
+    this.initEvent()
+  }
+
+  initConfig () {
     const attributes = getAttributes(this)
-    console.log(attributes)
     this.config = {
       ...defaultConfig,
       ...attributes
     }
-    this.shadow.innerHTML = renderTemplate(this)
-
-    this.initEvent()
+    console.log('attributes', attributes)
+    console.log('this.config', this.config)
   }
 
   initEvent () {
@@ -96,4 +100,39 @@ export default class SpuWebExport extends HTMLElement {
 // 定义组件
 if (!window.customElements.get(componentName)) {
   window.customElements.define(componentName, SpuWebExport)
+}
+
+
+
+
+
+
+
+
+
+
+class Export {
+  count = 0
+
+  ele: null | HTMLElement = null
+
+  open () {
+    this.count++
+    if (!this.ele) {
+      this.ele = document.createElement('spu-web-export')
+      // console.log(this.ele)
+      document.body.appendChild(this.ele)
+    }
+  }
+
+  close () {
+    this.count--
+    if (this.count <= 0) {
+      this.count = 0
+      if (this.ele) {
+        document.body.removeChild(this.ele)
+        this.ele = null
+      }
+    }
+  }
 }

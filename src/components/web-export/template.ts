@@ -1,4 +1,6 @@
-export default (ele: any) => {
+import SpuWebExport from './index'
+
+export default (ele: SpuWebExport) => {
   // const { buttonRadius, buttonText, buttonType } = config
   console.log(ele)
 
