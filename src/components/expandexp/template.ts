@@ -30,6 +30,7 @@ export default (ele: SpuExpandexp) => {
   background-color: #417AE7;
   color: #fff;
   padding: 0 20px;
+  font-size: 16px;
   cursor: pointer;
 }
 
@@ -84,6 +85,59 @@ export default (ele: SpuExpandexp) => {
 
 
 
+.export-section {
+  border: 1px solid #ddd;
+  padding: 12px;
+}
+
+.export-file {
+  height: 28px;
+  line-height: 28px;
+  display: flex;
+  justify-content: space-between;
+}
+.export-file-l {
+  flex: 1;
+  display: flex;
+  margin-right: 12px;
+}
+.export-file-l img {
+  flex: none;
+  display: block;
+  height: 28px;
+  width: 28px;
+  margin-right: 4px;
+}
+.export-file-l-filename {
+  flex: 1;
+}
+.export-file-l-filesize {
+  flex: none;
+}
+.export-file-r {
+  display: flex;
+}
+.export-file-r-download {
+  line-height: 28px;
+  border-radius: 5px;
+  background-color: #417AE7;
+  color: #fff;
+  padding: 0 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.export-file-r-cancel {
+  line-height: 28px;
+  border-radius: 5px;
+  background-color: red;
+  color: #fff;
+  padding: 0 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+
+
 .export-progress {}
 .export-result {
   height: 28px;
@@ -135,7 +189,7 @@ export default (ele: SpuExpandexp) => {
             <div class="export-wait">
               导出等待队列中：还有<span>${ ele.config.text }</span>位，请耐心稍等...
             </div>
-            <div class="export-tit">导出中</div>
+
             <div class="export-sel">
               <section class="title">请选择导出内容</section>
             </div>
@@ -143,20 +197,31 @@ export default (ele: SpuExpandexp) => {
               <section class="title">请选择导出文件类型</section>
             </div>
 
-            <div class="export-file">
-              export-file
+
+            <div class="export-tit">导出中</div>
+            <div class="export-section">
+              <div class="export-file">
+                  <div class="export-file-l">
+                    <img src="" />
+                    <span class="export-file-l-filename">filename</span>
+                    <span class="export-file-l-filesize">filesize</span>
+                  </div>
+                  <div class="export-file-r">
+                    <div class="export-file-r-download">下载</div>
+                    <div class="export-file-r-cancel">取消</div>
+                  </div>
+              </div>
+
+              <div class="export-progress">
+                export-progress
+              </div>
+
+              <div class="export-result success">
+                export-result
+              </div>
+
+              <div class="export-tip">您可以随时关闭该弹框，之后在导入导出列表中查看结果。</div>
             </div>
-
-            <div class="export-progress">
-              export-progress
-            </div>
-
-            <div class="export-result success">
-              export-result
-            </div>
-
-            <div class="export-tip">您可以随时关闭该弹框，之后在导入导出列表中查看结果。</div>
-
 
             <div class="export-btnwrap">
               <div class="btn">导出</div>
