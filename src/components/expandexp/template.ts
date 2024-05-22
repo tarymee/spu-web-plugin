@@ -1,9 +1,6 @@
 import SpuExpandexp from './index'
 
 export default (ele: SpuExpandexp) => {
-  // const { buttonRadius, buttonText, buttonType } = config
-  // console.log(ele)
-
   return `
 <style>
 :host {
@@ -41,7 +38,9 @@ export default (ele: SpuExpandexp) => {
 
 .modal {
   width: 80%;
-  margin: 10% auto;
+  max-width: 800px;
+  min-width: 500px;
+  margin: 50px auto 0;
   border-radius: 2px;
   overflow: hidden;
 }
@@ -88,11 +87,14 @@ export default (ele: SpuExpandexp) => {
   height: 32px;
 }
 
-.export-sel {}
-.export-sel-title {}
+.export-sel {
+  margin-bottom: 12px;
+}
+.export-sel-title {
+  margin-bottom: 12px;
+}
 .export-sel-con {
   display: flex;
-  margin: 12px 0;
 }
 .export-sel-con-item {
   margin-right: 32px;
@@ -119,6 +121,7 @@ export default (ele: SpuExpandexp) => {
   line-height: 28px;
   display: flex;
   justify-content: space-between;
+  // margin-bottom: 12px;
 }
 .export-file-l {
   flex: 1;
@@ -167,7 +170,6 @@ export default (ele: SpuExpandexp) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 12px;
   height: 30px;
 }
 .export-progress-outer {
