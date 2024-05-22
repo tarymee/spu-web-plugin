@@ -75,78 +75,91 @@ export default class SpuExpandexp extends HTMLElement {
       runningTaskCount: 0,
       isOldVersionService: false
     }, (key: string, value: any) => {
-      const { expandStatus, stepName, isOldVersionService, runningTaskCount, fileName, filetype, exportcontent, fileSize, exportDataItem, percentage, resultMessage } = this.data
-      if (key === 'expandStatus' || key === 'stepName' || key === 'percentage') {
-        // debugger
-        const $exportSel = this.shadow.querySelector('.export-sel') as any
-        const $exportSectionWrap = this.shadow.querySelector('.export-section-wrap') as any
-        const $exportBtnwrap = this.shadow.querySelector('.export-btnwrap') as any
-        const $exportDownload = this.shadow.querySelector('.export-file-r-download') as any
-        const $exportCancel = this.shadow.querySelector('.export-file-r-cancel') as any
-        const $exportProgress = this.shadow.querySelector('.export-progress') as any
-        const $exportProgressInner = this.shadow.querySelector('.export-progress-inner') as any
-        const $exportProgressText = this.shadow.querySelector('.export-progress-text') as any
-        const $exportTip = this.shadow.querySelector('.export-tip') as any
+      const { expandStatus, stepName, stepText, isOldVersionService, runningTaskCount, fileName, filetype, exportcontent, fileSize, exportDataItem, percentage, resultMessage } = this.data
+
+      // debugger
+      const $exportSel = this.shadow.querySelector('.export-sel') as any
+      const $exportSectionWrap = this.shadow.querySelector('.export-section-wrap') as any
+      const $exportBtnwrap = this.shadow.querySelector('.export-btnwrap') as any
+      const $exportDownload = this.shadow.querySelector('.export-file-r-download') as any
+      const $exportCancel = this.shadow.querySelector('.export-file-r-cancel') as any
+      const $exportProgress = this.shadow.querySelector('.export-progress') as any
+      const $exportProgressInner = this.shadow.querySelector('.export-progress-inner') as any
+      const $exportProgressText = this.shadow.querySelector('.export-progress-text') as any
+      const $exportTip = this.shadow.querySelector('.export-tip') as any
+      const $exportTit = this.shadow.querySelector('.export-tit') as any
+      const $exportResult = this.shadow.querySelector('.export-result') as any
+      const $filename = this.shadow.querySelector('.export-file-l-filename') as any
+      const $filesize = this.shadow.querySelector('.export-file-l-filesize') as any
+      const $wait = this.shadow.querySelector('.export-wait') as any
+      const $waitSpan = this.shadow.querySelector('.export-wait span') as any
 
 
-        this.vIf($exportSel, (expandStatus !== '1' && stepName === 'initial'))
-        this.vIf($exportSectionWrap, stepName !== 'initial')
-        this.vIf($exportBtnwrap, stepName === 'initial')
 
-        // 下载按钮显隐
-        this.vIf($exportDownload, ((stepName === 'error' || stepName === 'success') && exportDataItem?.exportfileurl))
 
-        // 取消按钮显隐
-        this.vIf($exportCancel, ((stepName === 'running' || stepName === 'ready') && (!exportDataItem?.exportstate || exportDataItem?.exportstate === 'readyrun' || exportDataItem?.exportstate === 'running')))
+      this.vIf($exportSel, (expandStatus !== '1' && stepName === 'initial'))
+      this.vIf($exportSectionWrap, stepName !== 'initial')
+      this.vIf($exportBtnwrap, stepName === 'initial')
 
-        // 进度条
-        this.vIf($exportProgress, (stepName === 'running' || stepName === 'success' || stepName === 'error' || stepName === 'ext_readyrun' || stepName === 'ext_running'))
-        this.vIf($exportProgressText, percentage < 100)
+      // 下载按钮显隐
+      this.vIf($exportDownload, ((stepName === 'error' || stepName === 'success') && exportDataItem?.exportfileurl))
 
-        if (percentage >= 100) {
-          this.vText($exportProgressText, `100%`)
-          $exportProgressInner.setAttribute('style', `width: 100%`)
+      // 取消按钮显隐
+      this.vIf($exportCancel, ((stepName === 'running' || stepName === 'ready') && (!exportDataItem?.exportstate || exportDataItem?.exportstate === 'readyrun' || exportDataItem?.exportstate === 'running')))
 
-          if (stepName === 'success') {
-            $exportProgressInner.classList.add('success')
-          } else if (stepName === 'error') {
-            $exportProgressInner.classList.add('error')
-          } else {
-            $exportProgressInner.classList.add('error')
-          }
+      // 进度条
+      this.vIf($exportProgress, (stepName === 'running' || stepName === 'success' || stepName === 'error' || stepName === 'ext_readyrun' || stepName === 'ext_running'))
+      this.vIf($exportProgressText, percentage < 100)
+
+      if (percentage >= 100) {
+        this.vText($exportProgressText, `100%`)
+        $exportProgressInner.setAttribute('style', `width: 100%`)
+
+        if (stepName === 'success') {
+          $exportProgressInner.classList.add('success')
+        } else if (stepName === 'error') {
+          $exportProgressInner.classList.add('error')
         } else {
-          this.vText($exportProgressText, `${percentage}%`)
-          $exportProgressInner.setAttribute('style', `width: ${percentage}%`)
-
-          $exportProgressInner.classList.remove('success')
-          $exportProgressInner.classList.remove('error')
+          $exportProgressInner.classList.add('error')
         }
+      } else {
+        this.vText($exportProgressText, `${percentage}%`)
+        $exportProgressInner.setAttribute('style', `width: ${percentage}%`)
 
-
-        this.vIf($exportTip, (stepName === 'running' || stepName === 'ready' || stepName === 'ext_readyrun' || stepName === 'ext_running' || stepName === 'success'))
-
-      } else if (key === 'resultMessage') {
-        const $exportResult = this.shadow.querySelector('.export-result') as any
-        this.vText($exportResult, resultMessage)
-        this.vIf($exportResult, !!resultMessage)
-      } else if (key === 'fileName' || key === 'filetype' || key === 'exportcontent') {
-        const $filename = this.shadow.querySelector('.export-file-l-filename') as any
-        const fileNameWithSuffix = fixFileName(fileName, filetype, exportcontent)
-        this.vText($filename, fileNameWithSuffix)
-      } else if (key === 'fileSize') {
-        const $filesize = this.shadow.querySelector('.export-file-l-filesize') as any
-        this.vText($filesize, fileSize)
-      } else if (key === 'isOldVersionService' || key === 'runningTaskCount') {
-        const $wait = this.shadow.querySelector('.export-wait') as any
-        const $waitSpan = this.shadow.querySelector('.export-wait span') as any
-        const flag = !isOldVersionService && runningTaskCount > 0
-        this.vIf($wait, flag)
-        if (flag) {
-          this.vText($waitSpan, runningTaskCount)
-        } else {
-          this.vText($waitSpan, '')
-        }
+        $exportProgressInner.classList.remove('success')
+        $exportProgressInner.classList.remove('error')
       }
+
+
+      this.vIf($exportTip, (stepName === 'running' || stepName === 'ready' || stepName === 'ext_readyrun' || stepName === 'ext_running' || stepName === 'success'))
+
+
+      this.vText($exportTit, stepText)
+
+
+
+      this.vText($exportResult, resultMessage)
+      this.vIf($exportResult, !!resultMessage)
+
+
+      const fileNameWithSuffix = fixFileName(fileName, filetype, exportcontent)
+      this.vText($filename, fileNameWithSuffix)
+
+
+
+
+      this.vText($filesize, fileSize)
+
+
+
+      const flag = !isOldVersionService && runningTaskCount > 0
+      this.vIf($wait, flag)
+      if (flag) {
+        this.vText($waitSpan, runningTaskCount)
+      } else {
+        this.vText($waitSpan, '')
+      }
+
     })
     this.data.fileName = this.props.sheetname
 
@@ -425,6 +438,7 @@ export default class SpuExpandexp extends HTMLElement {
   }
 
   async updateStatus () {
+    console.error(1)
     apaasAxios
       .post(`/api/teapi/queue/impexp/expStatus?dynamicid=${this.data.exportId}`)
       .then((res: any) => {
