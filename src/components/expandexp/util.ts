@@ -28,12 +28,18 @@ export const dealCostTime = (val: number) => {
   }
 }
 
-export const fixFileName = (sheetname: string, type: string) => {
+export const fixFileName = (sheetname: string, type: string, exportcontent: string) => {
   let fileName = sheetname && sheetname.replace('.xlsx', '').replace('.csv', '')
-  if (parseInt(type) === 1) {
-    fileName = fileName + '.xlsx'
-  } else if (parseInt(type) === 2) {
-    fileName = fileName + '.csv'
+  if (exportcontent === 'link') {
+    fileName = fileName + '.zip'
+  } else {
+    if (parseInt(type) === 1) {
+      fileName = fileName + '.xlsx'
+    } else if (parseInt(type) === 2) {
+      fileName = fileName + '.csv'
+    } else if (parseInt(type) === 3) {
+      fileName = fileName + '.pdf'
+    }
   }
   return fileName
 }

@@ -17,6 +17,10 @@ export default (ele: SpuExpandexp) => {
   bottom: 0px;
 }
 
+.hide {
+  display: none!important;
+}
+
 .spu-expandexp {
   width: 100%;
   height: 100%;
@@ -79,12 +83,17 @@ export default (ele: SpuExpandexp) => {
   color: red;
   margin: 0 4px;
 }
-.export-tit {}
+.export-tit {
+  line-height: 32px;
+  height: 32px;
+}
 .export-sel {}
 .export-sel .title {}
 
 
-
+.export-section-wrap {
+  
+}
 .export-section {
   border: 1px solid #ddd;
   padding: 12px;
@@ -99,7 +108,6 @@ export default (ele: SpuExpandexp) => {
 .export-file-l {
   flex: 1;
   display: flex;
-  margin-right: 12px;
 }
 .export-file-l img {
   flex: none;
@@ -116,6 +124,8 @@ export default (ele: SpuExpandexp) => {
 }
 .export-file-r {
   display: flex;
+  width: 80px;
+  flex-direction: row-reverse;
 }
 .export-file-r-download {
   line-height: 28px;
@@ -138,7 +148,44 @@ export default (ele: SpuExpandexp) => {
 
 
 
-.export-progress {}
+.export-progress {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 8px 0;
+}
+.export-progress-outer {
+  flex: 1;
+  height: 8px;
+  background-color: #EBEEF5;
+  overflow: hidden;
+  position: relative;
+  vertical-align: middle;
+}
+.export-progress-inner {
+  animation-duration: 3s;
+  height: 100%;
+  width: 0;
+  background-color: #417AE7;
+  -webkit-transition: width .6s ease;
+  transition: width .6s ease;
+}
+.export-progress-inner.error {
+  background: red;
+}
+.export-progress-inner.success {
+  background: #67C23A;
+}
+.export-progress-text {
+  flex: none;
+  width: 50px;
+  font-size: 14px;
+  line-height: 30px;
+  text-align: right;
+}
+
+
+
 .export-result {
   height: 28px;
   line-height: 28px;
@@ -186,41 +233,43 @@ export default (ele: SpuExpandexp) => {
         </div>
         <div class="modal-tb">
           <div class="export">
-            <div class="export-wait">
-              导出等待队列中：还有<span>${ ele.config.text }</span>位，请耐心稍等...
+            <div class="export-wait hide">
+              导出等待队列中：还有<span></span>位，请耐心稍等...
             </div>
 
-            <div class="export-sel">
-              <section class="title">请选择导出内容</section>
-            </div>
-            <div class="export-sel">
-              <section class="title">请选择导出文件类型</section>
+            <div class="export-sel hide">
+              <div class="export-sel-title">请选择导出内容</div>
+              <div class="export-sel-con">
+              
+              </div>
             </div>
 
-
-            <div class="export-tit">导出中</div>
-            <div class="export-section">
-              <div class="export-file">
+            <div class="export-section-wrap hide">
+              <div class="export-tit"></div>
+              <div class="export-section">
+                <div class="export-file">
                   <div class="export-file-l">
-                    <img src="" />
-                    <span class="export-file-l-filename">filename</span>
-                    <span class="export-file-l-filesize">filesize</span>
+                    <img src="" class="hide" />
+                    <span class="export-file-l-filename"></span>
+                    <span class="export-file-l-filesize"></span>
                   </div>
                   <div class="export-file-r">
-                    <div class="export-file-r-download">下载</div>
-                    <div class="export-file-r-cancel">取消</div>
+                    <div class="export-file-r-download hide">下载</div>
+                    <div class="export-file-r-cancel hide">取消</div>
                   </div>
-              </div>
+                </div>
 
-              <div class="export-progress">
-                export-progress
-              </div>
+                <div class="export-progress">
+                  <div class="export-progress-outer">
+                    <div class="export-progress-inner"></div>
+                  </div>
+                  <div class="export-progress-text"></div>
+                </div>
 
-              <div class="export-result success">
-                export-result
-              </div>
+                <div class="export-result hide"></div>
 
-              <div class="export-tip">您可以随时关闭该弹框，之后在导入导出列表中查看结果。</div>
+                <div class="export-tip hide">您可以随时关闭该弹框，之后在导入导出列表中查看结果。</div>
+              </div>
             </div>
 
             <div class="export-btnwrap">

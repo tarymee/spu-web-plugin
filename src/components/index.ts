@@ -1,7 +1,7 @@
-import SpuLoadding from './loadding'
-import SpuExpandexp from './expandexp'
+// import SpuLoadding from './loadding'
+// import SpuExpandexp from './expandexp'
 
-export {
-  SpuLoadding,
-  SpuExpandexp
+export default {
+  // SpuLoadding,
+  // SpuExpandexp
 }

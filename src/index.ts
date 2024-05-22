@@ -9,6 +9,8 @@ import { getUniqueid, functionCheck } from './utils'
 import AMapLoader from './AMapLoader'
 import login from './login'
 import { v4 as getUuid } from 'uuid'
+import components from './components'
+import { expandexp } from './components/expandexp'
 // import { downloadService } from './oss'
 
 // class SPUWebPlugin {
@@ -48,5 +50,7 @@ export {
   getTokenExpires,
   getRefreshToken,
   getUser,
-  checkLogin
+  checkLogin,
+  expandexp,
+  components
 }
