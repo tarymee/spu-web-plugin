@@ -5,15 +5,6 @@ import { cloneDeep, merge } from 'lodash-es'
 import { fixFileName, dealFileSize, dealResultMessage } from './util'
 import { apaasAxios } from '../../axios'
 import login from '../../login'
-// import login from '../..//login'
-
-// initAxios({
-//   modulekey: 'expandexp',
-//   modulename: '图片导出',
-//   moduleversion: 'v1.0'
-// })
-
-// console.log(login.getUser())
 
 export default class SpuExpandexp extends HTMLElement {
 
@@ -29,7 +20,7 @@ export default class SpuExpandexp extends HTMLElement {
     exportapi: '',
     sheetname: '',
     pagecode: '',
-    mergedata: null,
+    mergedata: null
   }
   props!: any
   data: any = {}
@@ -75,10 +66,11 @@ export default class SpuExpandexp extends HTMLElement {
       runningTaskCount: 0,
       isOldVersionService: false
     }, (key: string, value: any) => {
-      const { expandStatus, stepName, stepText, isOldVersionService, runningTaskCount, fileName, filetype, exportcontent, fileSize, exportDataItem, percentage, resultMessage } = this.data
+      const { expandStatus, stepName, stepText, exportcontentArray, exportcontent, isOldVersionService, runningTaskCount, fileName, filetype, fileSize, exportDataItem, percentage, resultMessage } = this.data
 
       // debugger
       const $exportSel = this.shadow.querySelector('.export-sel') as any
+      const $exportSelCon = this.shadow.querySelector('.export-sel-con') as any
       const $exportSectionWrap = this.shadow.querySelector('.export-section-wrap') as any
       const $exportBtnwrap = this.shadow.querySelector('.export-btnwrap') as any
       const $exportDownload = this.shadow.querySelector('.export-file-r-download') as any
@@ -95,11 +87,41 @@ export default class SpuExpandexp extends HTMLElement {
       const $waitSpan = this.shadow.querySelector('.export-wait span') as any
 
 
+      if (key === 'expandStatus' || key === 'stepName') {
+        this.vIf($exportSel, (expandStatus !== '1' && stepName === 'initial'))
+      }
+      if (key === 'exportcontentArray' || key === 'exportcontent') {
+        const mapTitle: any = {
+          excel: '仅导出单据',
+          link: '导出单据和本地链接',
+          photo: '导出单据和图片'
+        }
+
+        const exportcontentOptions = exportcontentArray.map((item: string) => {
+          return {
+            label: mapTitle[item],
+            value: item
+          }
+        })
+
+        const html = exportcontentOptions.map((item: any) => {
+          return `
+            <div class="export-sel-con-item">
+              <input type="radio" id="${item.value}" name="exportcontent" value="${item.value}" ${item.value === exportcontent ? 'checked' : ''} />
+              <label for="${item.value}">${item.label}</label>
+            </div>
+          `
+        }).join('')
+
+        $exportSelCon.innerHTML = html
+        // set(exportcontent)
+      }
 
 
-      this.vIf($exportSel, (expandStatus !== '1' && stepName === 'initial'))
-      this.vIf($exportSectionWrap, stepName !== 'initial')
-      this.vIf($exportBtnwrap, stepName === 'initial')
+      // 状态标题
+      if (key === 'stepText') {
+        this.vText($exportTit, stepText)
+      }
 
       // 下载按钮显隐
       this.vIf($exportDownload, ((stepName === 'error' || stepName === 'success') && exportDataItem?.exportfileurl))
@@ -108,57 +130,69 @@ export default class SpuExpandexp extends HTMLElement {
       this.vIf($exportCancel, ((stepName === 'running' || stepName === 'ready') && (!exportDataItem?.exportstate || exportDataItem?.exportstate === 'readyrun' || exportDataItem?.exportstate === 'running')))
 
       // 进度条
-      this.vIf($exportProgress, (stepName === 'running' || stepName === 'success' || stepName === 'error' || stepName === 'ext_readyrun' || stepName === 'ext_running'))
-      this.vIf($exportProgressText, percentage < 100)
+      if (key === 'stepName') {
+        this.vIf($exportProgress, (stepName === 'running' || stepName === 'ready' || stepName === 'success' || stepName === 'error' || stepName === 'ext_readyrun' || stepName === 'ext_running'))
+      }
+      if (key === 'percentage' || key === 'stepName') {
+        this.vIf($exportProgressText, percentage < 100)
+        if (percentage >= 100) {
+          this.vText($exportProgressText, `100%`)
+          $exportProgressInner.setAttribute('style', `width: 100%`)
 
-      if (percentage >= 100) {
-        this.vText($exportProgressText, `100%`)
-        $exportProgressInner.setAttribute('style', `width: 100%`)
-
-        if (stepName === 'success') {
-          $exportProgressInner.classList.add('success')
-        } else if (stepName === 'error') {
-          $exportProgressInner.classList.add('error')
+          if (stepName === 'success') {
+            $exportProgressInner.classList.add('success')
+          } else if (stepName === 'error') {
+            $exportProgressInner.classList.add('error')
+          }
         } else {
-          $exportProgressInner.classList.add('error')
+          this.vText($exportProgressText, `${percentage}%`)
+          $exportProgressInner.setAttribute('style', `width: ${percentage}%`)
+
+          $exportProgressInner.classList.remove('success')
+          $exportProgressInner.classList.remove('error')
         }
-      } else {
-        this.vText($exportProgressText, `${percentage}%`)
-        $exportProgressInner.setAttribute('style', `width: ${percentage}%`)
-
-        $exportProgressInner.classList.remove('success')
-        $exportProgressInner.classList.remove('error')
       }
 
 
-      this.vIf($exportTip, (stepName === 'running' || stepName === 'ready' || stepName === 'ext_readyrun' || stepName === 'ext_running' || stepName === 'success'))
-
-
-      this.vText($exportTit, stepText)
-
-
-
-      this.vText($exportResult, resultMessage)
-      this.vIf($exportResult, !!resultMessage)
-
-
-      const fileNameWithSuffix = fixFileName(fileName, filetype, exportcontent)
-      this.vText($filename, fileNameWithSuffix)
-
-
-
-
-      this.vText($filesize, fileSize)
-
-
-
-      const flag = !isOldVersionService && runningTaskCount > 0
-      this.vIf($wait, flag)
-      if (flag) {
-        this.vText($waitSpan, runningTaskCount)
-      } else {
-        this.vText($waitSpan, '')
+      if (key === 'stepName') {
+        this.vIf($exportSectionWrap, stepName !== 'initial')
+        this.vIf($exportBtnwrap, stepName === 'initial')
+        this.vIf($exportTip, (stepName === 'running' || stepName === 'ready' || stepName === 'ext_readyrun' || stepName === 'ext_running' || stepName === 'success'))
       }
+
+      if (key === 'resultMessage') {
+        this.vIf($exportResult, !!resultMessage)
+        this.vText($exportResult, resultMessage)
+      }
+      if (key === 'stepName') {
+        if (stepName === 'success') {
+          $exportResult.classList.add('success')
+        } else if (stepName === 'error') {
+          $exportResult.classList.add('error')
+        } else {
+          $exportResult.classList.remove('success')
+          $exportResult.classList.remove('success')
+        }
+      }
+
+      if (key === 'fileName' || key === 'filetype' || key === 'exportcontent') {
+        const fileNameWithSuffix = fixFileName(fileName, filetype, exportcontent)
+        this.vText($filename, fileNameWithSuffix)
+      }
+      if (key === 'fileSize') {
+        this.vText($filesize, fileSize)
+      }
+
+      if (key === 'isOldVersionService' || key === 'runningTaskCount') {
+        const flag = !isOldVersionService && runningTaskCount > 0
+        this.vIf($wait, flag)
+        if (flag) {
+          this.vText($waitSpan, runningTaskCount)
+        } else {
+          this.vText($waitSpan, '')
+        }
+      }
+
 
     })
     this.data.fileName = this.props.sheetname
@@ -169,11 +203,17 @@ export default class SpuExpandexp extends HTMLElement {
   }
 
   vText (ele: any, text: string) {
-    ele.innerHTML = text || ''
+    const oldValue = ele.innerHTML || ''
+    const newValue = text || ''
+    if (oldValue !== newValue) {
+      // console.log(newValue)
+      ele.innerHTML = newValue
+    }
   }
 
   vIf (ele: any, flag: boolean) {
     if (flag) {
+      console.log(ele.classList)
       ele.classList.remove('hide')
     } else {
       ele.classList.add('hide')
@@ -181,7 +221,7 @@ export default class SpuExpandexp extends HTMLElement {
   }
 
   initData (data: any, setCallback: any) {
-    // this.data = cloneDeep(data)
+    this.data = cloneDeep(data)
     const dataP = cloneDeep(data)
     for (const x in dataP) {
       Object.defineProperty(this.data, x, {
@@ -279,6 +319,7 @@ export default class SpuExpandexp extends HTMLElement {
             // console.log('imageConfig', code, data, msg)
             if (code === 200) {
               this.data.exportcontentArray = data.exportcontent
+              // this.data.exportcontentArray = ['photo']
               if (this.data.exportcontentArray?.length > 0) {
                 this.data.exportcontent = this.data.exportcontentArray[0]
               } else {
@@ -297,6 +338,8 @@ export default class SpuExpandexp extends HTMLElement {
         apaasAxios
           .post('/api/expandexp/v1.0/imageConfig/getByPageCode', {
             pagecode: this.props.pagecode
+          }, {}, {
+            isShowLoading: false
           })
           .then((res: any) => {
             // console.log(res)
@@ -304,6 +347,7 @@ export default class SpuExpandexp extends HTMLElement {
             if (res?.data?.code === 200 && res?.data?.data) {
               const data = res.data.data
               this.data.exportcontentArray = data.exportcontent
+              // this.data.exportcontentArray = ['photo']
               if (this.data.exportcontentArray?.length > 0) {
                 this.data.exportcontent = this.data.exportcontentArray[0]
               } else {
@@ -325,6 +369,8 @@ export default class SpuExpandexp extends HTMLElement {
           key: 'export-config-switch',
           tenantcode: login.getUser('tenantcode'),
           productcode: login.getUser('productcode')
+        }, {}, {
+          isShowLoading: false
         })
         .then((res: any) => {
           // res.data.exttype = '1'
@@ -340,7 +386,9 @@ export default class SpuExpandexp extends HTMLElement {
         }).finally(() => {
           // 获取文件水印开关
           apaasAxios
-            .post('/api/expandexp/global/searchWatermarkConfig', '')
+            .post('/api/expandexp/global/searchWatermarkConfig', '', {
+              isShowLoading: false
+            })
             .then((res: any) => {
               if (res.code === 200 && res?.data?.configjson) {
                 this.data.filewatermarkGlobalConfig = JSON.parse(res.data.configjson).isWatermark === '1' ? '1' : '0'
@@ -357,20 +405,31 @@ export default class SpuExpandexp extends HTMLElement {
     }
   }
 
-  async handleExport () {
-    // window.setInterval(() => {
-    //   step.value.next()
-    // }, 2000)
-    // return false
 
+  getExportcontentValue () {
+    let result = ''
+    const eles = this.shadow.querySelectorAll('.export-sel-con input[type=radio][name=exportcontent]') as any
+    // console.log(eles)
+    for (let i = 0, len = eles.length; i < len; i++) {
+      if (eles[i].checked === true) {
+        result = eles[i].value
+        break
+      }
+    }
+    return result
+  }
+
+  async handleExport () {
     this.updateStep('next')
     this.data.fileSize = dealFileSize('')
+
+    const exportcontent = this.getExportcontentValue()
 
     const post = merge(this.props.mergedata, {
       expfile: {
         pagecode: this.props.pagecode,
         sheetname: this.props.sheetname,
-        filename: fixFileName(this.data.fileName, this.data.filetype, this.data.exportcontent),
+        filename: fixFileName(this.data.fileName, this.data.filetype, exportcontent),
         filetype: this.data.filetype,
         // exttype 1.普通导出，2.服务端导出
         // 如果为1 或没有这个属性，视为不拓展，前端做兼容
@@ -381,7 +440,7 @@ export default class SpuExpandexp extends HTMLElement {
         // 扩展导出参数
         extconfig: {
           filetype: this.data.filetype,
-          exportcontent: this.data.exportcontent,
+          exportcontent: exportcontent,
           filewatermark: this.data.filewatermark,
           iscompress: this.data.iscompress,
           displaytype: this.data.displaytype,
@@ -438,9 +497,10 @@ export default class SpuExpandexp extends HTMLElement {
   }
 
   async updateStatus () {
-    console.error(1)
     apaasAxios
-      .post(`/api/teapi/queue/impexp/expStatus?dynamicid=${this.data.exportId}`)
+      .post(`/api/teapi/queue/impexp/expStatus?dynamicid=${this.data.exportId}`, {}, {
+        isShowLoading: false
+      })
       .then((res: any) => {
         let responseData = res?.data?.states
         let currentData = null

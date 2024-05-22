@@ -87,13 +87,28 @@ export default (ele: SpuExpandexp) => {
   line-height: 32px;
   height: 32px;
 }
+
 .export-sel {}
-.export-sel .title {}
-
-
-.export-section-wrap {
-  
+.export-sel-title {}
+.export-sel-con {
+  display: flex;
+  margin: 12px 0;
 }
+.export-sel-con-item {
+  margin-right: 32px;
+  display: flex;
+  cursor: pointer;
+}
+.export-sel-con-item label {
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.export-sel-con-item input {
+  cursor: pointer;
+}
+
+.export-section-wrap {}
 .export-section {
   border: 1px solid #ddd;
   padding: 12px;
@@ -152,7 +167,8 @@ export default (ele: SpuExpandexp) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 8px 0;
+  margin-top: 12px;
+  height: 30px;
 }
 .export-progress-outer {
   flex: 1;
