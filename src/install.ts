@@ -16,11 +16,16 @@ const install = (app: any, options: SPUWebPluginOptions) => {
   // install.installed = true
   // debugger
 
-  const version = Number(app.version.split('.')[0])
-  if (version < 3) {
-    console.error('This plugin requires Vue 3')
-    return false
+  if (app) {
+    const version = Number(app.version.split('.')[0])
+    if (version < 3) {
+      console.error('This plugin requires Vue 3')
+      return false
+    }
+  } else {
+    console.error('This plugin requires Vue App Instance')
   }
+
 
   initStorageProxy(options)
   initAxios(options)

@@ -15,12 +15,12 @@ interface Window {
   }
   // Native Module aPaaS 为 G3 SPU 容器注入的 Native-API
   Native: any
+  Module: any;
   // wx: IAny;
   // AMapUI: IAny;
   // lsProxy: any;
   // ssProxy: any;
   // xtion: any;
-  // Module: IAny;
   // aPaaS: IAny;
   // // eslint-disable-next-line camelcase
   // __wxjs_environment: string;
