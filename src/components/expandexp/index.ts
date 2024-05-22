@@ -29,7 +29,7 @@ export default class SpuExpandexp extends HTMLElement {
     exportapi: '',
     sheetname: '',
     pagecode: '',
-    data: null,
+    mergedata: null,
   }
   props!: any
   data: any = {}
@@ -148,6 +148,7 @@ export default class SpuExpandexp extends HTMLElement {
         }
       }
     })
+    this.data.fileName = this.props.sheetname
 
     this.initEvent()
 
@@ -193,6 +194,9 @@ export default class SpuExpandexp extends HTMLElement {
       ...attributes
     }
     // console.log('attributes', attributes)
+    if (this.props.mergedata) {
+      this.props.mergedata = JSON.parse(this.props.mergedata)
+    }
     console.log('this.props', this.props)
   }
 
@@ -349,11 +353,11 @@ export default class SpuExpandexp extends HTMLElement {
     this.updateStep('next')
     this.data.fileSize = dealFileSize('')
 
-    const post = merge(this.props.data, {
+    const post = merge(this.props.mergedata, {
       expfile: {
         pagecode: this.props.pagecode,
         sheetname: this.props.sheetname,
-        filename: this.data.fileName,
+        filename: fixFileName(this.data.fileName, this.data.filetype, this.data.exportcontent),
         filetype: this.data.filetype,
         // exttype 1.普通导出，2.服务端导出
         // 如果为1 或没有这个属性，视为不拓展，前端做兼容
@@ -548,16 +552,22 @@ export default class SpuExpandexp extends HTMLElement {
 
 class Expandexp {
   ele!: HTMLElement
-  props!: any
+  config!: any
 
-  constructor (props: any) {
+  constructor (config: any) {
     SpuExpandexp.register()
-    this.props = props
+    this.config = config
     this.ele = document.createElement('spu-expandexp')
 
-    if (this.props) {
-      for (const x in this.props) {
-        this.ele.setAttribute(x, this.props[x])
+    if (this.config) {
+      for (const x in this.config) {
+        if (x === 'mergedata' && this.config[x]) {
+          if (this.config[x]) {
+            this.ele.setAttribute(x, JSON.stringify(this.config[x]))
+          }
+        } else {
+          this.ele.setAttribute(x, this.config[x])
+        }
       }
     }
 
@@ -574,8 +584,8 @@ class Expandexp {
 
 
 
-const expandexp = (props: any) => {
-  new Expandexp(props)
+const expandexp = (config: any) => {
+  new Expandexp(config)
 }
 
 
