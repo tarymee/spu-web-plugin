@@ -242,7 +242,7 @@ export default (ele: SpuExpandexp) => {
   display: flex;
   flex-direction: row-reverse;
 }
-.export-btnwrap .btn {
+.btn {
   line-height: 38px;
   line-height: 38px;
   border: 1px solid #409eff;
@@ -253,7 +253,7 @@ export default (ele: SpuExpandexp) => {
   font-size: 16px;
   cursor: pointer;
 }
-.export-btnwrap .btn:hover {
+.btn:hover {
   background: #66b1ff;
   border-color: #66b1ff;
 }
@@ -311,6 +311,7 @@ export default (ele: SpuExpandexp) => {
             <div class="export-btnwrap">
               <div class="btn">导出</div>
             </div>
+
           </div>
         </div>
       </div>

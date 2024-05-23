@@ -58,16 +58,16 @@ const getContentType = (suffix: string) => {
 //   }
 // }
 
-
 type Cope = { width?: number, height?: number } | string | boolean
+
 interface IDownload {
   type?: 'att' | 'img',
   source: string,
   datetime: string | number,
   storagetype?: StorageType,
-  cope?: Cope
+  cope?: Cope,
+  filename?: string, // 下载文件名
 }
-
 
 
 const getNormalizeAliOssCope = (cope?: Cope) => {
@@ -91,13 +91,11 @@ const getNormalizeAliOssCope = (cope?: Cope) => {
   return copeObj
 }
 
-
-
-
 // 根据文件信息最后生成一个云文件服务可以用的链接http://xxxxx.xxx.jpg
 const getUrl = async ({
   type = 'img',
   source = '',
+  filename = '',
   datetime = '',
   storagetype = 'storage',
   cope = ''
@@ -110,8 +108,12 @@ const getUrl = async ({
   const isAliYun = CloudServ.isAliyun(storagetype)
   const isHuawei = CloudServ.isHuawei(storagetype)
   const tenantCode = login.getUser('tenantcode')
+
+  if (!filename) {
+    filename = source
+  }
   const isAbsoluteUrl = !!source.match(/\/att\//) || !!source.match(/\/img\//) || !!source.match(/att\//) || !!source.match(/img\//)
-  const suffix = source.slice(source.lastIndexOf('.'))
+  const suffix = filename.slice(filename.lastIndexOf('.'))
   const date = dayjs(+datetime).format('YYYYMMDD')
   let objectKey = isAbsoluteUrl ? source : `${source.slice(0, 3)}/${type}/${date}/${tenantCode}/${source}`
   const copeObj = getNormalizeAliOssCope(cope)
@@ -131,7 +133,7 @@ const getUrl = async ({
     // TODO 这两个请求头不能改顺序，不知道什么情况！！改了顺序会报错
     const responseHeader: IAny = {
       // 'content-type': contentType || undefined,
-      'content-disposition': 'attachment; filename=' + (source && encodeURIComponent(source)) // 阿里云提供的下载名字
+      'content-disposition': 'attachment; filename=' + (filename && encodeURIComponent(filename)) // 阿里云提供的下载名字
     }
     if (contentType) {
       responseHeader['content-type'] = contentType
@@ -190,6 +192,67 @@ const getUrl = async ({
   }
 }
 
+
+const callDownloadManager = (url: string, filename: string) => {
+  let aElm = document.createElement('a')
+  aElm.innerHTML = filename + ''
+  aElm.download = filename
+  let href = url
+  aElm.href = href
+  document.body.appendChild(aElm)
+  aElm.target = '_blank'
+  let evt = document.createEvent('MouseEvents')
+  evt.initEvent('click', false, false)
+  aElm.dispatchEvent(evt)
+  document.body.removeChild(aElm)
+}
+
+const deal = (response: any, filename: string) => {
+  let aElm = document.createElement('a')
+  aElm.innerHTML = filename + ''
+  aElm.download = filename
+  aElm.target = '_blank'
+  let href = window.URL.createObjectURL(response.bodyBlob)
+  aElm.href = href
+  document.body.appendChild(aElm)
+  let evt = document.createEvent('MouseEvents')
+  evt.initEvent('click', false, false)
+  aElm.dispatchEvent(evt)
+  document.body.removeChild(aElm)
+}
+
+const downloadFile = async ({
+  type = 'img',
+  source = '',
+  datetime = '',
+  storagetype = 'storage',
+  cope = '',
+  filename = ''
+}: IDownload) => {
+
+  if (!filename) {
+    filename = source
+  }
+  const suffix = filename.slice(filename.lastIndexOf('.'))
+  filename = filename.replace(suffix, '') + dayjs(+datetime).format('_YYYYMMDDHHmmssS') + String(Math.floor(Math.random() * 9000) + 1000) + suffix
+
+  // console.log(filename)
+
+  const url = await getUrl({
+    type,
+    source,
+    datetime,
+    storagetype,
+    filename,
+    cope
+  })
+
+  // console.log(url)
+
+  callDownloadManager(url, filename)
+}
+
 export default {
-  getUrl
+  getUrl,
+  downloadFile
 }

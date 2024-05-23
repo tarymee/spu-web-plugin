@@ -6,6 +6,7 @@ import { fixFileName, dealFileSize, dealResultMessage } from './util'
 import { apaasAxios } from '../../axios'
 import core, { Module } from '../../core'
 import login from '../../login'
+import { downloadService } from '../../oss'
 
 export default class SpuExpandexp extends HTMLElement {
 
@@ -276,12 +277,12 @@ export default class SpuExpandexp extends HTMLElement {
 
     this.shadow.querySelector('.export-file .export-file-r-download')!.addEventListener('click', () => {
       console.log('下载')
-      this.handlerDownload()
+      this.handleDownload()
     })
 
     this.shadow.querySelector('.export-file .export-file-r-cancel')!.addEventListener('click', () => {
       console.log('取消')
-      this.handlerCencel()
+      this.handleCencel()
     })
 
     this.shadow.querySelector('.export-btnwrap .btn')!.addEventListener('click', () => {
@@ -458,7 +459,7 @@ export default class SpuExpandexp extends HTMLElement {
       })
   }
 
-  handlerDownload () {
+  handleDownload () {
     console.log(this.data)
     console.log(this.data.exportDataItem)
 
@@ -466,11 +467,49 @@ export default class SpuExpandexp extends HTMLElement {
     let exportFileName = this.data.exportDataItem.filename
     let date = this.data.exportDataItem.initdate
 
-    console.log(fixExportFileUrl, date, exportFileName, 'att', 'storage-1d')
+    // console.log({
+    //   type: 'att',
+    //   source: fixExportFileUrl,
+    //   datetime: date,
+    //   storagetype: 'storage-1d',
+    //   filename: exportFileName
+    // })
+
+    downloadService.downloadFile({
+      type: 'att',
+      source: fixExportFileUrl,
+      datetime: date,
+      storagetype: 'storage-1d',
+      filename: exportFileName
+    })
+  }
+
+  async handleTest () {
+    console.log(this.data)
+    console.log(this.data.exportDataItem)
+
+    // const file = {
+    //   "fixExportFileUrl": "/23e/att/20240523/1656688/23eea1bb-cb5a-40b7-a411-4b3ef2439b4c.xlsx",
+    //   "date": "1716458086237",
+    //   "exportFileName": "终端进离-统计.xlsx",
+    //   "type": "att",
+    //   "storage": "storage-1d"
+    // }
+
+    // const imgUrl = await downloadService.downloadFile({
+    //   type: 'att',
+    //   // source: file.fixExportFileUrl,
+    //   source: '23eea1bb-cb5a-40b7-a411-4b3ef2439b4c.xlsx',
+    //   datetime: '1716458086237',
+    //   storagetype: 'storage-1d',
+    //   filename: '终端进离-统计.xlsx'
+    // })
+    // console.log(imgUrl)
+
     // DownloadService.downloadFile(this, fixExportFileUrl, date, exportFileName, 'att', 'storage-1d')
   }
 
-  handlerCencel () {
+  handleCencel () {
     // console.log(this.data)
     // console.log(this.data.exportDataItem)
     apaasAxios
@@ -617,8 +656,6 @@ export default class SpuExpandexp extends HTMLElement {
   }
 }
 
-
-
 class Expandexp {
   ele!: HTMLElement
   config!: any
@@ -651,12 +688,9 @@ class Expandexp {
   // }
 }
 
-
-
 const expandexp = (config: any) => {
   new Expandexp(config)
 }
-
 
 export {
   expandexp

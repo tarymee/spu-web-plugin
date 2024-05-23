@@ -26,17 +26,13 @@ interface IDownload {
   source: string,
   datetime: string | number,
   storagetype?: StorageType,
-  cope?: Cope
+  cope?: Cope,
+  filename?: string, // 下载文件名
 }
 
 interface IDownloadService {
-  getUrl: ({
-    type = 'img',
-    source = '',
-    datetime = '',
-    storagetype = 'storage',
-    cope = ''
-  }: IDownload) => Promise<any>
+  getUrl: (options: IDownload) => Promise<any>
+  downloadFile: (options: IDownload) => Promise<any>
 }
 
 
@@ -50,14 +46,7 @@ interface IUpload {
 }
 
 interface IUploadService {
-  upload: ({
-    type = 'img',
-    file,
-    source = '',
-    datetime = '',
-    storagetype = 'storage',
-    onprogress,
-  }: IUpload) => Promise<any>
+  upload: (options: IUpload) => Promise<any>
 }
 
 

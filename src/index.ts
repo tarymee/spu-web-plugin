@@ -12,7 +12,6 @@ import { v4 as getUuid } from 'uuid'
 import { Module } from './core'
 import components from './components'
 import { expandexp } from './components/expandexp'
-// import { downloadService } from './oss'
 
 // class SPUWebPlugin {
 //   static install = install
