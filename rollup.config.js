@@ -2,9 +2,9 @@ import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
 import babel from '@rollup/plugin-babel'
-import terser from '@rollup/plugin-terser'
+// import terser from '@rollup/plugin-terser'
 import typescript from '@rollup/plugin-typescript'
-import vue from 'rollup-plugin-vue'
+// import vue from 'rollup-plugin-vue'
 import postcss from 'rollup-plugin-postcss'
 import image from '@rollup/plugin-image'
 import pkg from './package.json' assert { type: 'json' }
@@ -35,7 +35,7 @@ export default {
     // }
   ],
   plugins: [
-    vue(),
+    // vue(),
     postcss(),
     image(),
     json(),
