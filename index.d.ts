@@ -79,7 +79,7 @@ export const getUser: (key?: string) => any
 export const checkLogin: () => boolean
 export const Module: any
 export const components: any
-export const expandexp: () => void
+export const expandexp: (options: any) => void
 
 interface ISPUWebPlugin {
   // install (app: App, option: ISPUWebPluginOptions): void
