@@ -89,8 +89,9 @@ export default (ele: SpuExpandexp) => {
   display: flex;
 }
 .export-sel-con-item {
-  margin-right: 32px;
   display: flex;
+  align-items: center;
+  margin-right: 32px;
   cursor: pointer;
 }
 .export-sel-con-item label {
@@ -100,6 +101,7 @@ export default (ele: SpuExpandexp) => {
 }
 .export-sel-con-item input {
   cursor: pointer;
+  margin: 4px;
 }
 
 .export-section-wrap {}
