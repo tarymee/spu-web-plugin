@@ -25,15 +25,7 @@ export default (ele: SpuExpandexp) => {
   overflow: auto;
 }
 
-.btn {
-  line-height: 40px;
-  border-radius: 5px;
-  background-color: #417AE7;
-  color: #fff;
-  padding: 0 20px;
-  font-size: 16px;
-  cursor: pointer;
-}
+
 
 
 .modal {
@@ -46,7 +38,7 @@ export default (ele: SpuExpandexp) => {
 }
 .modal-th {
   height: 40px;
-  background-color: #608fe9;
+  background-color: #409eff;
 }
 .modal-th .title {
   float: left;
@@ -146,22 +138,33 @@ export default (ele: SpuExpandexp) => {
   flex-direction: row-reverse;
 }
 .export-file-r-download {
-  line-height: 28px;
-  border-radius: 5px;
-  background-color: #417AE7;
+  line-height: 26px;
+  border-radius: 3px;
+  background-color: #67c23a;
+  border: 1px solid #67c23a;
   color: #fff;
   padding: 0 12px;
   font-size: 14px;
   cursor: pointer;
 }
+.export-file-r-download:hover {
+  background: #85ce61;
+  border-color: #85ce61;
+}
 .export-file-r-cancel {
-  line-height: 28px;
-  border-radius: 5px;
-  background-color: red;
-  color: #fff;
+  line-height: 26px;
+  border-radius: 3px;
+  color: #f56c6c;
+  background: #fef0f0;
+  border: 1px solid #fbc4c4;
   padding: 0 12px;
   font-size: 14px;
   cursor: pointer;
+}
+.export-file-r-cancel:hover {
+  background: #f56c6c;
+  border-color: #f56c6c;
+  color: #fff;
 }
 
 
@@ -236,7 +239,21 @@ export default (ele: SpuExpandexp) => {
   display: flex;
   flex-direction: row-reverse;
 }
-
+.export-btnwrap .btn {
+  line-height: 38px;
+  line-height: 38px;
+  border: 1px solid #409eff;
+  background-color: #409eff;
+  border-radius: 5px;
+  color: #fff;
+  padding: 0 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
+.export-btnwrap .btn:hover {
+  background: #66b1ff;
+  border-color: #66b1ff;
+}
 </style>
 
     <div class="spu-expandexp">
@@ -257,9 +274,7 @@ export default (ele: SpuExpandexp) => {
 
             <div class="export-sel hide">
               <div class="export-sel-title">请选择导出内容</div>
-              <div class="export-sel-con">
-              
-              </div>
+              <div class="export-sel-con"></div>
             </div>
 
             <div class="export-section-wrap hide">
@@ -294,13 +309,6 @@ export default (ele: SpuExpandexp) => {
               <div class="btn">导出</div>
             </div>
           </div>
-
-
-
-
-
-
-
         </div>
       </div>
     </div>

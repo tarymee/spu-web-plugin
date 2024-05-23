@@ -3,14 +3,28 @@ import login from './login'
 import { initAxios } from './axios'
 import urlquery from './urlquery'
 import { initSpuConfig } from './spuConfig'
+import { merge } from 'lodash-es'
+
 import { initTest } from './test'
 // import tenantInfo from './tenantInfo'
 // import { downloadService } from './oss'
 
+
+const globalOptions: SPUWebPluginOptions = {
+  modulekey: 'demospu',
+  modulename: 'demospu',
+  moduleversion: 'v1.0',
+  router: null
+}
+
+let isInstall = false
+
 const install = (app: any, options: SPUWebPluginOptions) => {
   // console.log(app)
   // console.log(app.version)
-  console.log(options)
+  console.log('options', options)
+  merge(globalOptions, options)
+  console.log('globalOptions', globalOptions)
 
   // if (install.installed) return
   // install.installed = true
@@ -27,10 +41,9 @@ const install = (app: any, options: SPUWebPluginOptions) => {
   }
 
 
-  initStorageProxy(options)
-  initAxios(options)
-  initSpuConfig(options)
-  initTest(options)
+  initStorageProxy(globalOptions)
+  initAxios(globalOptions)
+  initSpuConfig(globalOptions)
   urlquery.init()
   login.startRefreshtoken()
 
@@ -53,8 +66,8 @@ const install = (app: any, options: SPUWebPluginOptions) => {
 
   // tenantInfo.getAndSave()
 
-  if (options.router) {
-    options.router.beforeEach(async (to: any, from: any, next: any) => {
+  if (globalOptions.router) {
+    globalOptions.router.beforeEach(async (to: any, from: any, next: any) => {
       // console.log(from)
       // console.log(to)
       // const isInitVisit = from.path === '/' && from.name === undefined // 路由初始化访问
@@ -76,6 +89,11 @@ const install = (app: any, options: SPUWebPluginOptions) => {
     console.error('请传入 router 实例。')
   }
 
+
+  initTest(globalOptions)
+
+  isInstall = true
+
   // Vue.component('xt-engine', components.engine)
   // Vue.prototype.$xtEngine = () => {
   //   console.log('$xtEngine')
@@ -90,5 +108,7 @@ const install = (app: any, options: SPUWebPluginOptions) => {
 }
 
 export {
-  install
+  install,
+  isInstall,
+  globalOptions
 }

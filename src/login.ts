@@ -5,6 +5,16 @@ import tenantInfo from './tenantInfo'
 import { lsProxy } from './storageProxy'
 // import { functionCheck } from './utils'
 
+
+// window.aPaaS = {
+//   getWebInitParams (callback: any) {
+//     callback && callback({
+//       envname: 'xxx'
+//     })
+//   }
+// }
+
+
 type JwtResult = {
   LoginUser: IAny
   exp: number
@@ -33,16 +43,23 @@ class Login {
     lsProxy.removeItem(key)
   }
 
-  getEnvname () {
-    return this.getData('envname')
-  }
-
-  setEnvname (value: string) {
-    this.setData('envname', value)
-  }
-
-  removeEnvname () {
-    this.removeData('envname')
+  async getEnvname (): Promise<string> {
+    let envname = ''
+    // web 查 envname
+    let context: any = lsProxy.getItem('context')
+    context && (context = JSON.parse(context))
+    if (context?.envname) {
+      envname = context.envname
+    } else if (window?.aPaaS?.getWebInitParams && window?.Native?.setNavigationBarReturnButton) {
+      // 手机端 查 envname
+      // 只有手机端有 setNavigationBarReturnButton 方法
+      envname = await new Promise((resolve, reject) => {
+        window.aPaaS.getWebInitParams((params: any) => {
+          resolve(params?.envname || '')
+        })
+      })
+    }
+    return envname
   }
 
   getToken () {

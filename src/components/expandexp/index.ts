@@ -4,6 +4,7 @@ import { Step } from './step'
 import { cloneDeep, merge } from 'lodash-es'
 import { fixFileName, dealFileSize, dealResultMessage } from './util'
 import { apaasAxios } from '../../axios'
+import core, { Module } from '../../core'
 import login from '../../login'
 
 export default class SpuExpandexp extends HTMLElement {
@@ -212,11 +213,11 @@ export default class SpuExpandexp extends HTMLElement {
   }
 
   vIf (ele: any, flag: boolean) {
+    const elc = ele.classList
     if (flag) {
-      console.log(ele.classList)
-      ele.classList.remove('hide')
+      elc.contains('hide') && elc.remove('hide')
     } else {
-      ele.classList.add('hide')
+      !elc.contains('hide') && elc.add('hide')
     }
   }
 
@@ -292,75 +293,42 @@ export default class SpuExpandexp extends HTMLElement {
     })
   }
 
-  getExpandexpConfig () {
-    let isInstallexpandexp = false
+  async getExpandexpConfig () {
+    let isInstallexpandexp = await core.checkModule('expandexp')
     // isInstallexpandexp = true
-    if (window?.Module?.checkPermission) {
-      isInstallexpandexp = window.Module.checkPermission({
-        modulekey: 'expandexp'
-      })
-    }
+    console.log('isInstallexpandexp', isInstallexpandexp)
+
 
     if (isInstallexpandexp) {
       this.data.expandStatus = '3'
       this.data.filewatermark = '1'
       this.data.iscompress = '1'
 
-      if (window?.Module?.apiRequest) {
-        console.log('调用 window.Module.apiRequest')
-        // 这个单个查询接口返回的filewatermark已经结合了全局水印开关 因此不需要查询全局水印
-        window.Module.apiRequest({
-          modulekey: 'expandexp',
-          apitag: 'imageConfig-getByPageCode',
-          body: {
-            pagecode: this.props.pagecode
-          },
-          complete: (code: any, data: any, msg: any) => {
-            // console.log('imageConfig', code, data, msg)
-            if (code === 200) {
-              this.data.exportcontentArray = data.exportcontent
-              // this.data.exportcontentArray = ['photo']
-              if (this.data.exportcontentArray?.length > 0) {
-                this.data.exportcontent = this.data.exportcontentArray[0]
-              } else {
-                this.data.exportcontent = 'excel'
-              }
-              this.data.filewatermarkGlobalConfig = data.filewatermark.toString()
-              this.data.filewatermark = data.filewatermark.toString()
-              this.data.iscompress = data.iscompress.toString()
-              this.data.imagesizepercolumn = data.imagesizepercolumn.toString()
-              this.data.imageheightcm = data.imageheightcm.toString()
+      // 这个单个查询接口返回的filewatermark已经结合了全局水印开关 因此不需要查询全局水印
+      Module.apiRequest({
+        modulekey: 'expandexp',
+        apitag: 'imageConfig-getByPageCode',
+        body: {
+          pagecode: this.props.pagecode
+        },
+        complete: (code: any, data: any, msg: any) => {
+          // console.log('imageConfig', code, data, msg)
+          if (code === 200) {
+            this.data.exportcontentArray = data.exportcontent
+            // this.data.exportcontentArray = ['photo']
+            if (this.data.exportcontentArray?.length > 0) {
+              this.data.exportcontent = this.data.exportcontentArray[0]
+            } else {
+              this.data.exportcontent = 'excel'
             }
+            this.data.filewatermarkGlobalConfig = data.filewatermark.toString()
+            this.data.filewatermark = data.filewatermark.toString()
+            this.data.iscompress = data.iscompress.toString()
+            this.data.imagesizepercolumn = data.imagesizepercolumn.toString()
+            this.data.imageheightcm = data.imageheightcm.toString()
           }
-        })
-      } else {
-        // 这个单个查询接口返回的filewatermark已经结合了全局水印开关 因此不需要查询全局水印
-        apaasAxios
-          .post('/api/expandexp/v1.0/imageConfig/getByPageCode', {
-            pagecode: this.props.pagecode
-          }, {}, {
-            isShowLoading: false
-          })
-          .then((res: any) => {
-            // console.log(res)
-            // debugger
-            if (res?.data?.code === 200 && res?.data?.data) {
-              const data = res.data.data
-              this.data.exportcontentArray = data.exportcontent
-              // this.data.exportcontentArray = ['photo']
-              if (this.data.exportcontentArray?.length > 0) {
-                this.data.exportcontent = this.data.exportcontentArray[0]
-              } else {
-                this.data.exportcontent = 'excel'
-              }
-              this.data.filewatermarkGlobalConfig = data.filewatermark.toString()
-              this.data.filewatermark = data.filewatermark.toString()
-              this.data.iscompress = data.iscompress.toString()
-              this.data.imagesizepercolumn = data.imagesizepercolumn.toString()
-              this.data.imageheightcm = data.imageheightcm.toString()
-            }
-          })
-      }
+        }
+      })
     } else {
       this.data.filewatermark = '0'
       this.data.iscompress = '0'
@@ -424,12 +392,13 @@ export default class SpuExpandexp extends HTMLElement {
     this.data.fileSize = dealFileSize('')
 
     const exportcontent = this.getExportcontentValue()
+    this.data.exportcontent = exportcontent
 
     const post = merge(this.props.mergedata, {
       expfile: {
         pagecode: this.props.pagecode,
         sheetname: this.props.sheetname,
-        filename: fixFileName(this.data.fileName, this.data.filetype, exportcontent),
+        filename: fixFileName(this.data.fileName, this.data.filetype, this.data.exportcontent),
         filetype: this.data.filetype,
         // exttype 1.普通导出，2.服务端导出
         // 如果为1 或没有这个属性，视为不拓展，前端做兼容
@@ -455,9 +424,9 @@ export default class SpuExpandexp extends HTMLElement {
       .post(this.props.exportapi, post)
       .then((res: any) => {
         // console.log(res)
-        // debugger
-        if (res?.data?.code === 200 && res?.data?.data) {
-          this.data.exportId = res.data.data
+        const result = res?.data
+        if (result?.code === 200 && result?.data) {
+          this.data.exportId = result.data
           this.data.percentage = 0
           // 到ready
           this.updateStep('ready')
@@ -467,20 +436,16 @@ export default class SpuExpandexp extends HTMLElement {
         } else {
           this.updateStep('error')
           this.data.percentage = 100
-          this.data.resultMessage = res?.data?.msg || '网络连接错误'
+          this.data.resultMessage = result?.msg || '网络连接错误'
           this.stopInterval()
         }
       })
       .catch((error: any) => {
+        // console.log(error)
         // debugger
         this.updateStep('error')
         this.data.percentage = 100
         this.data.resultMessage = '网络连接错误'
-        // if (!error || error.response.status === 0 || error.response.status === 404) {
-        //   state.resultMessage = '网络连接错误'
-        // } else {
-        //   state.resultMessage = '网络连接错误'
-        // }
         this.stopInterval()
       })
   }
