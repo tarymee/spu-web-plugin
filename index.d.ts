@@ -88,8 +88,9 @@ export const getTokenExpires: () => string
 export const getRefreshToken: () => string
 export const getUser: (key?: string) => any
 export const checkLogin: () => boolean
-export const expandexp: () => void
+export const Module: any
 export const components: any
+export const expandexp: () => void
 
 interface ISPUWebPlugin {
   // install (app: App, option: ISPUWebPluginOptions): void

@@ -87,9 +87,9 @@ export default class SpuExpandexp extends HTMLElement {
       const $wait = this.shadow.querySelector('.export-wait') as any
       const $waitSpan = this.shadow.querySelector('.export-wait span') as any
 
-
       if (key === 'expandStatus' || key === 'stepName') {
-        this.vIf($exportSel, (expandStatus !== '1' && stepName === 'initial'))
+        // this.vIf($exportSel, (expandStatus !== '1' && stepName === 'initial'))
+        this.vIf($exportSel, (stepName === 'initial'))
       }
       if (key === 'exportcontentArray' || key === 'exportcontent') {
         const mapTitle: any = {
@@ -276,10 +276,12 @@ export default class SpuExpandexp extends HTMLElement {
 
     this.shadow.querySelector('.export-file .export-file-r-download')!.addEventListener('click', () => {
       console.log('下载')
+      this.handlerDownload()
     })
 
     this.shadow.querySelector('.export-file .export-file-r-cancel')!.addEventListener('click', () => {
       console.log('取消')
+      this.handlerCencel()
     })
 
     this.shadow.querySelector('.export-btnwrap .btn')!.addEventListener('click', () => {
@@ -295,9 +297,8 @@ export default class SpuExpandexp extends HTMLElement {
 
   async getExpandexpConfig () {
     let isInstallexpandexp = await core.checkModule('expandexp')
-    // isInstallexpandexp = true
+    // isInstallexpandexp = false
     console.log('isInstallexpandexp', isInstallexpandexp)
-
 
     if (isInstallexpandexp) {
       this.data.expandStatus = '3'
@@ -352,6 +353,12 @@ export default class SpuExpandexp extends HTMLElement {
         .catch((err: Error) => {
           this.data.expandStatus = '1'
         }).finally(() => {
+
+          if (this.data.expandStatus === '1') {
+            this.data.exportcontentArray = ['excel']
+            this.data.exportcontent = 'excel'
+          }
+
           // 获取文件水印开关
           apaasAxios
             .post('/api/expandexp/global/searchWatermarkConfig', '', {
@@ -373,7 +380,6 @@ export default class SpuExpandexp extends HTMLElement {
     }
   }
 
-
   getExportcontentValue () {
     let result = ''
     const eles = this.shadow.querySelectorAll('.export-sel-con input[type=radio][name=exportcontent]') as any
@@ -388,13 +394,14 @@ export default class SpuExpandexp extends HTMLElement {
   }
 
   async handleExport () {
-    this.updateStep('next')
+    this.updateStep('ready')
     this.data.fileSize = dealFileSize('')
 
     const exportcontent = this.getExportcontentValue()
     this.data.exportcontent = exportcontent
 
-    const post = merge(this.props.mergedata, {
+    const mergedata = cloneDeep(this.props.mergedata)
+    const post = {
       expfile: {
         pagecode: this.props.pagecode,
         sheetname: this.props.sheetname,
@@ -419,9 +426,10 @@ export default class SpuExpandexp extends HTMLElement {
           imageheightcm: this.data.imageheightcm
         }
       }
-    })
+    }
+    const finallyPost = mergedata ? merge(mergedata, post) : post
     apaasAxios
-      .post(this.props.exportapi, post)
+      .post(this.props.exportapi, finallyPost)
       .then((res: any) => {
         // console.log(res)
         const result = res?.data
@@ -447,6 +455,37 @@ export default class SpuExpandexp extends HTMLElement {
         this.data.percentage = 100
         this.data.resultMessage = '网络连接错误'
         this.stopInterval()
+      })
+  }
+
+  handlerDownload () {
+    console.log(this.data)
+    console.log(this.data.exportDataItem)
+
+    let fixExportFileUrl = this.data.exportDataItem.exportfileurl[0] === '/' ? this.data.exportDataItem.exportfileurl : '/' + this.data.exportDataItem.exportfileurl
+    let exportFileName = this.data.exportDataItem.filename
+    let date = this.data.exportDataItem.initdate
+
+    console.log(fixExportFileUrl, date, exportFileName, 'att', 'storage-1d')
+    // DownloadService.downloadFile(this, fixExportFileUrl, date, exportFileName, 'att', 'storage-1d')
+  }
+
+  handlerCencel () {
+    // console.log(this.data)
+    // console.log(this.data.exportDataItem)
+    apaasAxios
+      .post('/api/teapi/queue/impexp/cancel', {
+        dynamicid: this.data.exportId
+      })
+      .then((res: any) => {
+        if (res?.code === 200 && res?.data) {
+          // 取消成功
+          this.updateStep('cancel')
+          this.data.resultMessage = '任务已取消'
+        }
+      })
+      .catch((error: any) => {
+
       })
   }
 
@@ -520,7 +559,9 @@ export default class SpuExpandexp extends HTMLElement {
           this.data.resultMessage = dealResultMessage(currentData)
           this.stopInterval()
         } else if (currentData.exportstate === 'cancel') {
-          console.log('cancel')
+          this.updateStep('cancel')
+          this.data.resultMessage = '任务取消'
+          // this.stopInterval()
         } else if (currentData.exportstate === 'ext_readyrun') {
           this.updateStep('ext_readyrun')
           if (currentData) {
@@ -558,20 +599,8 @@ export default class SpuExpandexp extends HTMLElement {
     }
   }
 
-  downloadResultFile () {
-
-  }
-
-  cancelHandler () {
-
-  }
-
   removeSelf () {
     this.parentNode!.removeChild(this)
-  }
-
-  updateView () {
-    // console.log('属性变化', name)
   }
 
   attributeChangedCallback (name: any, oldValue: any, newValue: any) {
@@ -580,6 +609,7 @@ export default class SpuExpandexp extends HTMLElement {
 
   // 当组件从 DOM 文档移除后调用。
   disconnectedCallback () {
+    this.stopInterval()
     // console.log('disconnectedCallback')
     // setTimeout(() => {
     //   console.log(this)

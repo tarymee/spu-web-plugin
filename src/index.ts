@@ -9,6 +9,7 @@ import { getUniqueid, functionCheck } from './utils'
 import AMapLoader from './AMapLoader'
 import login from './login'
 import { v4 as getUuid } from 'uuid'
+import { Module } from './core'
 import components from './components'
 import { expandexp } from './components/expandexp'
 // import { downloadService } from './oss'
@@ -51,6 +52,7 @@ export {
   getRefreshToken,
   getUser,
   checkLogin,
-  expandexp,
-  components
+  Module,
+  components,
+  expandexp
 }

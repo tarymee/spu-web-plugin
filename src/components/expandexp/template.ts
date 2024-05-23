@@ -155,11 +155,12 @@ export default (ele: SpuExpandexp) => {
 }
 .export-file-r-cancel {
   line-height: 26px;
-  border-radius: 3px;
+  width: 26px;
+  border-radius: 14px;
   color: #f56c6c;
   background: #fef0f0;
   border: 1px solid #fbc4c4;
-  padding: 0 12px;
+  text-align: center;
   font-size: 14px;
   cursor: pointer;
 }
@@ -290,7 +291,7 @@ export default (ele: SpuExpandexp) => {
                   </div>
                   <div class="export-file-r">
                     <div class="export-file-r-download hide">下载</div>
-                    <div class="export-file-r-cancel hide">取消</div>
+                    <div class="export-file-r-cancel hide">x</div>
                   </div>
                 </div>
 
