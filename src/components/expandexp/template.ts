@@ -1,5 +1,12 @@
 import SpuExpandexp from './index'
 
+import icon_excel from './icons/icon_excel.png'
+import icon_csv from './icons/icon_csv.png'
+import icon_pdf from './icons/icon_pdf.png'
+import icon_zip from './icons/icon_zip.png'
+
+// console.log(icon_csv)
+
 export default (ele: SpuExpandexp) => {
   return `
 <style>
@@ -25,8 +32,6 @@ export default (ele: SpuExpandexp) => {
   background-color: rgba(0, 0, 0, 0.5);
   overflow: auto;
 }
-
-
 
 
 .modal {
@@ -121,13 +126,30 @@ export default (ele: SpuExpandexp) => {
 .export-file-l {
   flex: 1;
   display: flex;
+  align-items: center;
+  font-size: 14px;
 }
-.export-file-l img {
+.export-file-l-img {
   flex: none;
   display: block;
-  height: 28px;
-  width: 28px;
+  height: 20px;
+  width: 20px;
   margin-right: 4px;
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.export-file-l-img.excel {
+  background-image: url(${icon_excel});
+}
+.export-file-l-img.csv {
+  background-image: url(${icon_csv});
+}
+.export-file-l-img.pdf {
+  background-image: url(${icon_pdf});
+}
+.export-file-l-img.zip {
+  background-image: url(${icon_zip});
 }
 .export-file-l-filename {
   flex: 1;
@@ -286,7 +308,7 @@ export default (ele: SpuExpandexp) => {
               <div class="export-section">
                 <div class="export-file">
                   <div class="export-file-l">
-                    <img src="" class="hide" />
+                    <div class="export-file-l-img"></div>
                     <span class="export-file-l-filename"></span>
                     <span class="export-file-l-filesize"></span>
                   </div>

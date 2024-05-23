@@ -83,6 +83,7 @@ export default class SpuExpandexp extends HTMLElement {
       const $exportTip = this.shadow.querySelector('.export-tip') as any
       const $exportTit = this.shadow.querySelector('.export-tit') as any
       const $exportResult = this.shadow.querySelector('.export-result') as any
+      const $fileimg = this.shadow.querySelector('.export-file-l-img') as any
       const $filename = this.shadow.querySelector('.export-file-l-filename') as any
       const $filesize = this.shadow.querySelector('.export-file-l-filesize') as any
       const $wait = this.shadow.querySelector('.export-wait') as any
@@ -173,7 +174,16 @@ export default class SpuExpandexp extends HTMLElement {
           $exportResult.classList.add('error')
         } else {
           $exportResult.classList.remove('success')
-          $exportResult.classList.remove('success')
+        }
+      }
+
+      if (key === 'exportcontent') {
+        if (exportcontent === 'link') {
+          $fileimg.classList.add('zip')
+          $fileimg.classList.remove('excel')
+        } else {
+          $fileimg.classList.add('excel')
+          $fileimg.classList.remove('zip')
         }
       }
 
