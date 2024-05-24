@@ -22,23 +22,23 @@ let isInstall = false
 const install = (app: any, options: SPUWebPluginOptions) => {
   // console.log(app)
   // console.log(app.version)
-  console.log('options', options)
+  console.log('@smart100/spu-web-plugin options', options)
   merge(globalOptions, options)
-  console.log('globalOptions', globalOptions)
+  console.log('@smart100/spu-web-plugin globalOptions', globalOptions)
 
   // if (install.installed) return
   // install.installed = true
   // debugger
 
-  if (app) {
-    const version = Number(app.version.split('.')[0])
-    if (version < 3) {
-      console.error('This plugin requires Vue 3')
-      return false
-    }
-  } else {
-    console.error('This plugin requires Vue App Instance')
-  }
+  // if (app) {
+  //   const version = Number(app.version.split('.')[0])
+  //   if (version < 3) {
+  //     console.error('This plugin requires Vue 3')
+  //     return false
+  //   }
+  // } else {
+  //   console.error('This plugin requires Vue App Instance')
+  // }
 
 
   initStorageProxy(globalOptions)
