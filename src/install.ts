@@ -4,11 +4,7 @@ import { initAxios } from './axios'
 import urlquery from './urlquery'
 import { initSpuConfig } from './spuConfig'
 import { merge } from 'lodash-es'
-
 import { initTest } from './test'
-// import tenantInfo from './tenantInfo'
-// import { downloadService } from './oss'
-
 
 const globalOptions: SPUWebPluginOptions = {
   modulekey: 'demospu',
@@ -17,14 +13,13 @@ const globalOptions: SPUWebPluginOptions = {
   router: null
 }
 
-let isInstall = false
-
 const install = (app: any, options: SPUWebPluginOptions) => {
   // console.log(app)
   // console.log(app.version)
-  console.log('@smart100/spu-web-plugin options', options)
   merge(globalOptions, options)
-  console.log('@smart100/spu-web-plugin globalOptions', globalOptions)
+  console.log('@smart100/spu-web-plugin start!')
+  console.log('options', options)
+  console.log('globalOptions', globalOptions)
 
   // if (install.installed) return
   // install.installed = true
@@ -40,31 +35,12 @@ const install = (app: any, options: SPUWebPluginOptions) => {
   //   console.error('This plugin requires Vue App Instance')
   // }
 
-
   initStorageProxy(globalOptions)
   initAxios(globalOptions)
   initSpuConfig(globalOptions)
   urlquery.init()
   login.startRefreshtoken()
-
-  // setTimeout(async () => {
-  //   const a = await downloadService.getUrl({
-  //     // source: 'a1b9954a-fb39-4bb2-aa0b-501f4af0d99e.jpeg',
-  //     // datetime: '1698832693257',
-  //     // source: '2f7dfe47-1827-4db1-9d99-3ddb08bb7e21.jpg',
-  //     // datetime: '1698832697897',
-  //     source: 'e3befbe5-8954-46d2-a368-5f812a5530e5.jpg',
-  //     datetime: '1699527237567',
-  //     // cope: {
-  //     //   width: 100
-  //     // }
-  //   })
-  //   console.log(a)
-  //   console.log(71117)
-  // }, 1000)
-
-
-  // tenantInfo.getAndSave()
+  initTest(globalOptions)
 
   if (globalOptions.router) {
     globalOptions.router.beforeEach(async (to: any, from: any, next: any) => {
@@ -86,29 +62,14 @@ const install = (app: any, options: SPUWebPluginOptions) => {
       }
     })
   } else {
-    console.error('请传入 router 实例。')
+    console.error('@smart100/spu-web-plugin require a vue-router instance.')
   }
 
 
-  initTest(globalOptions)
 
-  isInstall = true
-
-  // Vue.component('xt-engine', components.engine)
-  // Vue.prototype.$xtEngine = () => {
-  //   console.log('$xtEngine')
-  // }
-
-  // const component = options?.component
-  // if (component) {
-  //   for (const x in component) {
-  //     register(x, component[x])
-  //   }
-  // }
 }
 
 export {
   install,
-  isInstall,
   globalOptions
 }
