@@ -51,7 +51,6 @@ export default class SpuExpandexp extends HTMLElement {
       imagesizepercolumn: '5',
       imageheightcm: '2',
 
-
       expandStatus: '1', // 1普通导出（没有做图片导出服务） 2服务端导出（做了图片导出服务未SPU化） 3安装了图片导出SPU
       filewatermarkGlobalConfig: '0', // 全局文件水印开关
       exportcontentArray: ['excel', 'link', 'photo'], // 当 expandStatus = 2 | 3时才显示导出内容给用户选择
@@ -342,8 +341,6 @@ export default class SpuExpandexp extends HTMLElement {
         }
       })
     } else {
-      this.data.filewatermark = '0'
-      this.data.iscompress = '0'
       apaasAxios
         .post('/api/expandexp/global/searchExpGloConfig', {
           key: 'export-config-switch',
@@ -368,25 +365,29 @@ export default class SpuExpandexp extends HTMLElement {
           if (this.data.expandStatus === '1') {
             this.data.exportcontentArray = ['excel']
             this.data.exportcontent = 'excel'
-          }
+            this.data.filewatermark = '0'
+            this.data.iscompress = '0'
+          } else if (this.data.expandStatus === '2') {
+            this.data.iscompress = '1'
 
-          // 获取文件水印开关
-          apaasAxios
-            .post('/api/expandexp/global/searchWatermarkConfig', '', {
-              isShowLoading: false
-            })
-            .then((res: any) => {
-              if (res.code === 200 && res?.data?.configjson) {
-                this.data.filewatermarkGlobalConfig = JSON.parse(res.data.configjson).isWatermark === '1' ? '1' : '0'
-              } else {
+            // 获取文件水印开关
+            apaasAxios
+              .post('/api/expandexp/global/searchWatermarkConfig', '', {
+                isShowLoading: false
+              })
+              .then((res: any) => {
+                if (res.code === 200 && res?.data?.configjson) {
+                  this.data.filewatermarkGlobalConfig = JSON.parse(res.data.configjson).isWatermark === '1' ? '1' : '0'
+                } else {
+                  this.data.filewatermarkGlobalConfig = '0'
+                }
+              })
+              .catch(() => {
                 this.data.filewatermarkGlobalConfig = '0'
-              }
-            })
-            .catch(() => {
-              this.data.filewatermarkGlobalConfig = '0'
-            }).finally(() => {
-              this.data.filewatermark = this.data.filewatermarkGlobalConfig === '1' ? '1' : '0'
-            })
+              }).finally(() => {
+                this.data.filewatermark = this.data.filewatermarkGlobalConfig === '1' ? '1' : '0'
+              })
+          }
         })
     }
   }
