@@ -1,12 +1,12 @@
 
 ## getUser()
+获取当前登录人信息，如果有传 `key` 值则返回对应 `key` 值的信息，如果没传则返回所有。
+
 + 类型：
 
 ```js
 function getUser (key: string | null): any
 ```
-
-获取当前登录人信息，如果有传 `key` 值则返回对应 `key` 值的信息，如果没传则返回所有。
 
 + 示例：
 

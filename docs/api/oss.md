@@ -1,4 +1,6 @@
-## uploadService.upload() 上传服务
+## uploadService.upload()
+上传文件服务。
+
 + 类型：
 
 ```js
@@ -28,7 +30,7 @@ function upload ({
 }: IUpload): Promise<any>
 ```
 
-上传文件。
+
 
 + 示例：
 
@@ -47,7 +49,9 @@ console.log(imgOss)
 
 
 
-## downloadService.getUrl() 下载服务
+## downloadService.getUrl()
+获取文件URL。
+
 + 类型：
 
 ```js
@@ -72,7 +76,7 @@ function getUrl ({
 }: IDownload): Promise<any>
 ```
 
-获取文件URL。
+
 
 + 示例：
 

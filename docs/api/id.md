@@ -1,11 +1,11 @@
 ## getUuid()
+生成并返回 `uuid`。
+
 + 类型：
 
 ```js
 function getUuid (): string
 ```
-
-生成并返回 `uuid`。
 
 + 示例：
 
@@ -19,13 +19,13 @@ console.log(uuid)
 
 
 ## getUniqueid()
+生成并返回唯一 `id`。
+
 + 类型：
 
 ```js
 function getUniqueid (): string
 ```
-
-生成并返回唯一 `id`。
 
 + 示例：
 

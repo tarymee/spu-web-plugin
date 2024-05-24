@@ -1,4 +1,11 @@
 ## AMapLoader.load()
+高德地图 `JS API` 是高德开放平台免费提供的 Web 地图渲染引擎，以 WebGL 为主要绘图手段，本着“更轻、更快、更易用”的服务原则，广泛采用了各种前沿技术，交互体验、视觉体验大幅提升，同时提供了众多新增能力和特性。
+
++ https://lbs.amap.com/api/javascript-api/summary
++ https://lbs.amap.com/demo/list/js-api
+
+插件对其进行了封装，不需要申请填写高德key(插件已处理)，使之能结合 Vue3 使用。
+
 + 类型：
 
 ```js
@@ -9,13 +16,6 @@ function load (options?: {
   }
 }): Promise<any>
 ```
-
-高德地图 `JS API` 是高德开放平台免费提供的 Web 地图渲染引擎，以 WebGL 为主要绘图手段，本着“更轻、更快、更易用”的服务原则，广泛采用了各种前沿技术，交互体验、视觉体验大幅提升，同时提供了众多新增能力和特性。
-
-+ https://lbs.amap.com/api/javascript-api/summary
-+ https://lbs.amap.com/demo/list/js-api
-
-插件对其进行了封装，不需要申请填写高德key(插件已处理)，使之能结合 Vue3 使用。
 
 + 示例：
 

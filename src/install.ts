@@ -64,9 +64,6 @@ const install = (app: any, options: SPUWebPluginOptions) => {
   } else {
     console.error('@smart100/spu-web-plugin require a vue-router instance.')
   }
-
-
-
 }
 
 export {

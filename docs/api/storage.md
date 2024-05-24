@@ -6,13 +6,13 @@
 
 
 ## lsProxy
+代理 `localStorage`。
+
 + 类型：
 
 ```js
 const lsProxy: Storage
 ```
-
-代理 `localStorage`。
 
 + 示例：
 
@@ -24,13 +24,13 @@ lsProxy.getItem('data', 'xxx') // 会从 localStorage 中取 key 为 demospu-dat
 
 
 ## ssProxy
+代理 `sessionStorage`。
+
 + 类型：
 
 ```js
 const ssProxy: Storage
 ```
-
-代理 `sessionStorage`。
 
 + 示例：
 

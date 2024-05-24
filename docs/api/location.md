@@ -1,4 +1,6 @@
 ## getLocation() 获取定位
+获取当前定位信息。
+
 + 类型：
 
 ```js
@@ -8,8 +10,6 @@ function getLocation (): Promise<{
   address: string
 } | null>
 ```
-
-获取当前定位信息。
 
 + 示例：
 
@@ -22,13 +22,13 @@ console.log(location)
 
 
 ## getDistance() 计算距离
+计算两个经纬度距离。
+
 + 类型：
 
 ```js
 function getDistance (p1: [number, number], p2: [number, number]): Promise<number>
 ```
-
-计算两个经纬度距离。
 
 + 示例：
 

@@ -1,11 +1,11 @@
 ## spuAxios
+插件对 `axios` 实例做了一层封装，专门用于请求 `SPU` 接口。
+
 + 类型：
 
 ```js
 const spuAxios: AxiosInstance
 ```
-
-插件对 `axios` 实例做了一层封装，专门用于请求 `SPU` 接口。
 
 + 示例：
 
@@ -24,13 +24,13 @@ spuAxios
 
 
 ## apaasAxios
+插件对 `axios` 实例做了一层封装，专门用于请求 `低码flycode` 或 `旧格式（比如平台接口）` 接口。
+
 + 类型：
 
 ```js
 const apaasAxios: AxiosInstance
 ```
-
-插件对 `axios` 实例做了一层封装，专门用于请求 `低码flycode` 或 `旧格式（比如平台接口）` 接口。
 
 + 示例：
 

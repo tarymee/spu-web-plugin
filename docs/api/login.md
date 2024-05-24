@@ -9,12 +9,13 @@
 
 
 ## getToken()
+获取当前 `token`。
+
 + 类型：
 
 ```js
 function getToken (): string
 ```
-获取当前 `token`。
 
 + 示例：
 
@@ -25,12 +26,13 @@ console.log(token)
 ```
 
 ## getTokenExpires()
+获取当前 `tokenexpires`。
+
 + 类型：
 
 ```js
 function getTokenExpires (): string
 ```
-获取当前 `tokenexpires`。
 
 + 示例：
 
@@ -41,12 +43,13 @@ console.log(tokenexpires)
 ```
 
 ## getRefreshToken()
+获取当前 `refreshtoken`。
+
 + 类型：
 
 ```js
 function getRefreshToken (): string
 ```
-获取当前 `refreshtoken`。
 
 + 示例：
 
