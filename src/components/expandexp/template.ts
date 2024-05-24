@@ -19,7 +19,7 @@ export default (ele: SpuExpandexp) => {
   left: 0px;
   right: 0px;
   bottom: 0px;
-  z-index: 1;
+  z-index: 9000;
 }
 
 .hide {
