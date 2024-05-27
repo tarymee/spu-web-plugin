@@ -6,9 +6,9 @@
 
 ```js
 interface IOptions {
-  exportapi: 'string', // 导出接口
-  sheetname: 'string', // 导出文件名 不需加后缀
-  pagecode: 'string', // 该 SPU 导出页面所对应的 pagecode
+  exportapi: string, // 导出接口
+  sheetname: string, // 导出文件名 不需加后缀
+  pagecode: string, // 该 SPU 导出页面所对应的 pagecode
   mergedata?: Object // 与用户选择配置合并参数传参
 }
 
