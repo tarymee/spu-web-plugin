@@ -17,6 +17,9 @@ interface Window {
   Native: any
   Module: any;
   aPaaS: any;
+  // 日志插件 和 日志实例
+  ApaasSpuTrack: any;
+  apaasSpuTrack: any;
   // wx: IAny;
   // AMapUI: IAny;
   // lsProxy: any;

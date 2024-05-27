@@ -3,6 +3,7 @@ import login from './login'
 import { initAxios } from './axios'
 import urlquery from './urlquery'
 import { initSpuConfig } from './spuConfig'
+import { initApaasSpuTrack } from './apaasSpuTrack'
 import { merge } from 'lodash-es'
 import { initTest } from './test'
 
@@ -38,6 +39,7 @@ const install = (app: any, options: SPUWebPluginOptions) => {
   initStorageProxy(globalOptions)
   initAxios(globalOptions)
   initSpuConfig(globalOptions)
+  initApaasSpuTrack()
   urlquery.init()
   login.startRefreshtoken()
   initTest(globalOptions)

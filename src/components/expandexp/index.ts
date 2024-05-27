@@ -7,6 +7,7 @@ import { apaasAxios } from '../../axios'
 import core, { Module } from '../../core'
 import login from '../../login'
 import { downloadService } from '../../oss'
+import { apaasSpuTrackSendLog } from '../../apaasSpuTrack'
 
 export default class SpuExpandexp extends HTMLElement {
 
@@ -340,6 +341,15 @@ export default class SpuExpandexp extends HTMLElement {
           }
         }
       })
+      apaasSpuTrackSendLog({
+        types: 'exportopenmodal',
+        event: 'exportopenmodal',
+        properties: {
+          formtype: 'spu',
+          exporttype: this.data.expandStatus,
+          pagecode: this.props.pagecode
+        }
+      })
     } else {
       apaasAxios
         .post('/api/expandexp/global/searchExpGloConfig', {
@@ -361,6 +371,16 @@ export default class SpuExpandexp extends HTMLElement {
         .catch((err: Error) => {
           this.data.expandStatus = '1'
         }).finally(() => {
+          // 发送日志
+          apaasSpuTrackSendLog({
+            types: 'exportopenmodal',
+            event: 'exportopenmodal',
+            properties: {
+              formtype: 'spu',
+              exporttype: this.data.expandStatus,
+              pagecode: this.props.pagecode
+            }
+          })
 
           if (this.data.expandStatus === '1') {
             this.data.exportcontentArray = ['excel']
@@ -468,11 +488,25 @@ export default class SpuExpandexp extends HTMLElement {
         this.data.resultMessage = '网络连接错误'
         this.stopInterval()
       })
+
+    apaasSpuTrackSendLog({
+      types: 'exportclickbutton',
+      event: 'exportclickbutton',
+      properties: {
+        formtype: 'spu',
+        exporttype: this.data.expandStatus,
+        pagecode: this.props.pagecode,
+        bizdata: {
+          exportapi: this.props.exportapi,
+          params: finallyPost
+        }
+      }
+    })
   }
 
   handleDownload () {
-    console.log(this.data)
-    console.log(this.data.exportDataItem)
+    // console.log(this.data)
+    // console.log(this.data.exportDataItem)
 
     let fixExportFileUrl = this.data.exportDataItem.exportfileurl[0] === '/' ? this.data.exportDataItem.exportfileurl : '/' + this.data.exportDataItem.exportfileurl
     let exportFileName = this.data.exportDataItem.filename
@@ -486,12 +520,27 @@ export default class SpuExpandexp extends HTMLElement {
     //   filename: exportFileName
     // })
 
-    downloadService.downloadFile({
+    const params = {
       type: 'att',
       source: fixExportFileUrl,
       datetime: date,
       storagetype: 'storage-1d',
       filename: exportFileName
+    }
+
+    downloadService.downloadFile(params as any)
+
+    apaasSpuTrackSendLog({
+      types: 'exportdownloadfile',
+      event: 'exportdownloadfile',
+      properties: {
+        formtype: 'spu',
+        exporttype: this.data.expandStatus,
+        pagecode: this.props.pagecode,
+        bizdata: {
+          params: params
+        }
+      }
     })
   }
 
