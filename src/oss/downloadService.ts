@@ -8,6 +8,7 @@ import ObsClient from '../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.
 // const ObsClient = require('../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js')
 import dayjs from 'dayjs'
 import login from '../login'
+import { apaasAxios } from '../axios'
 // import { get } from 'lodash-es'
 // import qs from 'qs'
 
@@ -193,27 +194,25 @@ const getUrl = async ({
 }
 
 
-const callDownloadManager = (url: string, filename: string) => {
-  let aElm = document.createElement('a')
-  aElm.innerHTML = filename + ''
+const downloadFileByUrl = (url: string, filename: string) => {
+  const aElm = document.createElement('a')
+  aElm.innerHTML = filename
   aElm.download = filename
-  let href = url
-  aElm.href = href
-  document.body.appendChild(aElm)
   aElm.target = '_blank'
+  aElm.href = url
+  document.body.appendChild(aElm)
   let evt = document.createEvent('MouseEvents')
   evt.initEvent('click', false, false)
   aElm.dispatchEvent(evt)
   document.body.removeChild(aElm)
 }
 
-const deal = (response: any, filename: string) => {
-  let aElm = document.createElement('a')
-  aElm.innerHTML = filename + ''
+const downloadFileByBlob = (blob: any, filename: string) => {
+  const aElm = document.createElement('a')
+  aElm.innerHTML = filename
   aElm.download = filename
   aElm.target = '_blank'
-  let href = window.URL.createObjectURL(response.bodyBlob)
-  aElm.href = href
+  aElm.href = window.URL.createObjectURL(blob)
   document.body.appendChild(aElm)
   let evt = document.createEvent('MouseEvents')
   evt.initEvent('click', false, false)
@@ -233,23 +232,50 @@ const downloadFile = async ({
   if (!filename) {
     filename = source
   }
+
   const suffix = filename.slice(filename.lastIndexOf('.'))
-  filename = filename.replace(suffix, '') + dayjs(+datetime).format('_YYYYMMDDHHmmssS') + String(Math.floor(Math.random() * 9000) + 1000) + suffix
+  const realFilename = filename.replace(suffix, '') + dayjs(+datetime).format('_YYYYMMDDHHmmssS') + String(Math.floor(Math.random() * 9000) + 1000) + suffix
 
   // console.log(filename)
-
   const url = await getUrl({
     type,
     source,
     datetime,
     storagetype,
-    filename,
+    filename: realFilename,
     cope
   })
+  // apaasAxios.get(url, {
+  //   responseType: 'blob',
+  //   isSendToken: false,
+  //   isShowErrorMessage: false
+  // }).then((response: any) => {
+  //   // console.log(response)
+  //   // debugger
+  //   downloadFileByBlob(response.data, filename)
+  // }).catch((e) => {
+  //   console.log(e)
+  //   throw Error(e)
+  // })
 
-  // console.log(url)
-
-  callDownloadManager(url, filename)
+  const isAliYun = CloudServ.isAliyun(storagetype)
+  // const isHuawei = CloudServ.isHuawei(storagetype)
+  if (isAliYun) {
+    downloadFileByUrl(url, filename)
+  } else {
+    apaasAxios.get(url, {
+      responseType: 'blob',
+      isSendToken: false,
+      isShowErrorMessage: false
+    }).then((response: any) => {
+      // console.log(response)
+      // debugger
+      downloadFileByBlob(response.data, filename)
+    }).catch((e: any) => {
+      console.log(e)
+      throw Error(e)
+    })
+  }
 }
 
 export default {
