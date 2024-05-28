@@ -159,8 +159,9 @@ export default (ele: SpuExpandexp) => {
 }
 .export-file-r {
   display: flex;
-  width: 80px;
+  width: 90px;
   flex-direction: row-reverse;
+  align-items: center;
 }
 .export-file-r-download {
   line-height: 26px;
@@ -177,8 +178,8 @@ export default (ele: SpuExpandexp) => {
   border-color: #85ce61;
 }
 .export-file-r-cancel {
-  line-height: 26px;
-  width: 26px;
+  line-height: 20px;
+  width: 20px;
   border-radius: 14px;
   color: #f56c6c;
   background: #fef0f0;

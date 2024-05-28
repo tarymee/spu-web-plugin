@@ -1,5 +1,5 @@
 import { globalOptions } from './install'
-import { cloneDeep, merge, set } from 'lodash-es'
+import { cloneDeep, merge } from 'lodash-es'
 import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.umd.js'
 import login from './login'
 
@@ -149,7 +149,7 @@ const initApaasSpuTrack = () => {
   }, 2500)
 }
 
-const apaasSpuTrackSendLog = (data: any, end = false) => {
+const apaasSpuTrackSendLog = (data: any, end: boolean = false) => {
   if (window.apaasSpuTrack) {
     const logtime = Date.now().toString()
     const baselog = cloneDeep({
@@ -173,14 +173,18 @@ const apaasSpuTrackSendLog = (data: any, end = false) => {
       }
     })
     const mergedata = merge(baselog, data)
-    console.log(mergedata)
+    // console.log(mergedata)
     // debugger
     window.apaasSpuTrack.addLogToQueue(mergedata, true)
   } else {
-    console.warn('window.apaasSpuTrack 不存在，延迟3秒后发送')
-    // setTimeout(() => {
-    //   sendLog(data)
-    // }, 3000)
+    if (!end) {
+      console.warn('window.apaasSpuTrack 不存在，导出日志延迟3秒后再次发送。')
+      setTimeout(() => {
+        apaasSpuTrackSendLog(data, true)
+      }, 3000)
+    } else {
+      console.error('apaasTrack 不存在，导出日志发送失败。')
+    }
   }
 }
 

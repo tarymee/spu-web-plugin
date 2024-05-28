@@ -341,14 +341,9 @@ export default class SpuExpandexp extends HTMLElement {
           }
         }
       })
-      apaasSpuTrackSendLog({
+      this.sendLog({
         types: 'exportopenmodal',
-        event: 'exportopenmodal',
-        properties: {
-          formtype: 'spu',
-          exporttype: this.data.expandStatus,
-          pagecode: this.props.pagecode
-        }
+        event: 'exportopenmodal'
       })
     } else {
       apaasAxios
@@ -372,14 +367,9 @@ export default class SpuExpandexp extends HTMLElement {
           this.data.expandStatus = '1'
         }).finally(() => {
           // 发送日志
-          apaasSpuTrackSendLog({
+          this.sendLog({
             types: 'exportopenmodal',
-            event: 'exportopenmodal',
-            properties: {
-              formtype: 'spu',
-              exporttype: this.data.expandStatus,
-              pagecode: this.props.pagecode
-            }
+            event: 'exportopenmodal'
           })
 
           if (this.data.expandStatus === '1') {
@@ -489,13 +479,10 @@ export default class SpuExpandexp extends HTMLElement {
         this.stopInterval()
       })
 
-    apaasSpuTrackSendLog({
+    this.sendLog({
       types: 'exportclickbutton',
       event: 'exportclickbutton',
       properties: {
-        formtype: 'spu',
-        exporttype: this.data.expandStatus,
-        pagecode: this.props.pagecode,
         bizdata: {
           exportapi: this.props.exportapi,
           params: finallyPost
@@ -530,13 +517,11 @@ export default class SpuExpandexp extends HTMLElement {
 
     downloadService.downloadFile(params as any)
 
-    apaasSpuTrackSendLog({
+    // 发送日志
+    this.sendLog({
       types: 'exportdownloadfile',
       event: 'exportdownloadfile',
       properties: {
-        formtype: 'spu',
-        exporttype: this.data.expandStatus,
-        pagecode: this.props.pagecode,
         bizdata: {
           params: params
         }
@@ -663,20 +648,19 @@ export default class SpuExpandexp extends HTMLElement {
           // this.stopInterval()
         } else if (currentData.exportstate === 'ext_readyrun') {
           this.updateStep('ext_readyrun')
-          if (currentData) {
-            this.data.percentage = +currentData.finishRate * 0.5 + 50
-          }
+          currentData && (this.data.percentage = +currentData.finishRate * 0.5 + 50)
         } else if (currentData.exportstate === 'ext_running') {
           this.updateStep('ext_running')
-          // debugger
-          if (currentData) {
-            this.data.percentage = +currentData.finishRate * 0.5 + 50
-          }
+          currentData && (this.data.percentage = +currentData.finishRate * 0.5 + 50)
         } else {
           this.updateStep('running')
           if (currentData) {
-            this.data.percentage = +currentData.finishRate * 0.5
-            // state.percentage = +currentData.finishRate
+            this.data.percentage = +currentData.finishRate
+            // if (this.data.expandStatus = '1') {
+            //   this.data.percentage = +currentData.finishRate
+            // } else {
+            //   this.data.percentage = +currentData.finishRate * 0.5
+            // }
           }
         }
       })
@@ -696,6 +680,18 @@ export default class SpuExpandexp extends HTMLElement {
       window.clearInterval(this.statusTimer)
       this.statusTimer = null
     }
+  }
+
+  sendLog (data: any) {
+    apaasSpuTrackSendLog(merge({
+      // types: 'exportdownloadfile',
+      // event: 'exportdownloadfile',
+      properties: {
+        formtype: 'spu',
+        exporttype: this.data.expandStatus,
+        pagecode: this.props.pagecode
+      }
+    }, data))
   }
 
   removeSelf () {
