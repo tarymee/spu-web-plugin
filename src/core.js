@@ -70,6 +70,7 @@ class Core {
       let response
       try {
         response = await axios.get(`${hostsRoot}/multiplatconfig/env/${envName}`, {
+          isShowLoading: false,
           isSendToken: false
         })
         // console.log(response)
@@ -98,6 +99,8 @@ class Core {
         res = await axios.post(`${smartcenter}/api/smartcenter/biz/getTenantWebAndApiDefined`, {
           envid: envId,
           tenantcode: tenantCode
+        }, {
+          isShowLoading: false
         })
       } catch (err) {
         console.error(err)

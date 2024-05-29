@@ -10,6 +10,59 @@ import icon_zip from './icons/icon_zip.png'
 export default (ele: SpuExpandexp) => {
   return `
 <style>
+.spu-expandexp-confirm {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  position: absolute;
+  top: 0;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+}
+.spu-expandexp-confirm-modal {
+  width: 400px;
+  margin: 50px auto 0;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.spu-expandexp-confirm-modal-th {
+  height: 40px;
+  background-color: #409eff;
+}
+.spu-expandexp-confirm-modal-th-title {
+  float: left;
+  line-height: 40px;
+  color: #fff;
+  font-size: 16px;
+  margin-left: 16px;
+}
+.spu-expandexp-confirm-modal-th-close {
+  float: right;
+  line-height: 40px;
+  height: 40px;
+  width: 40px;
+  color: #fff;
+  font-size: 16px;
+  text-align: center;
+  cursor: pointer;
+}
+.spu-expandexp-confirm-modal-tb {
+  padding: 16px;
+  background-color: #fff;
+}
+.spu-expandexp-confirm-modal-tb-tip {
+
+}
+.spu-expandexp-confirm-modal-btnwrap {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+</style>
+<style>
 :host {
   display: block;
   width: 100%;
@@ -31,7 +84,14 @@ export default (ele: SpuExpandexp) => {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   overflow: auto;
+  position: absolute;
+  top: 0;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
 }
+
+
 
 
 .modal {
@@ -181,17 +241,17 @@ export default (ele: SpuExpandexp) => {
   line-height: 20px;
   width: 20px;
   border-radius: 14px;
-  color: #f56c6c;
-  background: #fef0f0;
-  border: 1px solid #fbc4c4;
+  color: #999;
+  background: #fff;
+  border: 1px solid #999;
   text-align: center;
   font-size: 14px;
   cursor: pointer;
 }
 .export-file-r-cancel:hover {
-  background: #f56c6c;
-  border-color: #f56c6c;
-  color: #fff;
+  background: #fff;
+  border-color: #777;
+  color: #777;
 }
 
 
@@ -267,7 +327,7 @@ export default (ele: SpuExpandexp) => {
   flex-direction: row-reverse;
 }
 .btn {
-  line-height: 38px;
+  height: 38px;
   line-height: 38px;
   border: 1px solid #409eff;
   background-color: #409eff;
@@ -280,6 +340,38 @@ export default (ele: SpuExpandexp) => {
 .btn:hover {
   background: #66b1ff;
   border-color: #66b1ff;
+}
+
+.btn1 {
+  height: 30px;
+  line-height: 30px;
+  border: 1px solid #409eff;
+  background-color: #409eff;
+  border-radius: 5px;
+  color: #fff;
+  padding: 0 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn1:hover {
+  background: #66b1ff;
+  border-color: #66b1ff;
+}
+
+.btn2 {
+  height: 30px;
+  line-height: 30px;
+  border: 1px solid #777;
+  background-color: #fff;
+  border-radius: 5px;
+  color: #777;
+  padding: 0 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn2:hover {
+  border-color: #999;
+  color: #999;
 }
 </style>
 
@@ -333,10 +425,35 @@ export default (ele: SpuExpandexp) => {
             </div>
 
             <div class="export-btnwrap">
-              <div class="btn">导出</div>
+              <div class="export-btn btn">导出</div>
             </div>
 
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="spu-expandexp-confirm hide">
+      <div class="spu-expandexp-confirm-modal">
+        <div class="spu-expandexp-confirm-modal-th">
+          <div class="spu-expandexp-confirm-modal-th-title">
+            数据导出
+          </div>
+          <div class="spu-expandexp-confirm-modal-th-close">
+            x
+          </div>
+        </div>
+        <div class="spu-expandexp-confirm-modal-tb">
+
+          <div class="spu-expandexp-confirm-modal-tb-tip">
+            确认是否取消该任务？
+          </div>
+
+          <div class="spu-expandexp-confirm-modal-btnwrap">
+            <div class="spu-expandexp-confirm-modal-confirm btn1">确定</div>
+            <div class="spu-expandexp-confirm-modal-cancel btn2" style="margin-right: 12px;">关闭</div>
+          </div>
+
         </div>
       </div>
     </div>

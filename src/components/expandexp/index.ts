@@ -286,17 +286,34 @@ export default class SpuExpandexp extends HTMLElement {
     })
 
     this.shadow.querySelector('.export-file .export-file-r-download')!.addEventListener('click', () => {
-      console.log('下载')
       this.handleDownload()
     })
 
     this.shadow.querySelector('.export-file .export-file-r-cancel')!.addEventListener('click', () => {
-      console.log('取消')
+      // this.handleCencel()
+      const ele = this.shadow.querySelector('.spu-expandexp-confirm')
+      this.vIf(ele, true)
+    })
+
+
+    this.shadow.querySelector('.spu-expandexp-confirm-modal-th-close')!.addEventListener('click', () => {
+      const ele = this.shadow.querySelector('.spu-expandexp-confirm')
+      this.vIf(ele, false)
+    })
+
+    this.shadow.querySelector('.spu-expandexp-confirm-modal-cancel')!.addEventListener('click', () => {
+      const ele = this.shadow.querySelector('.spu-expandexp-confirm')
+      this.vIf(ele, false)
+    })
+
+    this.shadow.querySelector('.spu-expandexp-confirm-modal-confirm')!.addEventListener('click', () => {
       this.handleCencel()
     })
 
-    this.shadow.querySelector('.export-btnwrap .btn')!.addEventListener('click', () => {
-      console.log('导出')
+
+
+    this.shadow.querySelector('.export-btn')!.addEventListener('click', () => {
+      // console.log('导出')
       this.handleExport()
       // this.data.percentage = this.data.percentage + 20
       // this.data.isOldVersionService = false
@@ -570,6 +587,10 @@ export default class SpuExpandexp extends HTMLElement {
       })
       .catch((error: any) => {
 
+      })
+      .finally(() => {
+        const ele = this.shadow.querySelector('.spu-expandexp-confirm')
+        this.vIf(ele, false)
       })
   }
 
