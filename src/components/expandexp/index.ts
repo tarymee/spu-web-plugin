@@ -655,12 +655,12 @@ export default class SpuExpandexp extends HTMLElement {
         } else {
           this.updateStep('running')
           if (currentData) {
-            this.data.percentage = +currentData.finishRate
-            // if (this.data.expandStatus = '1') {
-            //   this.data.percentage = +currentData.finishRate
-            // } else {
-            //   this.data.percentage = +currentData.finishRate * 0.5
-            // }
+            // this.data.percentage = +currentData.finishRate
+            if (this.data.expandStatus === '1') {
+              this.data.percentage = +currentData.finishRate
+            } else {
+              this.data.percentage = +currentData.finishRate * 0.5
+            }
           }
         }
       })
