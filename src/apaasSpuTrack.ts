@@ -183,7 +183,7 @@ const apaasSpuTrackSendLog = (data: any, end: boolean = false) => {
         apaasSpuTrackSendLog(data, true)
       }, 3000)
     } else {
-      console.error('apaasTrack 不存在，导出日志发送失败。')
+      console.error('window.apaasSpuTrack 不存在，导出日志发送失败。')
     }
   }
 }
