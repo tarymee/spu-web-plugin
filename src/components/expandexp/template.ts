@@ -390,7 +390,7 @@ export default (ele: SpuExpandexp) => {
   height: 30px;
   line-height: 30px;
   border: 1px solid #aaa;
-  background-color: #eee;
+  background-color: #fff;
   border-radius: 5px;
   color: #444;
   padding: 0 12px;
@@ -398,8 +398,9 @@ export default (ele: SpuExpandexp) => {
   cursor: pointer;
 }
 .btn2:hover {
-  border-color: #bbb;
+  border-color: #ccc;
   color: #777;
+  background-color: #fff;
 }
 </style>
 
