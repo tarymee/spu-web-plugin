@@ -135,7 +135,7 @@ export default class SpuExpandexp extends HTMLElement {
       this.vIf($exportDownload, ((stepName === 'error' || stepName === 'success') && exportDataItem?.exportfileurl))
 
       // 取消按钮显隐
-      this.vIf($exportCancel, (stepName === 'running' || stepName === 'ready' || stepName === 'ext_readyrun' || stepName === 'ext_running'))
+      this.vIf($exportCancel, ((stepName === 'running' || stepName === 'ready') && (!exportDataItem?.exportstate || exportDataItem?.exportstate === 'readyrun' || exportDataItem?.exportstate === 'running')))
 
       // 进度条
       if (key === 'stepName') {
