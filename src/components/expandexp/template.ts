@@ -61,6 +61,34 @@ export default (ele: SpuExpandexp) => {
   flex-direction: row-reverse;
 }
 
+.spu-expandexp-message {
+  width: auto;
+  height: 30px;
+  line-height: 30px;
+  border-radius: 3px;
+  overflow: hidden;
+  position: absolute;
+  padding: 0 24px;
+  top: 50px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  transition: all .6s ease;
+}
+.spu-expandexp-message.success {
+  background-color: #f0f9eb;
+  border: 1px solid #529b2e;
+  color: #67c23a;
+}
+.spu-expandexp-message.error {
+  background-color: #fde2e2;
+  border: 1px solid #c45656;
+  color: #f56c6c;
+}
+.opacity0 {
+  transition: all .6s ease;
+  opacity: 0;
+}
+
 </style>
 <style>
 :host {
@@ -274,7 +302,7 @@ export default (ele: SpuExpandexp) => {
   animation-duration: 3s;
   height: 100%;
   width: 0;
-  background-color: #417AE7;
+  background-color: #409eff;
   -webkit-transition: width .6s ease;
   transition: width .6s ease;
 }
@@ -361,17 +389,17 @@ export default (ele: SpuExpandexp) => {
 .btn2 {
   height: 30px;
   line-height: 30px;
-  border: 1px solid #777;
-  background-color: #fff;
+  border: 1px solid #aaa;
+  background-color: #eee;
   border-radius: 5px;
-  color: #777;
+  color: #444;
   padding: 0 12px;
   font-size: 14px;
   cursor: pointer;
 }
 .btn2:hover {
-  border-color: #999;
-  color: #999;
+  border-color: #bbb;
+  color: #777;
 }
 </style>
 
@@ -393,7 +421,7 @@ export default (ele: SpuExpandexp) => {
 
             <div class="export-sel hide">
               <div class="export-sel-title">请选择导出内容</div>
-              <div class="export-sel-con"></div>
+              <div class="export-sel-con hide"></div>
             </div>
 
             <div class="export-section-wrap hide">
@@ -457,5 +485,7 @@ export default (ele: SpuExpandexp) => {
         </div>
       </div>
     </div>
+
+    <div class="spu-expandexp-message hide opacity0"></div>
   `
 }

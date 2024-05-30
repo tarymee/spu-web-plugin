@@ -54,6 +54,7 @@ export default class SpuExpandexp extends HTMLElement {
 
       expandStatus: '1', // 1普通导出（没有做图片导出服务） 2服务端导出（做了图片导出服务未SPU化） 3安装了图片导出SPU
       filewatermarkGlobalConfig: '0', // 全局文件水印开关
+      exportConfigInit: false,
       exportcontentArray: ['excel', 'link', 'photo'], // 当 expandStatus = 2 | 3时才显示导出内容给用户选择
       percentage: 0,
       step: new Step(),
@@ -68,7 +69,7 @@ export default class SpuExpandexp extends HTMLElement {
       runningTaskCount: 0,
       isOldVersionService: false
     }, (key: string, value: any) => {
-      const { expandStatus, stepName, stepText, exportcontentArray, exportcontent, isOldVersionService, runningTaskCount, fileName, filetype, fileSize, exportDataItem, percentage, resultMessage } = this.data
+      const { exportConfigInit, stepName, stepText, exportcontentArray, exportcontent, isOldVersionService, runningTaskCount, fileName, filetype, fileSize, exportDataItem, percentage, resultMessage } = this.data
 
       // debugger
       const $exportSel = this.shadow.querySelector('.export-sel') as any
@@ -88,6 +89,10 @@ export default class SpuExpandexp extends HTMLElement {
       const $filesize = this.shadow.querySelector('.export-file-l-filesize') as any
       const $wait = this.shadow.querySelector('.export-wait') as any
       const $waitSpan = this.shadow.querySelector('.export-wait span') as any
+
+      if (key === 'exportConfigInit') {
+        this.vIf($exportSelCon, exportConfigInit)
+      }
 
       if (key === 'expandStatus' || key === 'stepName') {
         // this.vIf($exportSel, (expandStatus !== '1' && stepName === 'initial'))
@@ -232,6 +237,15 @@ export default class SpuExpandexp extends HTMLElement {
     }
   }
 
+  vOp (ele: any, flag: boolean) {
+    const elc = ele.classList
+    if (flag) {
+      elc.contains('opacity0') && elc.remove('opacity0')
+    } else {
+      !elc.contains('opacity0') && elc.add('opacity0')
+    }
+  }
+
   initData (data: any, setCallback: any) {
     this.data = cloneDeep(data)
     const dataP = cloneDeep(data)
@@ -355,6 +369,8 @@ export default class SpuExpandexp extends HTMLElement {
             this.data.iscompress = data.iscompress.toString()
             this.data.imagesizepercolumn = data.imagesizepercolumn.toString()
             this.data.imageheightcm = data.imageheightcm.toString()
+
+            this.data.exportConfigInit = true
           }
         }
       })
@@ -394,6 +410,8 @@ export default class SpuExpandexp extends HTMLElement {
             this.data.exportcontent = 'excel'
             this.data.filewatermark = '0'
             this.data.iscompress = '0'
+
+            this.data.exportConfigInit = true
           } else if (this.data.expandStatus === '2') {
             this.data.iscompress = '1'
 
@@ -413,6 +431,7 @@ export default class SpuExpandexp extends HTMLElement {
                 this.data.filewatermarkGlobalConfig = '0'
               }).finally(() => {
                 this.data.filewatermark = this.data.filewatermarkGlobalConfig === '1' ? '1' : '0'
+                this.data.exportConfigInit = true
               })
           }
         })
@@ -572,8 +591,21 @@ export default class SpuExpandexp extends HTMLElement {
   }
 
   handleCencel () {
+    const $message = this.shadow.querySelector('.spu-expandexp-message') as any
+    // this.vText($message, '取消成功！')
+    // this.vIf($message, true)
+    // this.vOp($message, true)
+    // $message.classList.add('success')
+    // setTimeout(() => {
+    //   this.vOp($message, false)
+    //   setTimeout(() => {
+    //     this.vIf($message, false)
+    //   }, 1000)
+    // }, 1500)
+    // return false
     // console.log(this.data)
     // console.log(this.data.exportDataItem)
+
     apaasAxios
       .post('/api/teapi/queue/impexp/cancel', {
         dynamicid: this.data.exportId
@@ -583,14 +615,29 @@ export default class SpuExpandexp extends HTMLElement {
           // 取消成功
           this.updateStep('cancel')
           this.data.resultMessage = '任务已取消'
+          this.vText($message, '取消成功！')
+          this.vIf($message, true)
+          this.vOp($message, true)
+          $message.classList.add('success')
         }
       })
       .catch((error: any) => {
-
+        this.vText($message, '取消失败！')
+        this.vIf($message, true)
+        this.vOp($message, true)
+        $message.classList.add('error')
       })
       .finally(() => {
         const ele = this.shadow.querySelector('.spu-expandexp-confirm')
         this.vIf(ele, false)
+
+        setTimeout(() => {
+          this.vOp($message, false)
+          setTimeout(() => {
+            this.vIf($message, false)
+          }, 2000)
+        }, 2000)
+
       })
   }
 
