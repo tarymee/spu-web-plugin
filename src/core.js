@@ -462,7 +462,7 @@ const Module = {
   // linkToPage: core.linkToPage.bind(core),
   // linkToModule: core.linkToModule.bind(core),
   getModuleData: core.getModuleData.bind(core),
-  getContext: core.getContext.bind(core),
+  // getContext: core.getContext.bind(core),
   getEnvData: core.getEnvData.bind(core),
   apiRequest: core.apiRequest.bind(core),
   checkModule: core.checkModule.bind(core)
