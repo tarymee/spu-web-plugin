@@ -3,7 +3,7 @@ import renderTemplate from './template'
 import { Step } from './step'
 import { cloneDeep, merge } from 'lodash-es'
 import { fixFileName, dealFileSize, dealResultMessage } from './util'
-import { apaasAxios } from '../../axios'
+import { axios } from '../../axios'
 import core, { Module } from '../../core'
 import login from '../../login'
 import { downloadService } from '../../oss'
@@ -379,7 +379,7 @@ export default class SpuExpandexp extends HTMLElement {
         event: 'exportopenmodal'
       })
     } else {
-      apaasAxios
+      axios
         .post('/api/expandexp/global/searchExpGloConfig', {
           key: 'export-config-switch',
           tenantcode: login.getUser('tenantcode'),
@@ -416,7 +416,7 @@ export default class SpuExpandexp extends HTMLElement {
             this.data.iscompress = '1'
 
             // 获取文件水印开关
-            apaasAxios
+            axios
               .post('/api/expandexp/global/searchWatermarkConfig', '', {
                 isShowLoading: false
               })
@@ -486,7 +486,7 @@ export default class SpuExpandexp extends HTMLElement {
       }
     }
     const finallyPost = mergedata ? merge(mergedata, post) : post
-    apaasAxios
+    axios
       .post(this.props.exportapi, finallyPost)
       .then((res: any) => {
         // console.log(res)
@@ -606,7 +606,7 @@ export default class SpuExpandexp extends HTMLElement {
     // console.log(this.data)
     // console.log(this.data.exportDataItem)
 
-    apaasAxios
+    axios
       .post('/api/teapi/queue/impexp/cancel', {
         dynamicid: this.data.exportId
       })
@@ -653,7 +653,7 @@ export default class SpuExpandexp extends HTMLElement {
   }
 
   async updateStatus () {
-    apaasAxios
+    axios
       .post(`/api/teapi/queue/impexp/expStatus?dynamicid=${this.data.exportId}`, {}, {
         isShowLoading: false
       })

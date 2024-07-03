@@ -8,7 +8,7 @@ import ObsClient from '../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.
 // const ObsClient = require('../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js')
 import dayjs from 'dayjs'
 import login from '../login'
-import { apaasAxios } from '../axios'
+import { axios } from '../axios'
 // import { get } from 'lodash-es'
 // import qs from 'qs'
 
@@ -245,7 +245,7 @@ const downloadFile = async ({
     filename: realFilename,
     cope
   })
-  // apaasAxios.get(url, {
+  // axios.get(url, {
   //   responseType: 'blob',
   //   isSendToken: false,
   //   isShowErrorMessage: false
@@ -263,7 +263,7 @@ const downloadFile = async ({
   if (isAliYun) {
     downloadFileByUrl(url, filename)
   } else {
-    apaasAxios.get(url, {
+    axios.get(url, {
       responseType: 'blob',
       isSendToken: false,
       isShowErrorMessage: false

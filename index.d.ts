@@ -63,8 +63,8 @@ export const ssProxy: any
 export const getLocation: () => Promise<Location>
 export const getDistance: (p1: [number, number], p2: [number, number]) => Promise<any>
 export const spuAxios: any
-// export const spuAxios: AxiosInstance
 export const apaasAxios: any
+export const axios: any
 export const spuConfig: any
 export const downloadService: IDownloadService
 export const uploadService: IUploadService

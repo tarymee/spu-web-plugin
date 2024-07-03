@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash-es'
 import jwtDecode from 'jwt-decode'
-import { apaasAxios } from './axios'
+import { axios } from './axios'
 import tenantInfo from './tenantInfo'
 import { lsProxy } from './storageProxy'
 // import { functionCheck } from './utils'
@@ -99,7 +99,7 @@ class Login {
   }
 
   private updateToken () {
-    return apaasAxios.get('/api/auth/refreshtoken', {
+    return axios.get('/api/auth/refreshtoken', {
       params: {
         refreshtoken: this.getRefreshToken()
       },
@@ -211,7 +211,7 @@ class Login {
 
   // 接口请求回来的 userInfo 有 functioncodes 以便做权限校验
   async getAndSetUserInfo () {
-    // return apaasAxios.post('/api/teapi/rolepermission/account/getaccountinfo', {
+    // return axios.post('/api/teapi/rolepermission/account/getaccountinfo', {
     //   positionid: this.getUser('positioncode'),
     //   deviceinfo: '',
     //   sysversion: '',
@@ -228,7 +228,7 @@ class Login {
     // })
 
     try {
-      const accountinfo: null | any = await apaasAxios.post('/api/teapi/rolepermission/account/getaccountinfo', {
+      const accountinfo: null | any = await axios.post('/api/teapi/rolepermission/account/getaccountinfo', {
         positionid: this.getUser('positioncode'),
         deviceinfo: '',
         sysversion: '',

@@ -1,5 +1,5 @@
 // import { noBaseRequest } from '@/service/http'
-import { apaasAxios } from '../axios'
+import { axios } from '../axios'
 
 export type ServToken = {
   accesskeyid: string
@@ -21,7 +21,7 @@ let xhr: Promise<ServToken> | null = null
 
 const getServToken = async () => {
   try {
-    const response: ServToken = await apaasAxios.get('/api/teapi/auth/servtoken', {}).then((res: any) => res.data)
+    const response: ServToken = await axios.get('/api/teapi/auth/servtoken', {}).then((res: any) => res.data)
     // debugger
     return response
   } catch (e) {

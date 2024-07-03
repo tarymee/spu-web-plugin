@@ -2,7 +2,7 @@ import { version } from '../package.json'
 import { install } from './install'
 import { lsProxy, ssProxy } from './storageProxy'
 import { getLocation, getDistance } from './location'
-import { spuAxios, apaasAxios } from './axios'
+import { spuAxios, axios } from './axios'
 import { spuConfig } from './spuConfig'
 import { downloadService, uploadService } from './oss'
 import { getUniqueid, functionCheck, isWxwork, isWxworkPc, isWxworkApp } from './utils'
@@ -47,7 +47,8 @@ export {
   getLocation,
   getDistance,
   spuAxios,
-  apaasAxios,
+  axios,
+  axios as apaasAxios,
   spuConfig,
   downloadService,
   uploadService,

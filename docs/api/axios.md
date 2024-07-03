@@ -53,21 +53,21 @@ spuAxios
 
 
 
-## apaasAxios
+## axios
 插件对 `axios` 实例做了一层封装，专门用于请求 `低码flycode` 或 `旧格式（比如平台接口）` 接口。
 
 + 类型：
 
 ```js
-const apaasAxios: AxiosInstance
+const axios: AxiosInstance
 ```
 
 + 示例：
 
 ```js
-import { apaasAxios } from '@smart100/spu-web-plugin'
+import { axios } from '@smart100/spu-web-plugin'
 
-apaasAxios
+axios
   .post(
     // 请求url
     '/api/teapi/dy-biz/893405830819483679/1498533100018339939',

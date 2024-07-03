@@ -1,11 +1,11 @@
-import { apaasAxios } from './axios'
+import { axios } from './axios'
 import cloudServ from './cloudServ'
 import { lsProxy } from './storageProxy'
 
 class TenantInfo {
   async get (tenantCode?: string) {
     try {
-      const tenants: null | ITenantInfo[] = await apaasAxios.get('/api/auth/tenantlist', {}).then((res: any) => {
+      const tenants: null | ITenantInfo[] = await axios.get('/api/auth/tenantlist', {}).then((res: any) => {
         // debugger
         return res?.data?.tenants
       })

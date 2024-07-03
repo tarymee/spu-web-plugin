@@ -16,7 +16,7 @@ interface Response {
   msg: string
 }
 
-const createAxiosInstance = (type: 'spu' | 'apaas' = 'spu', options: SPUWebPluginOptions) => {
+const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: SPUWebPluginOptions) => {
   const axiosInstance: AxiosInstance = axios.create({
     baseURL: type === 'spu' ? `/api/${options.modulekey}/${options.moduleversion}` : '',
     // baseURL: '',
@@ -88,7 +88,7 @@ const createAxiosInstance = (type: 'spu' | 'apaas' = 'spu', options: SPUWebPlugi
         }
         return Promise.reject(realRes) as any
       }
-    } else if (type === 'apaas') {
+    } else if (type === 'normal') {
       realRes = {
         code: res.status || 200,
         data: res.data?.resp_data || res.data,
@@ -118,7 +118,7 @@ const createAxiosInstance = (type: 'spu' | 'apaas' = 'spu', options: SPUWebPlugi
         } else {
           return false
         }
-      } else if (type === 'apaas') {
+      } else if (type === 'normal') {
         if (msg.indexOf('token is invalid(decode).') !== -1 || msg.indexOf('token is invalid(null).') !== -1 || msg === 'token无效，请重新登录' || msg === 'jwt token无效') {
           return true
         } else {
@@ -139,19 +139,16 @@ const createAxiosInstance = (type: 'spu' | 'apaas' = 'spu', options: SPUWebPlugi
   return axiosInstance
 }
 
-// const spuAxios: AxiosInstance = createAxiosInstance('spu')
-// const apaasAxios: AxiosInstance = createAxiosInstance('apaas')
-
 let spuAxios: any = null
-let apaasAxios: any = null
+let normalAxios: any = null
 
 function initAxios (options: SPUWebPluginOptions) {
   spuAxios = createAxiosInstance('spu', options)
-  apaasAxios = createAxiosInstance('apaas', options)
+  normalAxios = createAxiosInstance('normal', options)
 }
 
 export {
   initAxios,
   spuAxios,
-  apaasAxios
+  normalAxios as axios
 }
