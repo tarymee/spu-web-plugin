@@ -12,6 +12,7 @@ import { v4 as getUuid } from 'uuid'
 import { Module } from './core'
 import components from './components'
 import { expandexp } from './components/expandexp'
+import { jssdk } from '@smart100/wxworksuite-plugin'
 
 
 // class SPUWebPlugin {
@@ -31,6 +32,10 @@ const getTokenExpires = login.getTokenExpires.bind(login)
 const getRefreshToken = login.getRefreshToken.bind(login)
 const getUser = login.getUser.bind(login)
 const checkLogin = login.checkLogin.bind(login)
+const wxworkSuite = {
+  JSSDK: jssdk,
+  isWxworkSuiteTenant: jssdk.checkData
+}
 
 export {
   SPUWebPlugin as default,
@@ -54,5 +59,6 @@ export {
   checkLogin,
   Module,
   components,
-  expandexp
+  expandexp,
+  wxworkSuite
 }

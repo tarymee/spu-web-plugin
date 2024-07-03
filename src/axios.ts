@@ -8,6 +8,7 @@ import { get } from 'lodash-es'
 // import { Message } from 'element-ui'
 import { loadding } from './components/loadding'
 import login from './login'
+import core from './core'
 
 interface Response {
   code: number | string
@@ -18,6 +19,7 @@ interface Response {
 const createAxiosInstance = (type: 'spu' | 'apaas' = 'spu', options: SPUWebPluginOptions) => {
   const axiosInstance: AxiosInstance = axios.create({
     baseURL: type === 'spu' ? `/api/${options.modulekey}/${options.moduleversion}` : '',
+    // baseURL: '',
     // timeout: 36000000
     // withCredentials: true, // 不能开启 影响ali oss
     // headers: {
@@ -26,7 +28,7 @@ const createAxiosInstance = (type: 'spu' | 'apaas' = 'spu', options: SPUWebPlugi
     // }
   })
 
-  axiosInstance.interceptors.request.use((config: any) => {
+  axiosInstance.interceptors.request.use(async (config: any) => {
     // const isShowLoading = typeof config?.isShowLoading !== 'undefined' ? config.isShowLoading : true
     const isShowLoading = get(config, 'isShowLoading', true)
     isShowLoading && loadding.open()
@@ -38,6 +40,17 @@ const createAxiosInstance = (type: 'spu' | 'apaas' = 'spu', options: SPUWebPlugi
         config.headers.token = token
       }
     }
+
+    if (type === 'spu' && config.modulekey) {
+      const moduleData: any = await core.getModuleData(config.modulekey)
+      if (moduleData.data) {
+        config.baseURL = `/api/${config.modulekey}/${moduleData.data.moduleversion}`
+      } else {
+        console.error(moduleData.errorMsg)
+        config.baseURL = `/api/${config.modulekey}/v?.?`
+      }
+    }
+
     return config
   }, error => {
     return Promise.reject(error)

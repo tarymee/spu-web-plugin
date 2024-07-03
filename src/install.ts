@@ -4,6 +4,7 @@ import { initAxios } from './axios'
 import urlquery from './urlquery'
 import { initSpuConfig } from './spuConfig'
 import { initApaasSpuTrack } from './apaasSpuTrack'
+import { WxworksuitePluginInstall } from '@smart100/wxworksuite-plugin'
 import { merge } from 'lodash-es'
 import { initTest } from './test'
 
@@ -42,6 +43,10 @@ const install = (app: any, options: SPUWebPluginOptions) => {
   initApaasSpuTrack()
   urlquery.init()
   login.startRefreshtoken()
+  // 安装企微第三方应用插件
+  WxworksuitePluginInstall({
+    getToken: login.getToken()
+  })
   initTest(globalOptions)
 
   if (globalOptions.router) {

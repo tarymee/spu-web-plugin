@@ -183,6 +183,9 @@ class Core {
   }
 
   async getModuleData (modulekey) {
+    if (!modulekey) {
+      modulekey = globalOptions.modulekey
+    }
     const res = {
       errorMsg: '',
       data: null
@@ -208,6 +211,9 @@ class Core {
   }
 
   async getContext (modulekey) {
+    if (!modulekey) {
+      modulekey = globalOptions.modulekey
+    }
     let context
     const moduleData = await this.getModuleData(modulekey)
     if (moduleData?.data) {
@@ -237,6 +243,9 @@ class Core {
   }
 
   async checkModule (modulekey) {
+    if (!modulekey) {
+      modulekey = globalOptions.modulekey
+    }
     const moduleData = await this.getModuleData(modulekey)
     return !!moduleData.data
   }
@@ -365,21 +374,21 @@ class Core {
     }
   }
 
-  async getApiOrigin (modulekey) {
-    let apiOrigin = ''
-    let errorMsg = ''
-    const moduleData = await this.getModuleData(modulekey)
-    if (moduleData.data) {
-      const moduleBusiness = await this.getModuleBusiness(modulekey)
-      apiOrigin = `${moduleBusiness}/api/${moduleData.data.modulekey}/${moduleData.data.moduleversion}/`
-    } else {
-      errorMsg = moduleData.errorMsg
-    }
-    return {
-      apiOrigin,
-      errorMsg
-    }
-  }
+  // async getApiOrigin (modulekey) {
+  //   let apiOrigin = ''
+  //   let errorMsg = ''
+  //   const moduleData = await this.getModuleData(modulekey)
+  //   if (moduleData.data) {
+  //     const moduleBusiness = await this.getModuleBusiness(modulekey)
+  //     apiOrigin = `${moduleBusiness}/api/${moduleData.data.modulekey}/${moduleData.data.moduleversion}/`
+  //   } else {
+  //     errorMsg = moduleData.errorMsg
+  //   }
+  //   return {
+  //     apiOrigin,
+  //     errorMsg
+  //   }
+  // }
 
 
   // Module.apiRequest({
@@ -444,11 +453,7 @@ class Core {
   }
 }
 
-
 const core = new Core()
-
-
-
 
 const Module = {
   // getContextSync () {
@@ -456,17 +461,14 @@ const Module = {
   // },
   // linkToPage: core.linkToPage.bind(core),
   // linkToModule: core.linkToModule.bind(core),
+  getModuleData: core.getModuleData.bind(core),
+  getContext: core.getContext.bind(core),
+  getEnvData: core.getEnvData.bind(core),
   apiRequest: core.apiRequest.bind(core),
   checkModule: core.checkModule.bind(core)
 }
 
-
-
-
-
 export default core
-
-
 
 export {
   Module

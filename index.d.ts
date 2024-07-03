@@ -80,6 +80,7 @@ export const checkLogin: () => boolean
 export const Module: any
 export const components: any
 export const expandexp: (options: any) => void
+export const wxworkSuite: any
 
 interface ISPUWebPlugin {
   // install (app: App, option: ISPUWebPluginOptions): void
