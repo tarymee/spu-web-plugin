@@ -6,18 +6,18 @@ const isIOS = () => {
 }
 
 // 是否企微软件内 包括电脑端和APP端
-const isInWxwork = () => {
+const isWxwork = () => {
   return navigator.userAgent.indexOf('wxwork') >= 0
 }
 
 // 是否在电脑端企微软件内
-const isInPcWxwork = () => {
-  return isInWxwork() && navigator.userAgent.indexOf('Mobile') === -1
+const isWxworkPc = () => {
+  return isWxwork() && navigator.userAgent.indexOf('Mobile') === -1
 }
 
 // 是否在企微APP内
-const isInAppWxwork = () => {
-  return isInWxwork() && navigator.userAgent.indexOf('Mobile') >= 0
+const isWxworkApp = () => {
+  return isWxwork() && navigator.userAgent.indexOf('Mobile') >= 0
 }
 
 // 生成唯一id
@@ -40,9 +40,9 @@ const functionCheck = (functioncode?: string): boolean => {
 
 export {
   isIOS,
-  isInWxwork,
-  isInPcWxwork,
-  isInAppWxwork,
+  isWxwork,
+  isWxworkPc,
+  isWxworkApp,
   getUniqueid,
   functionCheck
 }

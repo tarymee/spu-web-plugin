@@ -17,6 +17,7 @@
   * [生成唯一 id 服务](api/id)
   * [功能权限校验服务](api/functioncheck)
   * [导出](api/expandexp)
+  * [企微第三方应用相关服务](api/wxworksuite)
   <!-- * [基础信息](api/index)
   * [layout 布局](api/layout)
   * [filter 搜索栏](api/filter)

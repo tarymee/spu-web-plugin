@@ -5,7 +5,7 @@ import { getLocation, getDistance } from './location'
 import { spuAxios, apaasAxios } from './axios'
 import { spuConfig } from './spuConfig'
 import { downloadService, uploadService } from './oss'
-import { getUniqueid, functionCheck } from './utils'
+import { getUniqueid, functionCheck, isWxwork, isWxworkPc, isWxworkApp } from './utils'
 import AMapLoader from './AMapLoader'
 import login from './login'
 import { v4 as getUuid } from 'uuid'
@@ -34,7 +34,10 @@ const getUser = login.getUser.bind(login)
 const checkLogin = login.checkLogin.bind(login)
 const wxworkSuite = {
   JSSDK: jssdk,
-  isWxworkSuiteTenant: jssdk.checkData
+  isWxworkSuiteTenant: jssdk.checkData,
+  isWxwork,
+  isWxworkPc,
+  isWxworkApp
 }
 
 export {

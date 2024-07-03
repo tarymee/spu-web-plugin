@@ -2,7 +2,7 @@
   "name": "@smart100/spu-web-plugin-docs",
   "private": true,
   "scripts": {
-    "docs": "docsify serve"
+    "docs": "docsify serve -p 12457"
   },
   "devDependencies": {
     "docsify-cli": "^4.4.4"

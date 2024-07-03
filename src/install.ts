@@ -45,7 +45,7 @@ const install = (app: any, options: SPUWebPluginOptions) => {
   login.startRefreshtoken()
   // 安装企微第三方应用插件
   WxworksuitePluginInstall({
-    getToken: login.getToken()
+    getToken: login.getToken.bind(login)
   })
   initTest(globalOptions)
 
