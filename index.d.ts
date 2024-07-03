@@ -5,6 +5,7 @@ interface ISPUWebPluginOptions {
   modulekey: string
   modulename: string
   moduleversion: string
+  storageproxyprefix?: string
   router?: any
 }
 

@@ -12,6 +12,7 @@ const globalOptions: SPUWebPluginOptions = {
   modulekey: 'demospu',
   modulename: 'demospu',
   moduleversion: 'v1.0',
+  storageproxyprefix: '',
   router: null
 }
 

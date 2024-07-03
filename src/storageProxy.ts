@@ -39,7 +39,7 @@ const lsProxy: StorageProxy = new StorageProxy('local')
 const ssProxy: StorageProxy = new StorageProxy('session')
 
 function initStorageProxy (options: SPUWebPluginOptions) {
-  STORAGENAMESPACE = options.modulekey
+  STORAGENAMESPACE = options.storageproxyprefix || options.modulekey
 }
 
 export {

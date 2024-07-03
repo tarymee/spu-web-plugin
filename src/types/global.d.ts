@@ -6,6 +6,7 @@ interface SPUWebPluginOptions {
   modulekey: string;
   modulename: string;
   moduleversion: string;
+  storageproxyprefix?: string
   router?: any;
 }
 
