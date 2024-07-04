@@ -6,6 +6,8 @@ interface ISPUWebPluginOptions {
   modulename: string
   moduleversion: string
   storageproxyprefix?: string
+  isautorefreshtoken?: boolean
+  isautosinglelogin?: boolean
   router?: any
 }
 
@@ -78,6 +80,8 @@ export const getTokenExpires: () => string
 export const getRefreshToken: () => string
 export const getUser: (key?: string) => any
 export const checkLogin: () => boolean
+export const singleLogin: any
+export const startRefreshtoken: any
 export const Module: any
 export const components: any
 export const expandexp: (options: any) => void

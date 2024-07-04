@@ -13,6 +13,8 @@ const globalOptions: SPUWebPluginOptions = {
   modulename: 'demospu',
   moduleversion: 'v1.0',
   storageproxyprefix: '',
+  isautosinglelogin: true,
+  isautorefreshtoken: true,
   router: null
 }
 
@@ -41,37 +43,45 @@ const install = (app: any, options: SPUWebPluginOptions) => {
   initStorageProxy(globalOptions)
   initAxios(globalOptions)
   initSpuConfig(globalOptions)
-  initApaasSpuTrack()
   urlquery.init()
-  login.startRefreshtoken()
+
   // 安装企微第三方应用插件
   WxworksuitePluginInstall({
     getToken: login.getToken.bind(login)
   })
-  initTest(globalOptions)
 
-  if (globalOptions.router) {
-    globalOptions.router.beforeEach(async (to: any, from: any, next: any) => {
-      // console.log(from)
-      // console.log(to)
-      // const isInitVisit = from.path === '/' && from.name === undefined // 路由初始化访问
-      // console.log('isInitVisit', isInitVisit)
-
-      // 自动登录
-      if (to.query.token) {
-        const singleLoginRes = await login.singleLogin(to.query)
-        next({
-          path: to.path,
-          params: to.params,
-          query: singleLoginRes.query
-        })
-      } else {
-        next()
-      }
-    })
-  } else {
-    console.error('@smart100/spu-web-plugin require a vue-router instance.')
+  if (globalOptions.isautorefreshtoken) {
+    login.startRefreshtoken()
   }
+
+  if (globalOptions.isautosinglelogin) {
+    if (globalOptions.router) {
+      globalOptions.router.beforeEach(async (to: any, from: any, next: any) => {
+        // console.log(from)
+        // console.log(to)
+        // const isInitVisit = from.path === '/' && from.name === undefined // 路由初始化访问
+        // console.log('isInitVisit', isInitVisit)
+
+        // 自动登录
+        if (to.query.token) {
+          const singleLoginRes = await login.singleLogin(to.query)
+          next({
+            path: to.path,
+            params: to.params,
+            query: singleLoginRes.query
+          })
+        } else {
+          next()
+        }
+      })
+    } else {
+      console.error('@smart100/spu-web-plugin require a vue-router instance.')
+    }
+  }
+
+  initApaasSpuTrack()
+
+  initTest(globalOptions)
 }
 
 export {
