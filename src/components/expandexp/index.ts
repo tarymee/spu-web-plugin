@@ -8,6 +8,7 @@ import core, { Module } from '../../core'
 import login from '../../login'
 import { downloadService } from '../../oss'
 import { apaasSpuTrackSendLog } from '../../apaasSpuTrack'
+import { isWxworkSuiteTenant } from '@smart100/wxworksuite-plugin'
 
 export default class SpuExpandexp extends HTMLElement {
 
@@ -67,9 +68,10 @@ export default class SpuExpandexp extends HTMLElement {
       fileName: '',
       fileSize: '',
       runningTaskCount: 0,
-      isOldVersionService: false
+      isOldVersionService: false,
+      isWxworkSuiteTenant: isWxworkSuiteTenant()
     }, (key: string, value: any) => {
-      const { exportConfigInit, stepName, stepText, exportcontentArray, exportcontent, isOldVersionService, runningTaskCount, fileName, filetype, fileSize, exportDataItem, percentage, resultMessage } = this.data
+      const { exportConfigInit, stepName, stepText, exportcontentArray, exportcontent, isOldVersionService, runningTaskCount, fileName, filetype, fileSize, exportDataItem, percentage, resultMessage, isWxworkSuiteTenant } = this.data
 
       // debugger
       const $exportSel = this.shadow.querySelector('.export-sel') as any
@@ -89,6 +91,12 @@ export default class SpuExpandexp extends HTMLElement {
       const $filesize = this.shadow.querySelector('.export-file-l-filesize') as any
       const $wait = this.shadow.querySelector('.export-wait') as any
       const $waitSpan = this.shadow.querySelector('.export-wait span') as any
+      const $exportWxworkTip = this.shadow.querySelector('.export-wxwork-tip') as any
+
+
+      if (key === 'isWxworkSuiteTenant') {
+        this.vIf($exportWxworkTip, isWxworkSuiteTenant)
+      }
 
       if (key === 'exportConfigInit') {
         this.vIf($exportSelCon, exportConfigInit)
@@ -323,8 +331,6 @@ export default class SpuExpandexp extends HTMLElement {
     this.shadow.querySelector('.spu-expandexp-confirm-modal-confirm')!.addEventListener('click', () => {
       this.handleCencel()
     })
-
-
 
     this.shadow.querySelector('.export-btn')!.addEventListener('click', () => {
       // console.log('导出')

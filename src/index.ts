@@ -5,15 +5,14 @@ import { getLocation, getDistance } from './location'
 import { spuAxios, axios } from './axios'
 import { spuConfig } from './spuConfig'
 import { downloadService, uploadService } from './oss'
-import { getUniqueid, functionCheck, isWxwork, isWxworkPc, isWxworkApp } from './utils'
+import { getUniqueid, functionCheck } from './utils'
 import AMapLoader from './AMapLoader'
 import login from './login'
 import { v4 as getUuid } from 'uuid'
 import { Module } from './core'
 import components from './components'
 import { expandexp } from './components/expandexp'
-import { jssdk } from '@smart100/wxworksuite-plugin'
-
+import { jssdk, isWxworkSuiteTenant, isWxwork, isWxworkPc, isWxworkApp } from '@smart100/wxworksuite-plugin'
 
 // class SPUWebPlugin {
 //   static install = install
@@ -34,7 +33,7 @@ const getUser = login.getUser.bind(login)
 const checkLogin = login.checkLogin.bind(login)
 const wxworkSuite = {
   JSSDK: jssdk,
-  isWxworkSuiteTenant: jssdk.checkData,
+  isWxworkSuiteTenant,
   isWxwork,
   isWxworkPc,
   isWxworkApp

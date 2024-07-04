@@ -173,6 +173,11 @@ export default (ele: SpuExpandexp) => {
   height: 32px;
 }
 
+.export-wxwork-tip {
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
 .export-sel {
   margin-bottom: 12px;
 }
@@ -419,6 +424,8 @@ export default (ele: SpuExpandexp) => {
             <div class="export-wait hide">
               导出等待队列中：还有<span></span>位，请耐心稍等...
             </div>
+
+            <div class="export-wxwork-tip hide">提醒：导出前请联系管理员确认已在人员管理模块进行了同步企微端人员和组织名称的操作，否则导出字段将会显示异常！</div>
 
             <div class="export-sel hide">
               <div class="export-sel-title">请选择导出内容</div>
