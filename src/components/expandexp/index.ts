@@ -94,8 +94,8 @@ export default class SpuExpandexp extends HTMLElement {
       const $exportWxworkTip = this.shadow.querySelector('.export-wxwork-tip') as any
 
 
-      if (key === 'isWxworkSuiteTenant') {
-        this.vIf($exportWxworkTip, isWxworkSuiteTenant)
+      if (key === 'isWxworkSuiteTenant' || key === 'stepName') {
+        this.vIf($exportWxworkTip, isWxworkSuiteTenant && stepName === 'initial')
       }
 
       if (key === 'exportConfigInit') {
