@@ -38,7 +38,7 @@ class StorageProxy {
 const lsProxy: StorageProxy = new StorageProxy('local')
 const ssProxy: StorageProxy = new StorageProxy('session')
 
-function initStorageProxy (options: SPUWebPluginOptions) {
+function initStorageProxy (options: any) {
   STORAGENAMESPACE = options.storageproxyprefix || options.modulekey
 }
 

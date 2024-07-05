@@ -8,7 +8,7 @@ import { WxworksuitePluginInstall } from '@smart100/wxworksuite-plugin'
 import { merge } from 'lodash-es'
 import { initTest } from './test'
 
-const globalOptions: SPUWebPluginOptions = {
+const globalOptions: any = {
   modulekey: 'demospu',
   modulename: 'demospu',
   moduleversion: 'v1.0',
@@ -18,13 +18,13 @@ const globalOptions: SPUWebPluginOptions = {
   router: null
 }
 
-const install = (app: any, options: SPUWebPluginOptions) => {
+const install = (app: any, options: any) => {
   // console.log(app)
   // console.log(app.version)
   merge(globalOptions, options)
   console.log('@smart100/spu-web-plugin start!')
-  console.log('options', options)
-  console.log('globalOptions', globalOptions)
+  console.log('@smart100/spu-web-plugin user options: ', options)
+  console.log('@smart100/spu-web-plugin globalOptions: ', globalOptions)
 
   // if (install.installed) return
   // install.installed = true
@@ -65,11 +65,16 @@ const install = (app: any, options: SPUWebPluginOptions) => {
         // 自动登录
         if (to.query.token) {
           const singleLoginRes = await login.singleLogin(to.query)
-          next({
-            path: to.path,
-            params: to.params,
-            query: singleLoginRes.query
-          })
+          if (singleLoginRes.flag) {
+            next({
+              path: to.path,
+              params: to.params,
+              query: singleLoginRes.query
+            })
+          } else {
+            console.error('单点登录失败，请检查链接所传 token 是否非法或过期。')
+            next()
+          }
         } else {
           next()
         }

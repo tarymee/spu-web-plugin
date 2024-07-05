@@ -59,7 +59,24 @@ class Login {
         })
       })
     }
+
+    if (!envname) {
+      envname = this.getQueryEnvname() || ''
+    }
+
     return envname
+  }
+
+  setQueryEnvname (value: string) {
+    this.setData('envname', value)
+  }
+
+  getQueryEnvname () {
+    return this.getData('envname')
+  }
+
+  removeQueryEnvname () {
+    this.removeData('envname')
   }
 
   getToken () {
@@ -190,6 +207,78 @@ class Login {
     }
   }
 
+  // // 产品运营中心token
+  // {
+  //   "LoginUser": {
+  //     "appId": "100",
+  //     "tenantCode": "1656652",
+  //     "productCode": "100000000000000000",
+  //     "productVersionCode": null,
+  //     "clientTypeCode": null,
+  //     "userCode": "6",
+  //     "accountCode": "6",
+  //     "username": "庄焕滨",
+  //     "tokenId": "bd69b4a4-5376-47cd-91c3-f1e1576440e5",
+  //     "appCodes": null,
+  //     "appCode": null,
+  //     "platRoleCodes": ["1637696814759153664"],
+  //     "metamodeltype": 2,
+  //     "orgCode": "1751852081616130048",
+  //     "centerRole": true
+  //   },
+  //   "TwoFactorAuthCode": "6f56da978dffe31a3b03a56c446f9467",
+  //   "exp": 1751694745
+  // }
+
+  // // 租户token
+  // {
+  //   "exp": 1720161305,
+  //   "LoginUser": {
+  //     "accountInfoCode": "1803686723986010112",
+  //     "accountCode": "1803686724107644928",
+  //     "tenantCode": "3000911",
+  //     "productCode": "100000000000000000",
+  //     "productVersionCode": "30000000000000911",
+  //     "clientTypeCode": 1,
+  //     "tokenId": "8614059e-69a5-4e1e-a948-f2ef680d0dd5",
+  //     "orgCode": "1803686397149065216",
+  //     "userInfoId": "1806591894588108800",
+  //     "userInfoName": "woOUQJEAAAn4r5-7jffaxad6yotbEZ5A",
+  //     "positionCode": "1803686397304254473",
+  //     "positionName": "系统管理员-勿删",
+  //     "memberCode": "1806591894659411968",
+  //     "refPositionCode": "1300728614534385664",
+  //     "categoryCode": "",
+  //     "orgStructTypeId": "1",
+  //     "userName": null,
+  //     "userName1": "woOUQJEAAAn4r5-7jffaxad6yotbEZ5A",
+  //     "userName2": null,
+  //     "userName3": null,
+  //     "tenantName": "智慧100-企微版-V9.1.1开发租户",
+  //     "appCode": "sales",
+  //     "appCodes": [
+  //       "promotion",
+  //       "distribution",
+  //       "sales"
+  //     ],
+  //     "subPdCodes": [
+  //       "sfa",
+  //       "dms",
+  //       "pmm",
+  //       "tpm",
+  //       "ai"
+  //     ],
+  //     "codepath": "1.1803686395634921472.1803686397149065216.",
+  //     "isleaforg": "true",
+  //     "metamodeltype": 1,
+  //     "isSmsLogin": false
+  //   }
+  // }
+
+  // getLoginType () {
+  //   return 'tenant' // 'tenant' | 'center'
+  // }
+
   // 检测用户是否登录状态
   checkLogin () {
     let haslogged = false
@@ -210,26 +299,11 @@ class Login {
   }
 
   // 接口请求回来的 userInfo 有 functioncodes 以便做权限校验
+  // 有可能是中心角色请求失败 兼容不报错
   async getAndSetUserInfo () {
-    // return axios.post('/api/teapi/rolepermission/account/getaccountinfo', {
-    //   positionid: this.getUser('positioncode'),
-    //   deviceinfo: '',
-    //   sysversion: '',
-    //   clientversion: ''
-    // }).then((res: any) => {
-    //   // console.log(res)
-    //   // debugger
-    //   if (res.code === 200 && res.data) {
-    //     this.setUser(res.data)
-    //   }
-    // }).catch((err: Error) => {
-    //   console.error(22)
-    //   console.error(err)
-    // })
-
     try {
       const accountinfo: null | any = await axios.post('/api/teapi/rolepermission/account/getaccountinfo', {
-        positionid: this.getUser('positioncode'),
+        positionid: this.getUser('positioncode') || '',
         deviceinfo: '',
         sysversion: '',
         clientversion: ''
@@ -245,6 +319,7 @@ class Login {
       }
     } catch (e) {
       console.error(e)
+      console.warn('获取用户信息失败，当前您登录的帐号可能为非标准租户帐号。')
     }
   }
 
@@ -252,47 +327,57 @@ class Login {
   async singleLogin (query: IAny) {
     // 自动登录
     query = cloneDeep(query)
+
+    let flag = true // 是否登录成功
+    // let isneedlogin = true // 是否需要走单点登录流程
+
+    // todo
+    // if (query.token === this.getToken()) {
+    //   if (query.refreshtoken && query.tokenexpires) {
+    //     if (query.refreshtoken === this.getRefreshToken() && query.tokenexpires === this.getTokenExpires()) {
+    //       flag = true
+    //     } else {
+    //     }
+    //   }
+    //   flag = true
+    // }
+
     const token = query.token
     // 之所以不强制校验 refreshtoken tokenexpires 是因为安装卸载配置页面有可能放在产品运营中心 没有这两字段
     if (token) {
       this.setToken(token)
       this.setUserByToken(token) // 解析token为用户信息存入
 
-      const refreshtoken = query.refreshtoken
-      const tokenexpires = query.tokenexpires
-      if (refreshtoken) {
-        this.setRefreshToken(refreshtoken)
-      } else {
-        this.removeRefreshToken()
-      }
-      if (tokenexpires) {
-        this.setTokenExpires(tokenexpires)
-      } else {
-        this.removeTokenExpires()
-      }
+      query.refreshtoken ? this.setRefreshToken(query.refreshtoken) : this.removeRefreshToken()
+      query.tokenexpires ? this.setTokenExpires(query.tokenexpires) : this.removeTokenExpires()
+      query.envname ? this.setQueryEnvname(query.envname) : this.removeQueryEnvname()
 
       // context 上下文字段 产品运营中心安装 卸载 配置 和 产品配置中心业务配置 页面需要用到
+      // web 端有传 app没传 需要做兼容
       let context = query.context
       if (context) {
         context = decodeURIComponent(context)
         lsProxy.setItem('context', context)
-        delete query.context
       }
 
+      // 这里要兼容报错
       await tenantInfo.getAndSave()
       await this.getAndSetUserInfo()
-
-      // const ischeck = functionCheck('1429379220684842752')
-      // console.log(ischeck)
     } else {
       console.error('query 中没有 token，无法单点登录。')
     }
+
     // 单点登录后 无论是否成功 都需要删除 query 中相关参数
-    delete query.token
-    delete query.refreshtoken
-    delete query.tokenexpires
+    query.token && delete query.token
+    query.refreshtoken && delete query.refreshtoken
+    query.tokenexpires && delete query.tokenexpires
+    query.envname && delete query.envname
+    query.context && delete query.context
+
     // debugger
+
     return {
+      flag,
       query
     }
   }

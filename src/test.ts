@@ -3,7 +3,7 @@
 // import login from './login'
 // import core, { Module } from './core'
 
-async function initTest (options: SPUWebPluginOptions) {
+async function initTest (options: any) {
   // console.log('initTest')
   // loadding.open()
 

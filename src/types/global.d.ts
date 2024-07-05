@@ -2,16 +2,6 @@ interface IAny {
   [param: string]: any
 }
 
-interface SPUWebPluginOptions {
-  modulekey: string;
-  modulename: string;
-  moduleversion: string;
-  storageproxyprefix?: string
-  isautorefreshtoken?: boolean
-  isautosinglelogin?: boolean
-  router?: any;
-}
-
 type StorageType = 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y'
 
 enum StorageEnum {

@@ -85,7 +85,7 @@ class SpuConfig {
   // }
 }
 
-function initSpuConfig (options: SPUWebPluginOptions) {
+function initSpuConfig (options: any) {
   modulekey = options.modulekey
 }
 

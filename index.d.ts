@@ -1,15 +1,15 @@
 // import type { App } from 'vue'
 // import type { AxiosInstance } from 'axios'
 
-interface ISPUWebPluginOptions {
-  modulekey: string
-  modulename: string
-  moduleversion: string
-  storageproxyprefix?: string
-  isautorefreshtoken?: boolean
-  isautosinglelogin?: boolean
-  router?: any
-}
+// interface ISPUWebPluginOptions {
+//   modulekey: string
+//   modulename: string
+//   moduleversion: string
+//   storageproxyprefix?: string
+//   isautorefreshtoken?: boolean
+//   isautosinglelogin?: boolean
+//   router?: any
+// }
 
 interface IAMapLoader {
   load: (options?: {
@@ -89,7 +89,7 @@ export const wxworkSuite: any
 
 interface ISPUWebPlugin {
   // install (app: App, option: ISPUWebPluginOptions): void
-  install (app: any, option: ISPUWebPluginOptions): void
+  install (app: any, option: any): void
   // install: any
   version: string
 }

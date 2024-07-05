@@ -16,7 +16,7 @@ interface Response {
   msg: string
 }
 
-const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: SPUWebPluginOptions) => {
+const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
   const axiosInstance: AxiosInstance = axios.create({
     baseURL: type === 'spu' ? `/api/${options.modulekey}/${options.moduleversion}` : '',
     // baseURL: '',
@@ -142,7 +142,7 @@ const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: SPUWebPlug
 let spuAxios: any = null
 let normalAxios: any = null
 
-function initAxios (options: SPUWebPluginOptions) {
+function initAxios (options: any) {
   spuAxios = createAxiosInstance('spu', options)
   normalAxios = createAxiosInstance('normal', options)
 }

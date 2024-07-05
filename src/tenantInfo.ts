@@ -16,10 +16,9 @@ class TenantInfo {
         if (!tenantCode) {
           return tenants[0]
         } else {
-          const res =
-            tenants.find((item) => {
-              return item.code === tenantCode
-            }) || null
+          const res = tenants.find((item) => {
+            return item.code === tenantCode
+          }) || null
           return res
         }
       } else {
