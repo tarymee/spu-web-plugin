@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash-es'
 import jwtDecode from 'jwt-decode'
-import tenantInfo from './tenantInfo'
 import { lsProxy, axios } from './index'
+import cloudServ from './cloudServ'
 // import { functionCheck } from './utils'
 
 
@@ -277,20 +277,45 @@ class Login {
   //     "isSmsLogin": false
   //   }
   // }
+  // 查询token所属登录角色
+  // tenant: 普通租户登录 默认
+  // center: 产品运营中心登录 单点登录时只带 token 没带 refreshtoken 和 tokenexpires
+  getLoginRole (token?: string) {
+    let loginRole: 'center' | 'tenant' = 'tenant' // center | tenant
+    if (token) {
+      const jwtInfo = this.jwtDecode(token)
+      if (jwtInfo?.LoginUser?.centerRole || jwtInfo?.LoginUser?.appId === '100') {
+        // 产品运营中心登录
+        loginRole = 'center'
+      }
+    }
+    return loginRole
+  }
 
-  // getLoginType () {
-  //   return 'tenant' // 'tenant' | 'center'
-  // }
-
-  // 检测用户是否登录状态
+  // 检测当前用户是否登录状态
   checkLogin () {
     let haslogged = false
     const token = this.getToken()
-    const refreshtoken = this.getRefreshToken()
-    const tokenexpires = this.getTokenExpires()
-    const now = Date.now()
-    if (token && refreshtoken && tokenexpires && Number(tokenexpires) > now) {
-      // 优化成用 jwt 解析token 获取过期时间 不需要请求接口
+    if (token) {
+      if (this.getLoginRole(token) === 'center') {
+        haslogged = this.checkTokenLogin(token)
+      } else {
+        const refreshtoken = this.getRefreshToken()
+        const tokenexpires = this.getTokenExpires()
+        const now = Date.now()
+        if (token && refreshtoken && tokenexpires && Number(tokenexpires) > now) {
+          haslogged = this.checkTokenLogin(token)
+        }
+      }
+    }
+    return haslogged
+  }
+
+  // 检测token是否过期
+  checkTokenLogin (token?: string) {
+    let haslogged = false
+    if (token) {
+      const now = Date.now()
       const jwtInfo = this.jwtDecode(token)
       if (jwtInfo?.exp) {
         haslogged = Number(jwtInfo.exp + '000') > now
@@ -326,48 +351,113 @@ class Login {
     }
   }
 
+  formatTenant (tenant: ITenantInfo) {
+    if (!tenant) {
+      return null
+    }
+    const cloundTagMap = ['storage', 'storage-1d', 'storage-1y', 'storage-3m']
+    const result: NormalizedCloudServ = {}
+    for (const keyItem of cloundTagMap) {
+      const cloudServ = tenant.cloudserv[keyItem as StorageEnum]
+      if (cloudServ) {
+        result[keyItem as StorageEnum] = {
+          cloudserv_storage_provider: cloudServ.provider,
+          cloudserv_storage_storagebucket: cloudServ.storagebucket,
+          cloudserv_storage_storageendpoint: cloudServ.storageendpoint,
+          cloudserv_storage_storageurl: cloudServ.storageurl,
+          cloudserv_storage_accesskeyid: cloudServ.accesskeyid,
+          cloudserv_storage_region: cloudServ.region
+        }
+      }
+    }
+    if (Object.keys(result).length === 0) {
+      return null
+    }
+    return result
+  }
+
+  async getAndSetTenant (tenantcode?: string) {
+    try {
+      const tenantsRes: null | ITenantInfo[] = await axios.get('/api/auth/tenantlist', {}).then((res: any) => {
+        return res?.data?.tenants
+      })
+
+      let tenant: ITenantInfo | null = null
+      if (tenantsRes?.length) {
+        if (!tenantcode) {
+          tenant = tenantsRes[0]
+        } else {
+          tenant = tenantsRes.find((item) => item.code === tenantcode) || null
+        }
+      }
+
+      if (!tenant) {
+        lsProxy.removeItem('tenant')
+        cloudServ.remove()
+      } else {
+        lsProxy.setItem('tenant', JSON.stringify(tenant))
+        const normalizedTenant = this.formatTenant(tenant)
+        if (normalizedTenant) {
+          cloudServ.set(normalizedTenant)
+        }
+      }
+    } catch (e) {
+      console.error(e)
+      console.warn('获取租户信息失败，当前您登录的帐号可能为非标准租户帐号。')
+    }
+  }
+
   // 单点登录
   async singleLogin (query: IAny) {
-    // 自动登录
     query = cloneDeep(query)
 
     let flag = true // 是否登录成功
-    // let isneedlogin = true // 是否需要走单点登录流程
-
-    // todo
-    // if (query.token === this.getToken()) {
-    //   if (query.refreshtoken && query.tokenexpires) {
-    //     if (query.refreshtoken === this.getRefreshToken() && query.tokenexpires === this.getTokenExpires()) {
-    //       flag = true
-    //     } else {
-    //     }
-    //   }
-    //   flag = true
-    // }
-
     const token = query.token
-    // 之所以不强制校验 refreshtoken tokenexpires 是因为安装卸载配置页面有可能放在产品运营中心 没有这两字段
-    if (token) {
-      this.setToken(token)
-      this.setUserByToken(token) // 解析token为用户信息存入
 
-      query.refreshtoken ? this.setRefreshToken(query.refreshtoken) : this.removeRefreshToken()
-      query.tokenexpires ? this.setTokenExpires(query.tokenexpires) : this.removeTokenExpires()
-      query.envname ? this.setQueryEnvname(query.envname) : this.removeQueryEnvname()
+    if (this.checkTokenLogin(token)) {
+      let isneedlogin = true // 是否需要走单点登录流程
+      const loginRole = this.getLoginRole(token)
 
-      // context 上下文字段 产品运营中心安装 卸载 配置 和 产品配置中心业务配置 页面需要用到
-      // web 端有传 app没传 需要做兼容
-      let context = query.context
-      if (context) {
-        context = decodeURIComponent(context)
-        lsProxy.setItem('context', context)
+      if (loginRole === 'center') {
+        // 如果本地已经登录 且 query 登录参数与本地一致 说明是刚登录没多久【token也没刷新过】 视为已经登录 不需再走单点登录流程
+        // 之所以不强制校验 refreshtoken tokenexpires 是因为安装卸载配置页面有可能放在产品运营中心 没有这两字段
+        if (this.checkLogin() && token === this.getToken()) {
+          isneedlogin = false
+          flag = true
+        }
+      } else {
+        // 如果本地已经登录 且 query 登录参数与本地一致 说明是刚登录没多久【token也没刷新过】 视为已经登录 不需再走单点登录流程
+        if (this.checkLogin() && token === this.getToken() && query.refreshtoken === this.getRefreshToken() && query.tokenexpires === this.getTokenExpires()) {
+          isneedlogin = false
+          flag = true
+        }
       }
 
-      // 这里要兼容报错
-      await tenantInfo.getAndSave()
-      await this.getAndSetUserInfo()
+      if (isneedlogin) {
+        this.setToken(token)
+        this.setUserByToken(token) // 解析token为用户信息存入
+
+        query.refreshtoken ? this.setRefreshToken(query.refreshtoken) : this.removeRefreshToken()
+        query.tokenexpires ? this.setTokenExpires(query.tokenexpires) : this.removeTokenExpires()
+        query.envname ? this.setQueryEnvname(query.envname) : this.removeQueryEnvname()
+
+        // context 上下文字段 产品运营中心安装 卸载 配置 和 产品配置中心业务配置 页面需要用到
+        // web 端有传 app没传 需要做兼容
+        let context = query.context
+        if (context) {
+          context = decodeURIComponent(context)
+          lsProxy.setItem('context', context)
+        }
+
+        // 这里兼容报错
+        await this.getAndSetTenant()
+        await this.getAndSetUserInfo()
+
+        flag = true
+      }
     } else {
-      console.error('query 中没有 token，无法单点登录。')
+      flag = false
+      console.error('query 中没有 token 或 token 已过期，无法单点登录。')
     }
 
     // 单点登录后 无论是否成功 都需要删除 query 中相关参数

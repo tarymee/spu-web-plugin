@@ -6,8 +6,6 @@
 //   modulename: string
 //   moduleversion: string
 //   storageproxyprefix?: string
-//   isautorefreshtoken?: boolean
-//   isautosinglelogin?: boolean
 //   router?: any
 // }
 

@@ -36,8 +36,6 @@ const globalOptions: any = {
   modulename: 'demospu',
   moduleversion: 'v1.0',
   storageproxyprefix: '',
-  isautosinglelogin: true,
-  isautorefreshtoken: true,
   router: null
 }
 
@@ -64,6 +62,7 @@ const install = (app: any, options: any) => {
   // }
 
   initStorageProxy(globalOptions)
+
   initAxios(globalOptions)
   initSpuConfig(globalOptions)
   urlquery.init()
@@ -73,39 +72,38 @@ const install = (app: any, options: any) => {
     getToken: login.getToken.bind(login)
   })
 
-  if (globalOptions.isautorefreshtoken) {
-    login.startRefreshtoken()
-  }
+  login.startRefreshtoken()
 
-  if (globalOptions.isautosinglelogin) {
-    if (globalOptions.router) {
-      globalOptions.router.beforeEach(async (to: any, from: any, next: any) => {
-        // console.log(from)
-        // console.log(to)
-        // const isInitVisit = from.path === '/' && from.name === undefined // 路由初始化访问
-        // console.log('isInitVisit', isInitVisit)
+  if (globalOptions.router) {
+    globalOptions.router.beforeEach(async (to: any, from: any, next: any) => {
+      // console.log(from)
+      // console.log(to)
+      // const isInitVisit = from.path === '/' && from.name === undefined // 路由初始化访问
+      // console.log('isInitVisit', isInitVisit)
 
-        // 自动登录
-        if (to.query.token) {
-          const singleLoginRes = await login.singleLogin(to.query)
-          if (singleLoginRes.flag) {
-            next({
-              path: to.path,
-              params: to.params,
-              query: singleLoginRes.query
-            })
-          } else {
-            console.error('单点登录失败，请检查链接所传 token 是否非法或过期。')
-            next()
-          }
+      // 自动登录
+      if (to.query.token) {
+        const singleLoginRes = await login.singleLogin(to.query)
+        if (singleLoginRes.flag) {
+          // debugger
+          // next()
+          next({
+            path: to.path,
+            params: to.params,
+            query: singleLoginRes.query
+          })
         } else {
+          console.error('单点登录失败，请检查链接所传 token 是否非法或过期。')
           next()
         }
-      })
-    } else {
-      console.error('@smart100/spu-web-plugin require a vue-router instance.')
-    }
+      } else {
+        next()
+      }
+    })
+  } else {
+    console.warn('@smart100/spu-web-plugin 需要传入一个 vue-router 实例以便执行单点登录逻辑，如果您没传 vue-router 实例则需要自行在合适的位置执行单点登录代码。')
   }
+
 
   initApaasSpuTrack()
 
