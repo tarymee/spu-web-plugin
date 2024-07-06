@@ -330,7 +330,7 @@ class Login {
   // 有可能是中心角色请求失败 兼容不报错
   async getAndSetUserInfo () {
     try {
-      const accountinfo: null | any = await axios.post('/api/teapi/rolepermission/account/getaccountinfo', {
+      const accountinfo = await axios.post('/api/teapi/rolepermission/account/getaccountinfo', {
         positionid: this.getUser('positioncode') || '',
         deviceinfo: '',
         sysversion: '',

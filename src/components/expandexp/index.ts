@@ -1,4 +1,4 @@
-import { Module, axios, getUser, wxworkSuite } from '../../index'
+import { Module, axios, getUser, wxworkSuite, spuAxios } from '../../index'
 import { cloneDeep, merge } from 'lodash-es'
 import { downloadService } from '../../oss'
 import { apaasSpuTrackSendLog } from '../../apaasSpuTrack'
@@ -351,32 +351,36 @@ export default class SpuExpandexp extends HTMLElement {
       this.data.iscompress = '1'
 
       // 这个单个查询接口返回的filewatermark已经结合了全局水印开关 因此不需要查询全局水印
-      Module.apiRequest({
-        modulekey: 'expandexp',
-        apitag: 'imageConfig-getByPageCode',
-        body: {
-          pagecode: this.props.pagecode
-        },
-        complete: (code: any, data: any, msg: any) => {
+      spuAxios
+        .post(
+          '/imageConfig/getByPageCode',
+          {
+            pagecode: this.props.pagecode
+          },
+          {
+            modulekey: 'expandexp'
+          }
+        )
+        .then((res: any) => {
           // console.log('imageConfig', code, data, msg)
-          if (code === 200) {
-            this.data.exportcontentArray = data.exportcontent
+          if (res.code === 200 && res.data) {
+            this.data.exportcontentArray = res.data.exportcontent
             // this.data.exportcontentArray = ['photo']
             if (this.data.exportcontentArray?.length > 0) {
               this.data.exportcontent = this.data.exportcontentArray[0]
             } else {
               this.data.exportcontent = 'excel'
             }
-            this.data.filewatermarkGlobalConfig = data.filewatermark.toString()
-            this.data.filewatermark = data.filewatermark.toString()
-            this.data.iscompress = data.iscompress.toString()
-            this.data.imagesizepercolumn = data.imagesizepercolumn.toString()
-            this.data.imageheightcm = data.imageheightcm.toString()
+            this.data.filewatermarkGlobalConfig = res.data.filewatermark.toString()
+            this.data.filewatermark = res.data.filewatermark.toString()
+            this.data.iscompress = res.data.iscompress.toString()
+            this.data.imagesizepercolumn = res.data.imagesizepercolumn.toString()
+            this.data.imageheightcm = res.data.imageheightcm.toString()
 
             this.data.exportConfigInit = true
           }
-        }
-      })
+        })
+
       this.sendLog({
         types: 'exportopenmodal',
         event: 'exportopenmodal'
