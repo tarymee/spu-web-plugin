@@ -1,14 +1,6 @@
 // import type { App } from 'vue'
 // import type { AxiosInstance } from 'axios'
 
-// interface ISPUWebPluginOptions {
-//   modulekey: string
-//   modulename: string
-//   moduleversion: string
-//   storageproxyprefix?: string
-//   router?: any
-// }
-
 interface IAMapLoader {
   load: (options?: {
     plugins?: Array<string>
@@ -49,23 +41,36 @@ interface IUploadService {
   upload: (options: IUpload) => Promise<any>
 }
 
-
-type Location = {
-  longitude: string
-  latitude: string
-  address: string
-  [propName: string]: any
-} | null
-
-
+// interface ISPUWebPluginOptions {
+//   modulekey: string
+//   modulename: string
+//   moduleversion: string
+//   storageproxyprefix?: string
+//   router?: any
+// }
 
 
+interface ISPUWebPlugin {
+  // install (app: App, option: ISPUWebPluginOptions): void
+  install (app: any, option: any): void
+  // install: any
+  version: string
+}
+
+declare const SPUWebPlugin: ISPUWebPlugin
+
+export default SPUWebPlugin
 
 
 export const globalOptions: any
 export const lsProxy: any
 export const ssProxy: any
-export const getLocation: () => Promise<Location>
+export const getLocation: () => Promise<{
+  longitude: string
+  latitude: string
+  address: string
+  [propName: string]: any
+} | null>
 export const getDistance: (p1: [number, number], p2: [number, number]) => Promise<any>
 export const spuAxios: any
 export const apaasAxios: any
@@ -88,12 +93,3 @@ export const Module: any
 export const components: any
 export const expandexp: (options: any) => void
 export const wxworkSuite: any
-
-interface ISPUWebPlugin {
-  // install (app: App, option: ISPUWebPluginOptions): void
-  install (app: any, option: any): void
-  // install: any
-  version: string
-}
-declare const SPUWebPlugin: ISPUWebPlugin
-export default SPUWebPlugin

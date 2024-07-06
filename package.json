@@ -3,8 +3,8 @@
   "version": "0.0.25",
   "description": "",
   "scripts": {
-    "dev": "rollup -c -w",
-    "build": "rollup -c && npm run build:types",
+    "dev": "npm run build:types && rollup -c -w",
+    "build": "npm run build:types && rollup -c",
     "build:types": "node script/build-types.js",
     "docs": "cd ./docs && npm run docs"
   },

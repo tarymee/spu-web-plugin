@@ -20,8 +20,6 @@ import { initTest } from './test'
 
 
 
-
-
 // class SPUWebPlugin {
 //   static install = install
 //   static version = version
@@ -46,6 +44,7 @@ const install = (app: any, options: any) => {
   console.log('@smart100/spu-web-plugin start!')
   console.log('@smart100/spu-web-plugin userOptions: ', options)
   console.log('@smart100/spu-web-plugin globalOptions: ', globalOptions)
+  // console.error('test')
 
   // if (install.installed) return
   // install.installed = true
