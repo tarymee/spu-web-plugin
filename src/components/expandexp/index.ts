@@ -1,14 +1,11 @@
+import { Module, axios, getUser, wxworkSuite } from '../../index'
+import { cloneDeep, merge } from 'lodash-es'
+import { downloadService } from '../../oss'
+import { apaasSpuTrackSendLog } from '../../apaasSpuTrack'
 import { getAttributes } from '../common/index'
 import renderTemplate from './template'
 import { Step } from './step'
-import { cloneDeep, merge } from 'lodash-es'
 import { fixFileName, dealFileSize, dealResultMessage } from './util'
-import { axios } from '../../axios'
-import core, { Module } from '../../core'
-import login from '../../login'
-import { downloadService } from '../../oss'
-import { apaasSpuTrackSendLog } from '../../apaasSpuTrack'
-import { isWxworkSuiteTenant } from '@smart100/wxworksuite-plugin'
 
 export default class SpuExpandexp extends HTMLElement {
 
@@ -69,7 +66,7 @@ export default class SpuExpandexp extends HTMLElement {
       fileSize: '',
       runningTaskCount: 0,
       isOldVersionService: false,
-      isWxworkSuiteTenant: isWxworkSuiteTenant()
+      isWxworkSuiteTenant: wxworkSuite.isWxworkSuiteTenant()
     }, (key: string, value: any) => {
       const { exportConfigInit, stepName, stepText, exportcontentArray, exportcontent, isOldVersionService, runningTaskCount, fileName, filetype, fileSize, exportDataItem, percentage, resultMessage, isWxworkSuiteTenant } = this.data
 
@@ -344,7 +341,7 @@ export default class SpuExpandexp extends HTMLElement {
   }
 
   async getExpandexpConfig () {
-    let isInstallexpandexp = await core.checkModule('expandexp')
+    let isInstallexpandexp = await Module.checkModule('expandexp')
     // isInstallexpandexp = false
     console.log('isInstallexpandexp', isInstallexpandexp)
 
@@ -388,8 +385,8 @@ export default class SpuExpandexp extends HTMLElement {
       axios
         .post('/api/expandexp/global/searchExpGloConfig', {
           key: 'export-config-switch',
-          tenantcode: login.getUser('tenantcode'),
-          productcode: login.getUser('productcode')
+          tenantcode: getUser('tenantcode'),
+          productcode: getUser('productcode')
         }, {}, {
           isShowLoading: false
         })

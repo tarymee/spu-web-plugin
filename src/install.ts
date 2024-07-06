@@ -23,7 +23,7 @@ const install = (app: any, options: any) => {
   // console.log(app.version)
   merge(globalOptions, options)
   console.log('@smart100/spu-web-plugin start!')
-  console.log('@smart100/spu-web-plugin user options: ', options)
+  console.log('@smart100/spu-web-plugin userOptions: ', options)
   console.log('@smart100/spu-web-plugin globalOptions: ', globalOptions)
 
   // if (install.installed) return

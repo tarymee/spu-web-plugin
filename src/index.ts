@@ -9,7 +9,7 @@ import { getUniqueid, functionCheck } from './utils'
 import AMapLoader from './AMapLoader'
 import login from './login'
 import { v4 as getUuid } from 'uuid'
-import { Module } from './core'
+import core from './core'
 import components from './components'
 import { expandexp } from './components/expandexp'
 import { jssdk, isWxworkSuiteTenant, isWxwork, isWxworkPc, isWxworkApp } from '@smart100/wxworksuite-plugin'
@@ -41,6 +41,19 @@ const wxworkSuite = {
   isWxwork,
   isWxworkPc,
   isWxworkApp
+}
+
+const Module = {
+  // getContextSync () {
+  //   return core.getContext(modulekey)
+  // },
+  // linkToPage: core.linkToPage.bind(core),
+  // linkToModule: core.linkToModule.bind(core),
+  getModuleData: core.getModuleData.bind(core),
+  getEnvname: login.getEnvname.bind(login),
+  getEnvData: core.getEnvData.bind(core),
+  apiRequest: core.apiRequest.bind(core),
+  checkModule: core.checkModule.bind(core)
 }
 
 export {

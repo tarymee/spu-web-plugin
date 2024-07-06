@@ -455,23 +455,4 @@ class Core {
 
 const core = new Core()
 
-const Module = {
-  // getContextSync () {
-  //   return core.getContext(modulekey)
-  // },
-  // linkToPage: core.linkToPage.bind(core),
-  // linkToModule: core.linkToModule.bind(core),
-  getModuleData: core.getModuleData.bind(core),
-  getEnvname: login.getEnvname.bind(login),
-  // getContext: core.getContext.bind(core),
-  getEnvData: core.getEnvData.bind(core),
-  apiRequest: core.apiRequest.bind(core),
-  checkModule: core.checkModule.bind(core)
-}
-
 export default core
-
-export {
-  Module
-}
-

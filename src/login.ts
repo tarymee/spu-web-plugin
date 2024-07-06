@@ -387,4 +387,6 @@ class Login {
   }
 }
 
-export default new Login()
+const login = new Login()
+
+export default login
