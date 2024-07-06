@@ -4,8 +4,14 @@
 当访问 `URL` 带有 `token` `tokenexpires` `refreshtoken` 参数时，插件会自行获取这些参数走单点登录流程，最后在 `URL` 上删除这些参数，并跳转目标页面。
 
 
+
+
+
 ## 自动刷新 token
 使用该插件时，自动拥有该能力，插件会在 `token` 过期前15秒重新刷新 `token`，以保持持续登录状态。
+
+
+
 
 
 ## getToken()
@@ -25,6 +31,9 @@ const token = getToken()
 console.log(token)
 ```
 
+
+
+
 ## getTokenExpires()
 获取当前 `tokenexpires`。
 
@@ -42,6 +51,9 @@ const tokenexpires = getTokenExpires()
 console.log(tokenexpires)
 ```
 
+
+
+
 ## getRefreshToken()
 获取当前 `refreshtoken`。
 
@@ -58,3 +70,24 @@ import { getRefreshToken } from '@smart100/spu-web-plugin'
 const refreshtoken = getRefreshToken()
 console.log(refreshtoken)
 ```
+
+
+
+
+## checkLogin()
+获取当前环境是否已登录。
+
++ 类型：
+
+```js
+function checkLogin (): boolean
+```
+
++ 示例：
+
+```js
+import { checkLogin } from '@smart100/spu-web-plugin'
+const isLogin = checkLogin()
+console.log(isLogin)
+```
+

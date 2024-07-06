@@ -1,7 +1,8 @@
 import { globalOptions } from './install'
 import { cloneDeep, merge } from 'lodash-es'
-import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.umd.js'
 import login from './login'
+// @ts-ignore
+import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.umd.js'
 
 const getWebInitParams = async () => {
   const user = login.getUser()

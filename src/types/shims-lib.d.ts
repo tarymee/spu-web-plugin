@@ -8,6 +8,7 @@ declare module 'co'
 declare module 'uuid'
 
 
+declare module '*.js'
 declare module '*.svg'
 declare module '*.png'
 declare module '*.jpg'

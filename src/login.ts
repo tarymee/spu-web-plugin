@@ -45,11 +45,19 @@ class Login {
 
   async getEnvname (): Promise<string> {
     let envname = ''
-    // web 查 envname
+
+    // web 查 context 的 envname
     let context: any = lsProxy.getItem('context')
     context && (context = JSON.parse(context))
-    if (context?.envname) {
-      envname = context.envname
+    const contextEnvname = context?.envname || ''
+
+    // 链接有些spu可能会传 envname
+    const queryEnvname = this.getQueryEnvname()
+
+    if (contextEnvname) {
+      envname = contextEnvname
+    } else if (queryEnvname) {
+      envname = queryEnvname
     } else if (window?.aPaaS?.getWebInitParams && window?.Native?.setNavigationBarReturnButton) {
       // 手机端 查 envname
       // 只有手机端有 setNavigationBarReturnButton 方法
@@ -60,10 +68,6 @@ class Login {
       })
     }
 
-    if (!envname) {
-      envname = this.getQueryEnvname() || ''
-    }
-
     return envname
   }
 
@@ -72,7 +76,7 @@ class Login {
   }
 
   getQueryEnvname () {
-    return this.getData('envname')
+    return this.getData('envname') || ''
   }
 
   removeQueryEnvname () {
