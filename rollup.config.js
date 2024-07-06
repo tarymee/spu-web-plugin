@@ -1,3 +1,4 @@
+// import { resolve as pathResolve } from 'path'
 import resolve from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
@@ -7,6 +8,7 @@ import typescript from '@rollup/plugin-typescript'
 // import vue from 'rollup-plugin-vue'
 import postcss from 'rollup-plugin-postcss'
 import image from '@rollup/plugin-image'
+import alias from '@rollup/plugin-alias'
 import pkg from './package.json' assert { type: 'json' }
 // const pkg = require('./package.json')
 
@@ -35,6 +37,11 @@ export default {
     // }
   ],
   plugins: [
+    alias({
+      entries: {
+        // '@smart100/wxworksuite-plugin': '../wxwork-plugin/dist/wxworksuite-plugin.mjs'
+      }
+    }),
     // vue(),
     postcss(),
     image(),
