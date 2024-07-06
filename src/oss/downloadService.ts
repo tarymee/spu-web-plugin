@@ -1,14 +1,14 @@
-import CloudServ from '../cloudServ'
-import { initServToken } from './servtoken'
 import OSS from '../package/ali-oss/aliyun-oss-sdk.apaas.min.js'
 // import * as OSS from '../package/ali-oss/aliyun-oss-sdk.apaas.min.js'
 // const OSS = require('../package/ali-oss/aliyun-oss-sdk.apaas.min.js')
 import ObsClient from '../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js'
 // import * as ObsClient from '../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js'
 // const ObsClient = require('../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js')
+
 import dayjs from 'dayjs'
-import login from '../login'
-import { axios } from '../axios'
+import CloudServ from '../cloudServ'
+import { initServToken } from './servtoken'
+import { axios, getUser } from '../index'
 // import { get } from 'lodash-es'
 // import qs from 'qs'
 
@@ -108,7 +108,7 @@ const getUrl = async ({
 
   const isAliYun = CloudServ.isAliyun(storagetype)
   const isHuawei = CloudServ.isHuawei(storagetype)
-  const tenantCode = login.getUser('tenantcode')
+  const tenantCode = getUser('tenantcode')
 
   if (!filename) {
     filename = source

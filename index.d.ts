@@ -38,7 +38,6 @@ interface IDownloadService {
   downloadFile: (options: IDownload) => Promise<any>
 }
 
-
 interface IUpload {
   type?: 'att' | 'img',
   file: File,
@@ -61,6 +60,11 @@ type Location = {
 } | null
 
 
+
+
+
+
+export const globalOptions: any
 export const lsProxy: any
 export const ssProxy: any
 export const getLocation: () => Promise<Location>

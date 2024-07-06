@@ -1,5 +1,5 @@
 // import { noBaseRequest } from '@/service/http'
-import { axios } from '../axios'
+import { axios } from '../index'
 
 export type ServToken = {
   accesskeyid: string

@@ -1,7 +1,9 @@
 // import { loadding } from './components/loadding'
 // import { lsProxy } from './storageProxy'
-// import login from './login'
 // import core, { Module } from './core'
+import { globalOptions, axios, getUser, getToken, getRefreshToken, getTokenExpires, Module } from './index'
+import { get, cloneDeep } from 'lodash-es'
+
 
 async function initTest (options: any) {
   // console.log('initTest')

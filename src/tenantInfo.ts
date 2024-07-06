@@ -1,6 +1,5 @@
-import { axios } from './axios'
+import { axios, lsProxy } from './index'
 import cloudServ from './cloudServ'
-import { lsProxy } from './storageProxy'
 
 class TenantInfo {
   async get (tenantCode?: string) {

@@ -1,4 +1,4 @@
-import { spuAxios } from './axios'
+import { spuAxios } from './index'
 import { cloneDeep } from 'lodash-es'
 
 let modulekey = ''

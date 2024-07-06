@@ -1,7 +1,5 @@
-import { globalOptions } from './install'
+import { globalOptions, axios, getUser, getToken, getRefreshToken, getTokenExpires, Module } from './index'
 import { get, cloneDeep } from 'lodash-es'
-import { axios } from './axios'
-import login from './login'
 
 const urlIsIp = (url) => {
   const hostname = url.split('://')[1].split(':')[0].split('/')[0]
@@ -53,8 +51,8 @@ class Core {
 
   // 请求实时G3数据
   async requestData () {
-    const nowEnvname = await login.getEnvname()
-    const nowTenantCode = login.getUser('tenantcode') || ''
+    const nowEnvname = await Module.getEnvname()
+    const nowTenantCode = getUser('tenantcode') || ''
     this.cache.envName = nowEnvname
     this.cache.tenantCode = nowTenantCode
     this.cache.envData = await this.requestEnvData(nowEnvname)
@@ -107,7 +105,7 @@ class Core {
       }
       // console.log(res)
       // debugger
-      const list = get(res, 'data.list')
+      const list = res?.data?.list || []
       if (list && list.length) {
         const usedList = list.filter((item) => item.status === 1)
         usedList.forEach((item) => {
@@ -135,8 +133,8 @@ class Core {
 
   requestDataPromise = null
   async getData () {
-    const nowEnvname = await login.getEnvname()
-    const nowTenantCode = login.getUser('tenantcode') || ''
+    const nowEnvname = await Module.getEnvname()
+    const nowTenantCode = getUser('tenantcode') || ''
     // console.log(tenantCode)
     if (this.cache.envName === nowEnvname && this.cache.tenantCode === nowTenantCode && this.loadStatus === 2) {
       return this.cache
@@ -308,9 +306,9 @@ class Core {
   async getQueryUrl (query, queryvalue = {}) {
     const data = await this.getData()
     const buildInMap = {
-      '${token}': login.getToken(), // eslint-disable-line no-template-curly-in-string
-      '${refreshtoken}': login.getRefreshToken(), // eslint-disable-line no-template-curly-in-string
-      '${tokenexpires}': login.getTokenExpires(), // eslint-disable-line no-template-curly-in-string
+      '${token}': getToken(), // eslint-disable-line no-template-curly-in-string
+      '${refreshtoken}': getRefreshToken(), // eslint-disable-line no-template-curly-in-string
+      '${tokenexpires}': getTokenExpires(), // eslint-disable-line no-template-curly-in-string
       '${envname}': data.envName || '' // eslint-disable-line no-template-curly-in-string
     }
 

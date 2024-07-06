@@ -1,12 +1,12 @@
-import { globalOptions } from './install'
+import { globalOptions, getUser, Module } from './index'
 import { cloneDeep, merge } from 'lodash-es'
-import login from './login'
+
 // @ts-ignore
 import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.umd.js'
 
 const getWebInitParams = async () => {
-  const user = login.getUser()
-  const envname = await login.getEnvname()
+  const user = getUser()
+  const envname = await Module.getEnvname()
   return {
     project: globalOptions.modulename,
     appid: globalOptions.modulekey,

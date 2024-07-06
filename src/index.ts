@@ -1,18 +1,26 @@
 import { version } from '../package.json'
-import { install } from './install'
-import { lsProxy, ssProxy } from './storageProxy'
+import { merge } from 'lodash-es'
+import { WxworksuitePluginInstall, jssdk, isWxworkSuiteTenant, isWxwork, isWxworkPc, isWxworkApp } from '@smart100/wxworksuite-plugin'
+import { v4 as getUuid } from 'uuid'
+
+import { initStorageProxy, lsProxy, ssProxy } from './storageProxy'
 import { getLocation, getDistance } from './location'
-import { spuAxios, axios } from './axios'
-import { spuConfig } from './spuConfig'
+import { initAxios, spuAxios, axios } from './axios'
+import { initSpuConfig, spuConfig } from './spuConfig'
 import { downloadService, uploadService } from './oss'
 import { getUniqueid, functionCheck } from './utils'
+import urlquery from './urlquery'
 import AMapLoader from './AMapLoader'
 import login from './login'
-import { v4 as getUuid } from 'uuid'
 import core from './core'
 import components from './components'
 import { expandexp } from './components/expandexp'
-import { jssdk, isWxworkSuiteTenant, isWxwork, isWxworkPc, isWxworkApp } from '@smart100/wxworksuite-plugin'
+import { initApaasSpuTrack } from './apaasSpuTrack'
+import { initTest } from './test'
+
+
+
+
 
 // class SPUWebPlugin {
 //   static install = install
@@ -21,10 +29,95 @@ import { jssdk, isWxworkSuiteTenant, isWxwork, isWxworkPc, isWxworkApp } from '@
 // // SPUWebPlugin.install = install
 // // SPUWebPlugin.version = version
 
+
+
+const globalOptions: any = {
+  modulekey: 'demospu',
+  modulename: 'demospu',
+  moduleversion: 'v1.0',
+  storageproxyprefix: '',
+  isautosinglelogin: true,
+  isautorefreshtoken: true,
+  router: null
+}
+
+const install = (app: any, options: any) => {
+  // console.log(app)
+  // console.log(app.version)
+  merge(globalOptions, options)
+  console.log('@smart100/spu-web-plugin start!')
+  console.log('@smart100/spu-web-plugin userOptions: ', options)
+  console.log('@smart100/spu-web-plugin globalOptions: ', globalOptions)
+
+  // if (install.installed) return
+  // install.installed = true
+  // debugger
+
+  // if (app) {
+  //   const version = Number(app.version.split('.')[0])
+  //   if (version < 3) {
+  //     console.error('This plugin requires Vue 3')
+  //     return false
+  //   }
+  // } else {
+  //   console.error('This plugin requires Vue App Instance')
+  // }
+
+  initStorageProxy(globalOptions)
+  initAxios(globalOptions)
+  initSpuConfig(globalOptions)
+  urlquery.init()
+
+  // 安装企微第三方应用插件
+  WxworksuitePluginInstall({
+    getToken: login.getToken.bind(login)
+  })
+
+  if (globalOptions.isautorefreshtoken) {
+    login.startRefreshtoken()
+  }
+
+  if (globalOptions.isautosinglelogin) {
+    if (globalOptions.router) {
+      globalOptions.router.beforeEach(async (to: any, from: any, next: any) => {
+        // console.log(from)
+        // console.log(to)
+        // const isInitVisit = from.path === '/' && from.name === undefined // 路由初始化访问
+        // console.log('isInitVisit', isInitVisit)
+
+        // 自动登录
+        if (to.query.token) {
+          const singleLoginRes = await login.singleLogin(to.query)
+          if (singleLoginRes.flag) {
+            next({
+              path: to.path,
+              params: to.params,
+              query: singleLoginRes.query
+            })
+          } else {
+            console.error('单点登录失败，请检查链接所传 token 是否非法或过期。')
+            next()
+          }
+        } else {
+          next()
+        }
+      })
+    } else {
+      console.error('@smart100/spu-web-plugin require a vue-router instance.')
+    }
+  }
+
+  initApaasSpuTrack()
+
+  initTest(globalOptions)
+}
+
 const SPUWebPlugin = {
   install,
   version
 }
+
+
 
 const getToken = login.getToken.bind(login)
 const getTokenExpires = login.getTokenExpires.bind(login)
@@ -35,6 +128,7 @@ const singleLogin = login.singleLogin.bind(login)
 const startRefreshtoken = login.startRefreshtoken.bind(login)
 
 
+
 const wxworkSuite = {
   JSSDK: jssdk,
   isWxworkSuiteTenant,
@@ -42,6 +136,8 @@ const wxworkSuite = {
   isWxworkPc,
   isWxworkApp
 }
+
+
 
 const Module = {
   // getContextSync () {
@@ -56,8 +152,12 @@ const Module = {
   checkModule: core.checkModule.bind(core)
 }
 
+
+
+
 export {
   SPUWebPlugin as default,
+  globalOptions,
   lsProxy,
   ssProxy,
   getLocation,

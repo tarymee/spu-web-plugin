@@ -1,4 +1,4 @@
-import login from './login'
+import { getUser } from './index'
 
 const isIOS = () => {
   const ua = navigator.userAgent
@@ -16,7 +16,7 @@ const getUniqueid = () => {
 
 const functionCheck = (functioncode?: string): boolean => {
   if (!functioncode) return false
-  const functioncodes = login.getUser('functioncodes') || []
+  const functioncodes = getUser('functioncodes') || []
   // console.log(functioncodes)
   // debugger
   const check = functioncodes.includes(functioncode)

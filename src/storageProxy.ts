@@ -1,5 +1,3 @@
-// import { globalOptions } from './install'
-
 let STORAGENAMESPACE = ''
 
 class StorageProxy {

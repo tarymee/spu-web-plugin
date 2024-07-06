@@ -7,7 +7,7 @@ import type {
 import { get } from 'lodash-es'
 // import { Message } from 'element-ui'
 import { loadding } from './components/loadding'
-import login from './login'
+import { getUser, getToken } from './index'
 import core from './core'
 
 interface Response {
@@ -35,7 +35,7 @@ const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
 
     const isSendToken = get(config, 'isSendToken', true)
     if (isSendToken) {
-      const token = login.getToken()
+      const token = getToken()
       if (config?.headers && token) {
         config.headers.token = token
       }

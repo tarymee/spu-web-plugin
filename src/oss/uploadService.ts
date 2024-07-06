@@ -1,15 +1,16 @@
-import CloudServ from '../cloudServ'
-import { initServToken } from './servtoken'
-import { v4 as uuidv4 } from 'uuid'
 import OSS from '../package/ali-oss/aliyun-oss-sdk.apaas.min.js'
 // const OSS = require('../package/ali-oss/aliyun-oss-sdk.apaas.min.js')
 import ObsClient from '../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js'
 // const ObsClient = require('../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js')
+
+import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import co from 'co'
-import login from '../login'
-import { obsMultiUpload } from './multiUpload'
 
+import { getUser } from '../index'
+import CloudServ from '../cloudServ'
+import { initServToken } from './servtoken'
+import { obsMultiUpload } from './multiUpload'
 
 
 interface IUpload {
@@ -37,7 +38,7 @@ const upload = async ({
 
   const isAliYun = CloudServ.isAliyun(storagetype)
   const isHuawei = CloudServ.isHuawei(storagetype)
-  const tenantCode = login.getUser('tenantcode')
+  const tenantCode = getUser('tenantcode')
   const suffix = '.' + file.name.substring(file.name.lastIndexOf('.') + 1)
   source = source ? source : (uuidv4() + suffix)
   datetime = datetime ? datetime : Date.now()

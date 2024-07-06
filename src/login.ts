@@ -1,8 +1,7 @@
 import { cloneDeep } from 'lodash-es'
 import jwtDecode from 'jwt-decode'
-import { axios } from './axios'
 import tenantInfo from './tenantInfo'
-import { lsProxy } from './storageProxy'
+import { lsProxy, axios } from './index'
 // import { functionCheck } from './utils'
 
 
