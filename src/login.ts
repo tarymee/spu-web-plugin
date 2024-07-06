@@ -411,8 +411,12 @@ class Login {
   async singleLogin (query: IAny) {
     query = cloneDeep(query)
 
-    let flag = true // 是否登录成功
+    let flag = false // 是否登录成功
     const token = query.token
+    const refreshtoken = query.refreshtoken
+    const tokenexpires = query.tokenexpires
+    const envname = query.envname
+    const context = query.context
 
     if (this.checkTokenLogin(token)) {
       let isneedlogin = true // 是否需要走单点登录流程
@@ -427,7 +431,7 @@ class Login {
         }
       } else {
         // 如果本地已经登录 且 query 登录参数与本地一致 说明是刚登录没多久【token也没刷新过】 视为已经登录 不需再走单点登录流程
-        if (this.checkLogin() && token === this.getToken() && query.refreshtoken === this.getRefreshToken() && query.tokenexpires === this.getTokenExpires()) {
+        if (this.checkLogin() && token === this.getToken() && refreshtoken === this.getRefreshToken() && tokenexpires === this.getTokenExpires()) {
           isneedlogin = false
           flag = true
         }
@@ -437,17 +441,13 @@ class Login {
         this.setToken(token)
         this.setUserByToken(token) // 解析token为用户信息存入
 
-        query.refreshtoken ? this.setRefreshToken(query.refreshtoken) : this.removeRefreshToken()
-        query.tokenexpires ? this.setTokenExpires(query.tokenexpires) : this.removeTokenExpires()
-        query.envname ? this.setQueryEnvname(query.envname) : this.removeQueryEnvname()
+        refreshtoken ? this.setRefreshToken(refreshtoken) : this.removeRefreshToken()
+        tokenexpires ? this.setTokenExpires(tokenexpires) : this.removeTokenExpires()
+        envname ? this.setQueryEnvname(envname) : this.removeQueryEnvname()
 
         // context 上下文字段 产品运营中心安装 卸载 配置 和 产品配置中心业务配置 页面需要用到
         // web 端有传 app没传 需要做兼容
-        let context = query.context
-        if (context) {
-          context = decodeURIComponent(context)
-          lsProxy.setItem('context', context)
-        }
+        context && lsProxy.setItem('context', decodeURIComponent(context))
 
         // 这里兼容报错
         await this.getAndSetTenant()
@@ -457,15 +457,15 @@ class Login {
       }
     } else {
       flag = false
-      console.error('query 中没有 token 或 token 已过期，无法单点登录。')
+      console.error('没传 token 或所传 token 已过期，无法单点登录。')
     }
 
     // 单点登录后 无论是否成功 都需要删除 query 中相关参数
-    query.token && delete query.token
-    query.refreshtoken && delete query.refreshtoken
-    query.tokenexpires && delete query.tokenexpires
-    query.envname && delete query.envname
-    query.context && delete query.context
+    token && delete query.token
+    refreshtoken && delete query.refreshtoken
+    tokenexpires && delete query.tokenexpires
+    envname && delete query.envname
+    context && delete query.context
 
     // debugger
 
