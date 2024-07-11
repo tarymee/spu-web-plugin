@@ -76,6 +76,7 @@ export const spuAxios: any
 export const apaasAxios: any
 export const axios: any
 export const spuConfig: any
+export const globalConfig: any
 export const downloadService: IDownloadService
 export const uploadService: IUploadService
 export const getUniqueid: () => string

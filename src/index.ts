@@ -7,6 +7,7 @@ import { initStorageProxy, lsProxy, ssProxy } from './storageProxy'
 import { getLocation, getDistance } from './location'
 import { initAxios, spuAxios, axios } from './axios'
 import { initSpuConfig, spuConfig } from './spuConfig'
+import { globalConfig } from './globalConfig'
 import { downloadService, uploadService } from './oss'
 import { getUniqueid, functionCheck } from './utils'
 import urlquery from './urlquery'
@@ -155,6 +156,7 @@ export {
   axios,
   axios as apaasAxios,
   spuConfig,
+  globalConfig,
   downloadService,
   uploadService,
   getUniqueid,

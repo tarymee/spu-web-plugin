@@ -8,7 +8,7 @@ class SpuConfig {
 
   cache: any[] = []
 
-  public async get (dataid?: string | string[]): Promise<any> {
+  public async getFun (): Promise<any> {
     if (!this.isload) {
       try {
         const res = await spuAxios.post('/lifecycle/getconfigdata', {
@@ -24,6 +24,18 @@ class SpuConfig {
         console.error(err)
       }
       this.isload = true
+    }
+  }
+
+  private getPro: any = null
+
+  public async get (dataid?: string | string[]): Promise<any> {
+    if (!this.isload) {
+      // 兼容同时间发起多个
+      if (!this.getPro) {
+        this.getPro = this.getFun()
+      }
+      await this.getPro
     }
 
     if (dataid) {
