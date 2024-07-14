@@ -19,8 +19,11 @@
 import { wxworkSuite } from '@smart100/spu-web-plugin'
 
 // 扫码
-wxworkSuite.JSSDK.init(['scanQRCode']).then(() => {
-  wx.scanQRCode({
+wxworkSuite.JSSDK.init(['scanQRCode']).then(({ topWindow }) => {
+  // 注意: 必须使用返回的 topWindow 来调用 wx 下的方法 不可直接使用 window.wx 调用
+  // 原因: 企业微信 JSSDK 必须保证在 top window 上注册和调用才有效
+  // 插件已自动处理了 top window 上的注册 并返回了 topWindow 供用户调用
+  topWindow.wx.scanQRCode({
     desc: 'scanQRCode desc',
     needResult: 0, // 默认为0，扫描结果由企业微信处理，1则直接返回扫描结果，
     scanType: ['qrCode', 'barCode'], // 可以指定扫二维码还是条形码（一维码），默认二者都有
@@ -32,6 +35,20 @@ wxworkSuite.JSSDK.init(['scanQRCode']).then(() => {
     }
   })
 })
+
+
+// 打开个人信息页接口
+wxworkSuite.JSSDK.init(['openUserProfile']).then(({ topWindow }) => {
+  topWindow.wx.invoke('openUserProfile', {
+    type: 1, // 1表示该userid是企业成员，2表示该userid是外部联系人
+    userid: 'woOUQJEAAATELkAo5cgbkznEdBjmtgcA' // 可以是企业成员，也可以是外部联系人
+  }, function (res) {
+    console.error('openUserProfile')
+    console.log(res)
+  })
+})
+
+// 其他更多能力 请参考 官方api 文档 https://developer.work.weixin.qq.com/document/path/90546
 ```
 
 ## isWxworkSuiteTenant()
