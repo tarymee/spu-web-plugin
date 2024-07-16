@@ -39,6 +39,9 @@ const globalOptions: any = {
 }
 
 const install = (app: any, options: any) => {
+
+  urlquery.init()
+
   // console.log(app)
   // console.log(app.version)
   merge(globalOptions, options)
@@ -62,10 +65,8 @@ const install = (app: any, options: any) => {
   // }
 
   initStorageProxy(globalOptions)
-
   initAxios(globalOptions)
   initSpuConfig(globalOptions)
-  urlquery.init()
 
   // 安装企微第三方应用插件
   WxworksuitePluginInstall({
