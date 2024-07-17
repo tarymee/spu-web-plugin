@@ -56,7 +56,15 @@ const getAmapLocation = async (): Promise<Location> => {
 
 const getSpuLocation = async (): Promise<Location> => {
   return new Promise((resolve, reject) => {
+    let isload = false
+    setTimeout(() => {
+      if (!isload) {
+        console.error('getSpuLocation timeout 100000')
+        resolve(null)
+      }
+    }, 10000)
     window.Native.getLocation((result: any, error: any, status: any) => {
+      isload = true
       // console.log('getLocation result', result)
       // console.log('getLocation error', error)
       // console.log('getLocation status', status)
