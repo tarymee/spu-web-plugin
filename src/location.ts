@@ -2,7 +2,6 @@ import AMapLoader from './AMapLoader'
 import { cloneDeep } from 'lodash-es'
 import urlquery from './urlquery'
 
-
 type Location = {
   longitude: string;
   latitude: string;
@@ -17,7 +16,6 @@ let datetime: number | null = null
 let lastLocation: Location = null
 let runing = false
 let locationPromise: Promise<Location>
-
 
 const init = async () => {
   if (!AMap) {
@@ -154,7 +152,6 @@ const getLocationPromise = async (): Promise<Location> => {
 
 
 const getLocation = async () => {
-  await init()
   // debugger
   // 缓存30秒
   if (datetime && Date.now() - datetime <= 30000 && lastLocation && !runing) {
