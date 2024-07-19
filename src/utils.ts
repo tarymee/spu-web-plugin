@@ -23,8 +23,28 @@ const functionCheck = (functioncode?: string): boolean => {
   return !!check
 }
 
+const setTitle = (pagetitle?: string) => {
+  pagetitle = pagetitle || ''
+
+  // 设置本身
+  document.title = pagetitle
+
+  // 父级spu容器 且 是web或者h5引擎
+  if (window?.top) {
+    const topWin = window.top
+    topWin.document.title = pagetitle
+
+    // 如果是在h5引擎内 且 h5引擎也作为spu被放置在app内
+    topWin?.Native?.setNavigationBarTitle && topWin.Native.setNavigationBarTitle(pagetitle)
+  }
+
+  // 父级spu容器 且 是APP
+  window?.Native?.setNavigationBarTitle && window.Native.setNavigationBarTitle(pagetitle)
+}
+
 export {
   isIOS,
   getUniqueid,
-  functionCheck
+  functionCheck,
+  setTitle
 }

@@ -9,7 +9,7 @@ import { initAxios, spuAxios, axios } from './axios'
 import { initSpuConfig, spuConfig } from './spuConfig'
 import { globalConfig } from './globalConfig'
 import { downloadService, uploadService } from './oss'
-import { getUniqueid, functionCheck } from './utils'
+import { getUniqueid, functionCheck, setTitle } from './utils'
 import urlquery from './urlquery'
 import AMapLoader from './AMapLoader'
 import login from './login'
@@ -163,6 +163,7 @@ export {
   getUniqueid,
   getUuid,
   functionCheck,
+  setTitle,
   AMapLoader,
   getToken,
   getTokenExpires,
