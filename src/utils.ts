@@ -30,7 +30,7 @@ const setTitle = (pagetitle?: string) => {
   document.title = pagetitle
 
   // 父级spu容器 且 是web或者h5引擎
-  if (window?.top) {
+  if (window.top !== window) {
     const topWin = window.top
     topWin.document.title = pagetitle
 
