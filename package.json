@@ -1,6 +1,6 @@
 {
   "name": "@smart100/spu-web-plugin",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "",
   "scripts": {
     "dev": "npm run build:types && rollup -c -w",
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@amap/amap-jsapi-loader": "^1.0.1",
-    "@smart100/wxworksuite-plugin": "^0.0.9",
+    "@smart100/wxworksuite-plugin": "^0.0.10",
     "axios": "^1.6.0",
     "co": "^4.6.0",
     "dayjs": "^1.11.10",
