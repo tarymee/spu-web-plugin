@@ -31,7 +31,7 @@ const setTitle = (pagetitle?: string) => {
 
   // 父级spu容器 且 是web或者h5引擎
   if (window.top !== window) {
-    const topWin = window.top
+    const topWin: any = window.top
     topWin.document.title = pagetitle
 
     // 如果是在h5引擎内 且 h5引擎也作为spu被放置在app内
@@ -41,6 +41,10 @@ const setTitle = (pagetitle?: string) => {
   // 父级spu容器 且 是APP
   window?.Native?.setNavigationBarTitle && window.Native.setNavigationBarTitle(pagetitle)
 }
+
+
+// const inWhichSPU = () => {
+// }
 
 export {
   isIOS,

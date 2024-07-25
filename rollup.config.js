@@ -40,6 +40,7 @@ export default {
     alias({
       entries: {
         // '@smart100/wxworksuite-plugin': '../wxwork-plugin/dist/wxworksuite-plugin.mjs'
+        // '@smart100/wxworksuite-plugin': '../../smart100/wxwork-plugin/dist/wxworksuite-plugin.mjs'
       }
     }),
     // vue(),
