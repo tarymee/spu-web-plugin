@@ -1,5 +1,6 @@
 import { globalOptions, getUser, Module } from './index'
 import { cloneDeep, merge } from 'lodash-es'
+import login from './login'
 
 // @ts-ignore
 import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.umd.js'
@@ -55,7 +56,7 @@ const getIndextagSync = (params: any) => {
 // 兼容开启SPU日志
 const initApaasSpuTrack = () => {
   setTimeout(() => {
-    if (ApaasSpuTrack && !window.apaasSpuTrack && !window?.aPaaS?.getWebInitParams && !window?.Module?.getIndextagSync) {
+    if (ApaasSpuTrack && !window.apaasSpuTrack && !window?.aPaaS?.getWebInitParams && !window?.Module?.getIndextagSync && login.checkLogin() && getUser()) {
       window.aPaaS = {
         getWebInitParams
       }
@@ -147,10 +148,10 @@ const initApaasSpuTrack = () => {
         apaasSpuTrack.start()
       })
     }
-  }, 2500)
+  }, 3000)
 }
 
-const apaasSpuTrackSendLog = (data: any, end: boolean = false) => {
+const apaasSpuTrackSendLog = (data: any, isnotretry: boolean = false) => {
   if (window.apaasSpuTrack) {
     const logtime = Date.now().toString()
     const baselog = cloneDeep({
@@ -178,7 +179,7 @@ const apaasSpuTrackSendLog = (data: any, end: boolean = false) => {
     // debugger
     window.apaasSpuTrack.addLogToQueue(mergedata, true)
   } else {
-    if (!end) {
+    if (!isnotretry) {
       console.warn('window.apaasSpuTrack 不存在，导出日志延迟3秒后再次发送。')
       setTimeout(() => {
         apaasSpuTrackSendLog(data, true)
