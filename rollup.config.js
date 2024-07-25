@@ -39,8 +39,8 @@ export default {
   plugins: [
     alias({
       entries: {
-        // '@smart100/wxworksuite-plugin': '../wxwork-plugin/dist/wxworksuite-plugin.mjs'
-        // '@smart100/wxworksuite-plugin': '../../smart100/wxwork-plugin/dist/wxworksuite-plugin.mjs'
+        // '@smart100/wxworksuite-plugin': '../wxwork-plugin/dist/wxworksuite-plugin.mjs' // home test
+        // '@smart100/wxworksuite-plugin': '../../smart100/wxwork-plugin/dist/wxworksuite-plugin.mjs' // company test
       }
     }),
     // vue(),
