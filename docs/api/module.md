@@ -100,3 +100,25 @@ Module.getModuleData().then((moduleData) => {
   console.log(moduleData)
 })
 ```
+
+
+
+
+
+## getSpuContainerType()
+判断当前页面处于哪个 `SPU` 容器。
+
++ 类型：
+
+```js
+function getSpuContainerType (modulekey?: string): Promise<'h5' | 'web' | 'app' | 'smartcenter' | 'smartconfigurationcenter' | ''>
+```
+
++ 示例：
+
+```js
+import { Module } from '@smart100/spu-web-plugin'
+Module.getSpuContainerType().then((type) => {
+  console.log(type)
+})
+```
