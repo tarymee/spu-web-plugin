@@ -42,13 +42,30 @@ const setTitle = (pagetitle?: string) => {
   window?.Native?.setNavigationBarTitle && window.Native.setNavigationBarTitle(pagetitle)
 }
 
+const getSpuContainerType = async (): Promise<'h5' | 'web' | 'app' | 'smartcenter' | 'smartconfigurationcenter' | ''> => {
+  // 只有app端才提供原生拍照能力
+  if (window?.aPaaS?.getPhoto) {
+    return 'app'
+  } else if (window?.Module?.spuContainerType) {
+    return window.Module.spuContainerType
+  } else {
+    return ''
+  }
+}
 
-// const inWhichSPU = () => {
-// }
+const isInApp = (): boolean => {
+  if (window?.aPaaS?.getPhoto || window?.top?.aPaaS?.getPhoto) {
+    return true
+  } else {
+    return false
+  }
+}
 
 export {
   isIOS,
   getUniqueid,
   functionCheck,
-  setTitle
+  setTitle,
+  getSpuContainerType,
+  isInApp
 }

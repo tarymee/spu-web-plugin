@@ -59,7 +59,7 @@ const getSpuLocation = async (): Promise<Location> => {
     let isload = false
     setTimeout(() => {
       if (!isload) {
-        console.error('getSpuLocation timeout 100000')
+        console.error('getSpuLocation timeout 10000')
         resolve(null)
       }
     }, 10000)

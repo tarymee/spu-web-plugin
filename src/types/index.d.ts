@@ -83,6 +83,7 @@ export const getUniqueid: () => string
 export const getUuid: () => string
 export const functionCheck: (functioncode?: string) => boolean
 export const setTitle: (pagetitle?: string) => void
+export const isInApp: () => boolean
 export const AMapLoader: IAMapLoader
 export const getToken: () => string
 export const getTokenExpires: () => string

@@ -9,7 +9,7 @@ import { initAxios, spuAxios, axios } from './axios'
 import { initSpuConfig, spuConfig } from './spuConfig'
 import { globalConfig } from './globalConfig'
 import { downloadService, uploadService } from './oss'
-import { getUniqueid, functionCheck, setTitle } from './utils'
+import { getUniqueid, functionCheck, setTitle, getSpuContainerType, isInApp } from './utils'
 import urlquery from './urlquery'
 import AMapLoader from './AMapLoader'
 import login from './login'
@@ -142,7 +142,8 @@ const Module = {
   getModuleData: core.getModuleData.bind(core),
   getEnvname: login.getEnvname.bind(login),
   getEnvData: core.getEnvData.bind(core),
-  checkModule: core.checkModule.bind(core)
+  checkModule: core.checkModule.bind(core),
+  getSpuContainerType: getSpuContainerType
 }
 
 
@@ -164,6 +165,7 @@ export {
   getUuid,
   functionCheck,
   setTitle,
+  isInApp,
   AMapLoader,
   getToken,
   getTokenExpires,
