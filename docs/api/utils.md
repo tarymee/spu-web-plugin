@@ -50,9 +50,10 @@ function isInApp (): boolean
 + 示例：
 
 ```js
-import { setTitle } from '@smart100/spu-web-plugin'
+import { isInApp } from '@smart100/spu-web-plugin'
 
-setTitle('标题')
+const isin = isInApp()
+console.log(isin)
 ```
 
 
