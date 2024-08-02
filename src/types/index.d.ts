@@ -85,6 +85,7 @@ export const functionCheck: (functioncode?: string) => boolean
 export const setTitle: (pagetitle?: string) => void
 export const isInApp: () => boolean
 export const AMapLoader: IAMapLoader
+export const updateToken: () => Promise<void>
 export const getToken: () => string
 export const getTokenExpires: () => string
 export const getRefreshToken: () => string

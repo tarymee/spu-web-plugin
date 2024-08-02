@@ -84,6 +84,7 @@ class Login {
 
   getToken () {
     return this.getData('token')
+    // return lsProxy.getItem('token')
   }
 
   setToken (value: string) {
@@ -118,13 +119,19 @@ class Login {
     this.removeData('refreshtoken')
   }
 
-  private updateToken () {
+  updateToken () {
+    const token = this.getToken()
+    const refreshtoken = this.getRefreshToken()
     return axios.get('/api/auth/refreshtoken', {
       params: {
-        refreshtoken: this.getRefreshToken()
+        refreshtoken: this.checkTokenLogin(token) ? token : refreshtoken
       },
       isShowLoadding: false,
-      isShowErrorMessage: false
+      isShowErrorMessage: false,
+      isSendToken: false,
+      headers: {
+        token: this.checkTokenLogin(token) ? token : refreshtoken
+      }
     }).then((res: any) => {
       // console.log(res)
       const data = res?.data
@@ -143,7 +150,7 @@ class Login {
     // 如果没登录 每隔1分钟走token更新逻辑(如果刚开始没登录 后面才登录【不需要再在登陆后写刷新token逻辑】)
     this.stopRefreshtoken()
     const time = this.checkLogin() ? (Number(this.getTokenExpires()) - Date.now() - 1000 * 15) : (1000 * 60)
-    // const time = 5000
+    // const time = 60000
     if (time > 0) {
       this.refreshtokenTimer = window.setTimeout(async () => {
         if (this.checkLogin()) {
@@ -280,7 +287,7 @@ class Login {
   // 查询token所属登录角色
   // tenant: 普通租户登录 默认
   // center: 产品运营中心登录 单点登录时只带 token 没带 refreshtoken 和 tokenexpires
-  getLoginRole (token?: string) {
+  getTokenRole (token?: string) {
     let loginRole: 'center' | 'tenant' = 'tenant' // center | tenant
     if (token) {
       const jwtInfo = this.jwtDecode(token)
@@ -292,12 +299,16 @@ class Login {
     return loginRole
   }
 
+  getRole () {
+    return this.getTokenRole(this.getToken())
+  }
+
   // 检测当前用户是否登录状态
   checkLogin () {
     let haslogged = false
     const token = this.getToken()
     if (token) {
-      if (this.getLoginRole(token) === 'center') {
+      if (this.getTokenRole(token) === 'center') {
         haslogged = this.checkTokenLogin(token)
       } else {
         const refreshtoken = this.getRefreshToken()
@@ -420,7 +431,7 @@ class Login {
 
     if (this.checkTokenLogin(token)) {
       let isneedlogin = true // 是否需要走单点登录流程
-      const loginRole = this.getLoginRole(token)
+      const loginRole = this.getTokenRole(token)
 
       if (loginRole === 'center') {
         // 如果本地已经登录 且 query 登录参数与本地一致 说明是刚登录没多久【token也没刷新过】 视为已经登录 不需再走单点登录流程

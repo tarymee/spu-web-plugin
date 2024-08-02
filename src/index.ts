@@ -118,6 +118,7 @@ const SPUWebPlugin = {
 
 
 
+const updateToken = login.updateToken.bind(login)
 const getToken = login.getToken.bind(login)
 const getTokenExpires = login.getTokenExpires.bind(login)
 const getRefreshToken = login.getRefreshToken.bind(login)
@@ -167,6 +168,7 @@ export {
   setTitle,
   isInApp,
   AMapLoader,
+  updateToken,
   getToken,
   getTokenExpires,
   getRefreshToken,

@@ -7,7 +7,7 @@ import type {
 import { get } from 'lodash-es'
 // import { Message } from 'element-ui'
 import { loadding } from './components/loadding'
-import { getUser, getToken } from './index'
+import login from './login'
 import core from './core'
 
 interface Response {
@@ -30,12 +30,27 @@ const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
 
   axiosInstance.interceptors.request.use(async (config: any) => {
     // const isShowLoading = typeof config?.isShowLoading !== 'undefined' ? config.isShowLoading : true
+    // console.error(444444)
+    // console.log(config)
+
     const isShowLoading = get(config, 'isShowLoading', true)
     isShowLoading && loadding.open()
 
     const isSendToken = get(config, 'isSendToken', true)
     if (isSendToken) {
-      const token = getToken()
+
+      // 请求接口前校验是否过期 如果过期先刷新token
+      if (config.url !== '/api/auth/refreshtoken') {
+        if (!login.checkLogin() && login.getRole() !== 'center') {
+          try {
+            await login.updateToken()
+          } catch (err) {
+            console.error(err)
+          }
+        }
+      }
+
+      const token = login.getToken()
       if (config?.headers && token) {
         config.headers.token = token
       }
