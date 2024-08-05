@@ -109,6 +109,7 @@ class Login {
 
   getRefreshToken () {
     return this.getData('refreshtoken')
+    // return lsProxy.getItem('refreshtoken') as string
   }
 
   setRefreshToken (value: string) {
