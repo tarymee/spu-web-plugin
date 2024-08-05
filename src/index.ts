@@ -19,8 +19,6 @@ import { expandexp } from './components/expandexp'
 import { initApaasSpuTrack } from './apaasSpuTrack'
 import { initTest } from './test'
 
-
-
 // class SPUWebPlugin {
 //   static install = install
 //   static version = version
@@ -29,11 +27,12 @@ import { initTest } from './test'
 // // SPUWebPlugin.version = version
 
 
-
+// 基于部署路径查出 modulekey moduleversion
+const arr = location.pathname.split('/')
 const globalOptions: any = {
-  modulekey: 'demospu',
-  modulename: 'demospu',
-  moduleversion: 'v1.0',
+  modulename: '',
+  modulekey: arr[1] || '',
+  moduleversion: arr[2] || '',
   storageproxyprefix: '',
   router: null
 }

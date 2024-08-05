@@ -26,7 +26,7 @@ function getModuleData () {
   // 基于部署路径查出 modulekey moduleversion
   const arr = location.pathname.split('/')
   return {
-    modulename: 'xxxx',
+    modulename: '', // 填 spu 名称，例如：超级表单SPU
     modulekey: arr[1],
     moduleversion: arr[2]
   }
@@ -56,7 +56,7 @@ function getModuleData () {
   // 基于部署路径查出 modulekey moduleversion
   const arr = location.pathname.split('/')
   return {
-    modulename: 'xxxx',
+    modulename: '', // 填 spu 名称，例如：超级表单SPU
     modulekey: arr[1],
     moduleversion: arr[2]
   }
