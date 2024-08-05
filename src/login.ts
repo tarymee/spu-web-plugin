@@ -84,7 +84,7 @@ class Login {
 
   getToken () {
     return this.getData('token')
-    // return lsProxy.getItem('token')
+    // return lsProxy.getItem('token') as string
   }
 
   setToken (value: string) {
@@ -160,7 +160,7 @@ class Login {
 
     this.stopRefreshtoken()
 
-    // 如果有登录 但 refreshtoken 不是完整 token 则马上刷新一次取到完整 token
+    // 如果有登录 但 refreshtoken 不是完整 token 则10秒后【需要等单点登录走完后才刷新不然会被覆盖】刷新一次取到完整 token
     // 如果有登录 且 refreshtoken 是完整 token 如果剩余时间大于10分钟 则每隔10分钟刷一次 否则过期前15秒更新 token
     // 如果没登录 每隔1分钟走token更新逻辑(如果刚开始没登录 后面才登录【不需要再在登陆后写刷新token逻辑】)
     let time = 0
@@ -175,7 +175,7 @@ class Login {
           time = 0
         }
       } else {
-        time = 0
+        time = 10000
       }
     } else {
       time = 60000
@@ -496,6 +496,18 @@ class Login {
         // context 上下文字段 产品运营中心安装 卸载 配置 和 产品配置中心业务配置 页面需要用到
         // web 端有传 app没传 需要做兼容
         context && lsProxy.setItem('context', decodeURIComponent(context))
+
+        // 单点登录写入 token 之后 换取完整的 refreshtoken
+        try {
+          if (this.checkLogin()) {
+            const user = this.getUserByToken(this.getRefreshToken())
+            if (!user?.tokenId) {
+              this.updateToken()
+            }
+          }
+        } catch (err) {
+          console.error(err)
+        }
 
         // 这里兼容报错
         await this.getAndSetTenant()
