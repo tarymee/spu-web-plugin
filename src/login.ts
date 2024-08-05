@@ -120,6 +120,11 @@ class Login {
   }
 
   updateToken () {
+    // 如果是产品运营中心 则不走刷新token流程
+    if (this.checkLogin() && this.getRole() === 'center') {
+      console.warn('当前登录为产品运营中心用户，不支持自动刷新token。')
+      return false
+    }
     const token = this.getToken()
     const refreshtoken = this.getRefreshToken()
     const sendToken = this.checkLoginByToken(token) ? token : refreshtoken
@@ -149,6 +154,7 @@ class Login {
   startRefreshtoken () {
     // 如果是产品运营中心 则不走刷新token流程
     if (this.checkLogin() && this.getRole() === 'center') {
+      console.warn('当前登录为产品运营中心用户，不支持自动刷新token。')
       return false
     }
 

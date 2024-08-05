@@ -8,7 +8,7 @@
 
 
 ## 自动刷新 token
-使用该插件时，自动拥有该能力，插件会在 `token` 过期前15秒重新刷新 `token`，以保持持续登录状态。
+使用该插件时，自动拥有该能力，插件会在合适的时机重新刷新 `token`，以保持持续登录状态。
 
 
 
@@ -75,7 +75,7 @@ console.log(refreshtoken)
 
 
 ## checkLogin()
-获取当前环境是否已登录。
+检测当前环境是否已登录。
 
 + 类型：
 
@@ -92,3 +92,70 @@ console.log(isLogin)
 ```
 
 
+
+
+
+
+
+## singleLogin()
+单点登录。
+
+当使用该插件不传入 `router` 实例（基于 `vue-router` 创建）时，不会自动开启单点登录服务，那么需要在合适的时机自行接入单点登录服务。
+
++ 类型：
+
+```js
+function singleLogin (query: object): Promise<{
+  flag: boolean
+  query: object
+}>
+```
+
++ 示例：
+
+```js
+import { singleLogin } from '@smart100/spu-web-plugin'
+import router from './router'
+
+router.beforeEach(async (to: any, from: any, next: any) => {
+  // 自动登录
+  if (to.query.token) {
+    const singleLoginRes = await login.singleLogin(to.query)
+    if (singleLoginRes.flag) {
+      // debugger
+      // next()
+      next({
+        path: to.path,
+        params: to.params,
+        query: singleLoginRes.query
+      })
+    } else {
+      console.error('单点登录失败，请检查链接所传 token 是否非法或过期。')
+      next()
+    }
+  } else {
+    next()
+  }
+})
+```
+
+
+
+
+
+
+## updateToken()
+更新 `token`、`refreshtoken`、`tokenexpires`。
+
++ 类型：
+
+```js
+function updateToken (): Promise<void>
+```
+
++ 示例：
+
+```js
+import { updateToken } from '@smart100/spu-web-plugin'
+updateToken()
+```

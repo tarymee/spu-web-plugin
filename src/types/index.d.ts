@@ -85,14 +85,13 @@ export const functionCheck: (functioncode?: string) => boolean
 export const setTitle: (pagetitle?: string) => void
 export const isInApp: () => boolean
 export const AMapLoader: IAMapLoader
+export const singleLogin: any
 export const updateToken: () => Promise<void>
 export const getToken: () => string
 export const getTokenExpires: () => string
 export const getRefreshToken: () => string
 export const getUser: (key?: string) => any
 export const checkLogin: () => boolean
-export const singleLogin: any
-export const startRefreshtoken: any
 export const Module: any
 export const components: any
 export const expandexp: (options: any) => void
