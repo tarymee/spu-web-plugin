@@ -81,7 +81,10 @@ const initApaasSpuTrack = () => {
       ApaasSpuTrack.getApaasSpuTrack({
         url: 'https://log.xtion.net/?project=xw_module',
         zip: false,
-        online: true
+        online: true,
+        http: {
+          trackRequesetData: true
+        }
       }).then((apaasSpuTrack: ApaasSpuTrack) => {
         console.log('apaasSpuTrack', apaasSpuTrack)
         window.apaasSpuTrack = apaasSpuTrack
