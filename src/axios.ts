@@ -14,6 +14,7 @@ interface Response {
   code: number | string
   data: any
   msg: string
+  message: string
 }
 
 const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
@@ -79,7 +80,8 @@ const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
     let realRes: Response = {
       code: 404,
       data: '',
-      msg: ''
+      msg: '',
+      message: ''
     }
 
     if (type === 'spu') {
@@ -88,30 +90,34 @@ const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
         realRes = {
           code: res.data.code,
           data: res.data.data,
-          msg: res.data.msg
+          msg: res.data.msg,
+          message: res.data.msg
         }
         return realRes
       } else {
-        const msg = res?.data?.msg || '网络异常，请稍后重试。'
-        const isShowErrorMessage = get(res, 'config.isShowErrorMessage', true)
-        // isShowErrorMessage && Message.error(msg)
-
         realRes = {
           code: res.data.code,
           data: res.data.data,
-          msg: res.data.msg
+          msg: res.data.msg || '网络异常，请稍后重试。',
+          message: res.data.msg || '网络异常，请稍后重试。'
         }
+
+        // const isShowErrorMessage = get(res, 'config.isShowErrorMessage', true)
+        // isShowErrorMessage && Message.error(realRes.msg)
+
         return Promise.reject(realRes) as any
       }
     } else if (type === 'normal') {
       realRes = {
         code: res.status || 200,
         data: res.data?.resp_data || res.data,
-        msg: res.data?.error_code || ''
+        msg: res.data?.error_code || '',
+        message: res.data?.error_code || ''
       }
       return realRes
     }
-  }, (err: AxiosError) => {
+  }, (err: any) => {
+    // err: AxiosError
     // console.log(err)
     // debugger
     const isShowLoading = get(err, 'config.isShowLoading', true)
@@ -119,22 +125,33 @@ const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
 
     // console.log(err)
     // debugger
-    // 兼容处理接口新方案 通过传参配置区分 默认使用新方案
-    // 接口返回非 200 状态码 肯定是报错必须要提示
-    const msg = (type === 'spu' ? get(err, 'response.data.msg') : get(err, 'response.data.error_code')) || get(err, 'response.statusText') || get(err, 'message', '网络异常，请稍后重试。')
 
-    const isShowErrorMessage = get(err, 'config.isShowErrorMessage', true)
+    let msg = ''
+    if (type === 'spu') {
+      msg = get(err, 'response.data.msg', '')
+    } else {
+      msg = get(err, 'response.data.error_code', '')
+    }
+
+    if (msg) {
+      err.message = msg
+    } else {
+      err.message = err.response?.statusText || err.message || '网络异常，请稍后重试。'
+    }
+    err.msg = err.message
+
+    // const isShowErrorMessage = get(err, 'config.isShowErrorMessage', true)
     // isShowErrorMessage && Message.error(msg)
 
     const isNoLogin = () => {
       if (type === 'spu') {
-        if (msg === '未授权' && get(err, 'response.data.code') === 401) {
+        if (err.message === '未授权' && get(err, 'response.data.code') === 401) {
           return true
         } else {
           return false
         }
       } else if (type === 'normal') {
-        if (msg.indexOf('token is invalid(decode).') !== -1 || msg.indexOf('token is invalid(null).') !== -1 || msg === 'token无效，请重新登录' || msg === 'jwt token无效') {
+        if (err.message.indexOf('token is invalid(decode).') !== -1 || err.message.indexOf('token is invalid(null).') !== -1 || err.message === 'token无效，请重新登录' || err.message === 'jwt token无效') {
           return true
         } else {
           return false
