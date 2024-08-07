@@ -3842,10 +3842,8 @@ const Ko = (r, e) => {
         if (f === !1)
           return;
         typeof f == "object" ? _ = f : f === !0 && (e.trackResponseData && _.responseContent && ((a = _.responseContent) == null ? void 0 : a.length) > 1048576 && (_.responseContent = void 0), e.trackRequesetData && _.requestContent && ((u = _.requestContent) == null ? void 0 : u.length) > 1048576 && (_.requestContent = void 0));
-      } else if (e.trackResponseData && _.responseContent && _.responseContent.length > 1048576 && (_.responseContent = void 0), e.trackRequesetData) {
-        debugger;
-        _.requestContent && ((h = _.requestContent) == null ? void 0 : h.length) > 1048576 && (_.requestContent = void 0);
-      }
+      } else
+        e.trackResponseData && _.responseContent && _.responseContent.length > 1048576 && (_.responseContent = void 0), e.trackRequesetData && _.requestContent && ((h = _.requestContent) == null ? void 0 : h.length) > 1048576 && (_.requestContent = void 0);
       const p = new nr(n);
       p.setTrackOptions(e), p.setProperties(_), n.addLogByEvent(p);
     }
