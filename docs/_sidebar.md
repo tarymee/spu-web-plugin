@@ -9,7 +9,7 @@
   * [获取用户信息](api/user)
   * [Storage 代理](api/storage)
   * [接口请求](api/axios)
-  * [SPU 配置](api/spuconfig)
+  * [配置服务](api/config)
   * [OSS 上传下载服务](api/oss)
   * [调试](api/isdebugger)
   * [地理位置信息服务](api/location)
