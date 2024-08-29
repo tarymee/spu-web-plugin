@@ -8,6 +8,10 @@ class Urlquery {
     return ssProxy.getItem('isvirtuallocation') === '1'
   }
 
+  get isdebugger (): boolean {
+    return ssProxy.getItem('isdebugger') === '1'
+  }
+
   public init () {
     if (this.isinit) return false
 
