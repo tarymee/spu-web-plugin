@@ -1,5 +1,7 @@
 import { globalOptions, axios, getUser, Module } from './index'
-import { get } from 'lodash-es'
+import { get, cloneDeep } from 'lodash-es'
+import urlquery from './urlquery'
+import login from './login'
 
 const urlIsIp = (url) => {
   const hostname = url.split('://')[1].split(':')[0].split('/')[0]
@@ -245,6 +247,102 @@ class Core {
     }
     const moduleData = await this.getModuleData(modulekey)
     return !!moduleData.data
+  }
+
+  getQueryUrl (query, queryvalue = {}) {
+    query = cloneDeep(query)
+    if (urlquery.isdebugger) {
+      query.every((item) => item === '')
+      const isdebuggerQuery = query.find((item) => item.key === 'isdebugger')
+      if (isdebuggerQuery) {
+        isdebuggerQuery.value = '1'
+      } else {
+        query.push(
+          {
+            key: 'isdebugger',
+            value: '1',
+            field_type: ''
+          }
+        )
+      }
+      queryvalue && (queryvalue.isdebugger = '1')
+    }
+
+    const buildInMap = {
+      '${token}': login.getToken(), // eslint-disable-line no-template-curly-in-string
+      '${refreshtoken}': login.getRefreshToken(), // eslint-disable-line no-template-curly-in-string
+      '${tokenexpires}': login.getTokenExpires(), // eslint-disable-line no-template-curly-in-string
+      '${envname}': this.cache.envName || '' // eslint-disable-line no-template-curly-in-string
+    }
+
+    if (queryvalue) {
+      queryvalue = cloneDeep(queryvalue)
+      for (const x in queryvalue) {
+        if (x.indexOf('${') === 0) {
+          buildInMap[x] = queryvalue[x]
+          delete queryvalue[x]
+        }
+      }
+    }
+
+    let url = ''
+    query && query.length && query.forEach((item) => {
+      let value = ''
+      if (item.value.indexOf('${') === 0) {
+        const buildInValue = buildInMap[item.value]
+        value = typeof buildInValue !== 'undefined' ? buildInValue : ''
+      } else {
+        value = typeof item.value !== 'undefined' ? item.value : ''
+      }
+      if (queryvalue && typeof queryvalue[item.key] !== 'undefined') {
+        value = queryvalue[item.key]
+      }
+      url += `${item.key}=${value}&`
+    })
+    return url
+  }
+
+  // pagecode: 'modulekey:indextag'
+  async createWebUrl (modulekey, indextag, queryvalue = {}) {
+    let url = ''
+    let errorMsg = ''
+    let indextagData
+
+    const moduleData = await this.getModuleData(modulekey)
+    if (moduleData.data) {
+      if (!indextag) {
+        errorMsg = '缺少 indextag，请检查。'
+      } else {
+        indextagData = (moduleData.data.protocol.indexs || []).find((item) => item.indextag === indextag)
+        if (indextagData) {
+          const queryUrl = this.getQueryUrl(indextagData.query || [], queryvalue)
+          const context = await this.getContext(modulekey)
+          const moduleBusiness = await this.getModuleBusiness(modulekey)
+          if (indextagData.externalurl) {
+            url = `${indextagData.externalurl}`
+          } else if (indextagData.url) {
+            url = `${moduleBusiness}/${indextagData.url}`
+          } else {
+            url = `${moduleBusiness}/${moduleData.data.modulekey}/${moduleData.data.moduleversion}${indextagData.path.indexOf('/') === 0 ? '' : '/'}${indextagData.path}${indextagData.location}`
+          }
+
+          if (url.indexOf('?') === -1) {
+            url += `?${queryUrl}indextag=${indextag}&context=${encodeURIComponent(JSON.stringify(context))}`
+          } else {
+            url += `&${queryUrl}indextag=${indextag}&context=${encodeURIComponent(JSON.stringify(context))}`
+          }
+        } else {
+          errorMsg = `找不到 indextag = ${indextag} 的页面信息。`
+        }
+      }
+    } else {
+      errorMsg = moduleData.errorMsg
+    }
+    return {
+      url,
+      // indextagData,
+      errorMsg
+    }
   }
 }
 

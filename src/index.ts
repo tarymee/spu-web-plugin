@@ -48,7 +48,7 @@ const install = (app: any, options: any) => {
   console.log('@smart100/spu-web-plugin userOptions: ', options)
   console.log('@smart100/spu-web-plugin globalOptions: ', globalOptions)
   // setTimeout(() => {
-  //   console.error('test1')
+  //   console.error('test999')
   // }, 1000)
 
   // if (install.installed) return
@@ -144,6 +144,7 @@ const Module = {
   getEnvname: login.getEnvname.bind(login),
   getEnvData: core.getEnvData.bind(core),
   checkModule: core.checkModule.bind(core),
+  createWebUrl: core.createWebUrl.bind(core),
   getSpuContainerType: getSpuContainerType
 }
 
