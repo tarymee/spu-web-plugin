@@ -209,12 +209,62 @@ class Core {
     return res
   }
 
+  getModuleDataSync (modulekey) {
+    if (!modulekey) {
+      modulekey = globalOptions.modulekey
+    }
+    const res = {
+      errorMsg: '',
+      data: null
+    }
+    const data = this.cache
+    if (!modulekey) {
+      res.errorMsg = '缺少 modulekey，请检查。'
+    } else if (!data.envName) {
+      res.errorMsg = '找不到租户环境名称，请检查登录时是否有填写企业名称。'
+    } else if (!data.envData) {
+      res.errorMsg = '找不到租户环境信息。'
+    } else if (!data.webDefineData) {
+      res.errorMsg = '该租户没有部署 G3。'
+    } else if (!data.webDefineData.length) {
+      res.errorMsg = '该租户没有授权场景模块/SPU模块。'
+    } else {
+      res.data = data.webDefineData.find((item) => item.modulekey === modulekey)
+      if (!res.data) {
+        res.errorMsg = `该租户没有授权 ${modulekey} 模块。`
+      }
+    }
+    return res
+  }
+
   async getContext (modulekey) {
     if (!modulekey) {
       modulekey = globalOptions.modulekey
     }
     let context
     const moduleData = await this.getModuleData(modulekey)
+    if (moduleData?.data) {
+      context = {
+        envid: moduleData.envid || '',
+        envname: this.cache.envName || '',
+        tenantcode: moduleData.tenantcode || '',
+        modulecode: moduleData.modulecode || '',
+        modulekey: moduleData.modulekey || '',
+        modulename: moduleData.modulename || '',
+        moduleversion: moduleData.moduleversion || '',
+        versioncode: moduleData.versioncode || '',
+        versionnum: moduleData.moduleversion || ''
+      }
+    }
+    return context
+  }
+
+  getContextSync (modulekey) {
+    if (!modulekey) {
+      modulekey = globalOptions.modulekey
+    }
+    let context
+    const moduleData = this.getModuleDataSync(modulekey)
     if (moduleData?.data) {
       context = {
         envid: moduleData.envid || '',
@@ -246,6 +296,12 @@ class Core {
       modulekey = globalOptions.modulekey
     }
     const moduleData = await this.getModuleData(modulekey)
+    return !!moduleData.data
+  }
+
+  checkPermission (params) {
+    let modulekey = params?.modulekey || globalOptions.modulekey
+    const moduleData = this.getModuleDataSync(modulekey)
     return !!moduleData.data
   }
 
