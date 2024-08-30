@@ -133,7 +133,7 @@ class Core {
   }
 
   requestDataPromise = null
-  async getData () {
+  async initGetData () {
     const nowEnvname = await Module.getEnvname()
     const nowTenantCode = getUser('tenantcode') || ''
     // console.log(tenantCode)
@@ -161,7 +161,7 @@ class Core {
       errorMsg: '',
       data: null
     }
-    const data = await this.getData()
+    const data = await this.initGetData()
     if (!data.envName) {
       res.errorMsg = '找不到租户环境名称，请检查登录时是否有填写企业名称。'
     } else if (!data.envData) {
@@ -189,7 +189,7 @@ class Core {
       errorMsg: '',
       data: null
     }
-    const data = await this.getData()
+    const data = await this.initGetData()
     if (!modulekey) {
       res.errorMsg = '缺少 modulekey，请检查。'
     } else if (!data.envName) {

@@ -89,6 +89,7 @@ const install = (app: any, options: any) => {
         if (singleLoginRes.flag) {
           // debugger
           // next()
+          await core.initGetData()
           next({
             path: to.path,
             params: to.params,
@@ -106,6 +107,9 @@ const install = (app: any, options: any) => {
     console.warn('@smart100/spu-web-plugin 需要传入一个 vue-router 实例以便执行单点登录逻辑，如果您没传 vue-router 实例则需要自行在合适的位置执行单点登录代码。')
   }
 
+  if (login.checkLogin()) {
+    core.initGetData()
+  }
 
   initApaasSpuTrack()
 

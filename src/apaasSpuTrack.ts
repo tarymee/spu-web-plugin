@@ -1,5 +1,5 @@
 import { globalOptions, getUser, Module } from './index'
-import { cloneDeep, merge } from 'lodash-es'
+import { cloneDeep, merge, set } from 'lodash-es'
 import login from './login'
 
 // @ts-ignore
@@ -56,27 +56,14 @@ const getIndextagSync = (params: any) => {
 // 兼容开启SPU日志
 const initApaasSpuTrack = () => {
   setTimeout(() => {
-    if (ApaasSpuTrack && !window.apaasSpuTrack && !window?.aPaaS?.getWebInitParams && !window?.Module?.getIndextagSync && login.checkLogin() && getUser()) {
-      window.aPaaS = {
-        getWebInitParams
+    if (ApaasSpuTrack && !window.apaasSpuTrack && login.checkLogin() && getUser()) {
+
+      if (!window?.aPaaS?.getWebInitParams) {
+        set(window, 'aPaaS', getWebInitParams)
       }
-      window.Module = {
-        getIndextagSync
+      if (!window?.Module?.getIndextagSync) {
+        set(window, 'Module', getIndextagSync)
       }
-      // if (window.aPaaS && !window.aPaaS.getWebInitParams) {
-      //   window.aPaaS.getWebInitParams = getWebInitParams
-      // } else {
-      //   window.aPaaS = {
-      //     getWebInitParams
-      //   }
-      // }
-      // if (window.Module && !window.Module.getIndextagSync) {
-      //   window.Module.getIndextagSync = getIndextagSync
-      // } else {
-      //   window.Module = {
-      //     getIndextagSync
-      //   }
-      // }
 
       ApaasSpuTrack.getApaasSpuTrack({
         url: 'https://log.xtion.net/?project=xw_module',
