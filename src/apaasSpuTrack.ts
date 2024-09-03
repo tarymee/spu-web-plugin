@@ -10,7 +10,6 @@ import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.umd.js'
 // console.log(ApaasSpuTrack)
 // console.log(window.ApaasSpuTrack)
 
-
 const getWebInitParams = async () => {
   const user = getUser()
   const envname = await Module.getEnvname()
@@ -187,6 +186,7 @@ const apaasSpuTrackSendLog = (data: any, isnotretry: boolean = false) => {
 }
 
 export {
+  getIndextagSync,
   initApaasSpuTrack,
   apaasSpuTrackSendLog
 }
