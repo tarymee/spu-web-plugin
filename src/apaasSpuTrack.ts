@@ -7,8 +7,8 @@ import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.umd.js'
 // import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.js'
 // import * as ApaasSpuTrack from './package/apaas-track/apaas-spu/index.mjs'
 
-console.log(ApaasSpuTrack)
-console.log(window.ApaasSpuTrack)
+// console.log(ApaasSpuTrack)
+// console.log(window.ApaasSpuTrack)
 
 
 const getWebInitParams = async () => {
