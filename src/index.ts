@@ -48,7 +48,7 @@ const install = (app: any, options: any) => {
   console.log('@smart100/spu-web-plugin userOptions: ', options)
   console.log('@smart100/spu-web-plugin globalOptions: ', globalOptions)
   // setTimeout(() => {
-  //   console.error('test999')
+  //   console.error('test888')
   // }, 1000)
 
   // if (install.installed) return

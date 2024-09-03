@@ -4,6 +4,12 @@ import login from './login'
 
 // @ts-ignore
 import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.umd.js'
+// import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.js'
+// import * as ApaasSpuTrack from './package/apaas-track/apaas-spu/index.mjs'
+
+console.log(ApaasSpuTrack)
+console.log(window.ApaasSpuTrack)
+
 
 const getWebInitParams = async () => {
   const user = getUser()
@@ -57,12 +63,11 @@ const getIndextagSync = (params: any) => {
 const initApaasSpuTrack = () => {
   setTimeout(() => {
     if (ApaasSpuTrack && !window.apaasSpuTrack && login.checkLogin() && getUser()) {
-
       if (!window?.aPaaS?.getWebInitParams) {
-        set(window, 'aPaaS', getWebInitParams)
+        set(window, 'aPaaS.getWebInitParams', getWebInitParams)
       }
       if (!window?.Module?.getIndextagSync) {
-        set(window, 'Module', getIndextagSync)
+        set(window, 'Module.getIndextagSync', getIndextagSync)
       }
 
       ApaasSpuTrack.getApaasSpuTrack({
@@ -101,6 +106,7 @@ const initApaasSpuTrack = () => {
         // 重写 transformLog 底层方法
         let initindextag = ''
         apaasSpuTrack.transformLog = (log: any) => {
+          // console.error(22222222222222)
           if (log.properties) {
             // 发送所有类型的日志前统一在 properties 对象属性下增加SPU相关属性值：modulekey、modulename、moduleversion、indextag、initindextag、toindextag、fromindextag。
             log.properties.modulekey = log.appid
