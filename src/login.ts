@@ -329,7 +329,7 @@ class Login {
     let loginRole: 'center' | 'tenant' = 'tenant' // center | tenant
     if (token) {
       const jwtInfo = this.jwtDecode(token)
-      if (jwtInfo?.LoginUser?.centerRole || jwtInfo?.LoginUser?.appId === '100') {
+      if (jwtInfo?.LoginUser?.centerRole) {
         // 产品运营中心登录
         loginRole = 'center'
       }
