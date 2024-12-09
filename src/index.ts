@@ -39,6 +39,8 @@ const globalOptions: any = {
 
 const install = (app: any, options: any) => {
 
+  initStorageProxy(globalOptions)
+
   urlquery.init()
 
   // console.log(app)
@@ -65,7 +67,6 @@ const install = (app: any, options: any) => {
   //   console.error('This plugin requires Vue App Instance')
   // }
 
-  initStorageProxy(globalOptions)
   initAxios(globalOptions)
   initSpuConfig(globalOptions)
 

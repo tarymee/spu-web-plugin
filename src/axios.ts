@@ -9,6 +9,7 @@ import { get } from 'lodash-es'
 import { loadding } from './components/loadding'
 import login from './login'
 import core from './core'
+import urlquery from './urlquery'
 
 interface Response {
   code: number | string
@@ -64,6 +65,13 @@ const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
       } else {
         console.error(moduleData.errorMsg)
         config.baseURL = `/api/${config.modulekey}/v?.?`
+      }
+    }
+
+    // 平台的业务接口开了开发者模式后，header带上debug方便查看接口的ide日志
+    if (type !== 'spu' && urlquery.isdebugger && config.url.indexOf('api/teapi/dy-biz/') > -1) {
+      if (config?.headers) {
+        config.headers.debug = 'true'
       }
     }
 

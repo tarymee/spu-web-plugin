@@ -54,4 +54,6 @@ class Urlquery {
   // }
 }
 
-export default new Urlquery()
+const urlquery = new Urlquery()
+
+export default urlquery
