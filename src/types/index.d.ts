@@ -96,3 +96,5 @@ export const Module: any
 export const components: any
 export const expandexp: (options: any) => void
 export const wxworkSuite: any
+export const isdebugger: () => boolean
+export const isvirtuallocation: () => boolean

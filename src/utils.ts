@@ -1,4 +1,5 @@
 import { getUser } from './index'
+import urlquery from './urlquery'
 
 const isIOS = () => {
   const ua = navigator.userAgent
@@ -61,11 +62,21 @@ const isInApp = (): boolean => {
   }
 }
 
+const isdebugger = (): boolean => {
+  return urlquery.isdebugger
+}
+
+const isvirtuallocation = (): boolean => {
+  return urlquery.isvirtuallocation
+}
+
 export {
   isIOS,
   getUniqueid,
   functionCheck,
   setTitle,
   getSpuContainerType,
-  isInApp
+  isInApp,
+  isdebugger,
+  isvirtuallocation
 }

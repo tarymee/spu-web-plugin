@@ -9,7 +9,7 @@ import { initAxios, spuAxios, axios } from './axios'
 import { initSpuConfig, spuConfig } from './spuConfig'
 import { globalConfig } from './globalConfig'
 import { downloadService, uploadService } from './oss'
-import { getUniqueid, functionCheck, setTitle, getSpuContainerType, isInApp } from './utils'
+import { getUniqueid, functionCheck, setTitle, getSpuContainerType, isInApp, isdebugger, isvirtuallocation } from './utils'
 import urlquery from './urlquery'
 import AMapLoader from './AMapLoader'
 import login from './login'
@@ -49,7 +49,7 @@ const install = (app: any, options: any) => {
   console.log('@smart100/spu-web-plugin globalOptions: ', globalOptions)
   // setTimeout(() => {
   //   console.error('test888')
-  // }, 1000)
+  // }, 5000)
 
   // if (install.installed) return
   // install.installed = true
@@ -141,8 +141,6 @@ const wxworkSuite = {
   isWxworkApp
 }
 
-
-
 const Module = {
   getModuleData: core.getModuleData.bind(core),
   getEnvname: login.getEnvname.bind(login),
@@ -151,6 +149,8 @@ const Module = {
   createWebUrl: core.createWebUrl.bind(core),
   getSpuContainerType: getSpuContainerType
 }
+
+
 
 
 export {
@@ -183,5 +183,7 @@ export {
   Module,
   components,
   expandexp,
-  wxworkSuite
+  wxworkSuite,
+  isdebugger,
+  isvirtuallocation
 }
