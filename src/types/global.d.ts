@@ -55,3 +55,6 @@ interface ITenantInfo {
 interface Window {
   AWS: any;
 }
+
+declare module 'uuid'
+declare module 'co'

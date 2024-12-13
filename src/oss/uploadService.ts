@@ -24,8 +24,6 @@ import { initServToken } from './servtoken'
 import { obsMultiUpload } from './multiUpload'
 
 
-
-
 interface IUpload {
   type?: 'att' | 'img',
   file: File,
