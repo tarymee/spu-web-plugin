@@ -51,3 +51,7 @@ interface ITenantInfo {
   cloudserv: ICloudServ
   productversionlist: IProductVersion[]
 }
+
+interface Window {
+  AWS: any;
+}

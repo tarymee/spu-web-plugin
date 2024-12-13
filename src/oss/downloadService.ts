@@ -5,8 +5,10 @@ import ObsClient from '../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.
 // import * as ObsClient from '../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js'
 // const ObsClient = require('../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js')
 
+import 'aws-sdk/dist/aws-sdk.min.js'
+
 import dayjs from 'dayjs'
-import CloudServ from '../cloudServ'
+import cloudServ from '../cloudServ'
 import { initServToken } from './servtoken'
 import { axios, getUser } from '../index'
 // import { get } from 'lodash-es'
@@ -31,6 +33,13 @@ const getContentType = (suffix: string) => {
     // '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
   }
   return map[suffix.toLowerCase()] || ''
+}
+
+// 如果url是ip则返回true，是域名则返回false
+const isIpUrl = (url: string) => {
+  // 匹配ip的正则表达式
+  const reg = /((\w+):\/\/)?(\d+)\.(\d+)\.(\d+)\.(\d+)/
+  return reg.test(url)
 }
 
 // interface UrlInfo {
@@ -71,6 +80,28 @@ interface IDownload {
 }
 
 
+const getNormalizeAliOssCopeMinio = (cope?: Cope) => {
+  let copeObj = ''
+  if (cope) {
+    if (cope === true) {
+      copeObj = 'image/resize,m_fixed,w_100,h_100'
+    } else if (typeof cope === 'string') {
+      // 'image/resize,m_fixed,w_100,h_100'
+      copeObj = cope
+    } else if (cope.width || cope.height) {
+      copeObj = 'image/resize,m_fixed'
+      if (cope.width && !cope.height) {
+        copeObj += `,w_${cope.width},h_${cope.width}`
+      } else if (cope.height && !cope.width) {
+        copeObj += `,w_${cope.height},h_${cope.height}`
+      } else if (cope.width && cope.height) {
+        copeObj += `,w_${cope.width},h_${cope.height}`
+      }
+    }
+  }
+  return copeObj
+}
+
 const getNormalizeAliOssCope = (cope?: Cope) => {
   let copeObj = ''
   if (cope) {
@@ -92,6 +123,7 @@ const getNormalizeAliOssCope = (cope?: Cope) => {
   return copeObj
 }
 
+
 // 根据文件信息最后生成一个云文件服务可以用的链接http://xxxxx.xxx.jpg
 const getUrl = async ({
   type = 'img',
@@ -101,14 +133,13 @@ const getUrl = async ({
   storagetype = 'storage',
   cope = ''
 }: IDownload) => {
-  const cloudServStorage = CloudServ.get(storagetype)
-  if (!cloudServStorage) throw Error('无可用存储设置')
+  const storageConfig = cloudServ.get(storagetype)
+  if (!storageConfig) throw Error('无可用存储设置')
   const servToken = await initServToken()
   if (!servToken) throw Error('无可用servToken')
 
-  const isAliYun = CloudServ.isAliyun(storagetype)
-  const isHuawei = CloudServ.isHuawei(storagetype)
   const tenantCode = getUser('tenantcode')
+  const provider = cloudServ.getProvider(storagetype)
 
   if (!filename) {
     filename = source
@@ -117,17 +148,17 @@ const getUrl = async ({
   const suffix = filename.slice(filename.lastIndexOf('.'))
   const date = dayjs(+datetime).format('YYYYMMDD')
   let objectKey = isAbsoluteUrl ? source : `${source.slice(0, 3)}/${type}/${date}/${tenantCode}/${source}`
-  const copeObj = getNormalizeAliOssCope(cope)
+  const copeObj = provider?.isMinio ? getNormalizeAliOssCopeMinio(cope) : getNormalizeAliOssCope(cope)
   const contentType = getContentType(suffix)
 
-  if (isAliYun) {
+  if (provider?.isAliYun) {
     const ossClient = new OSS({
-      // region: cloudServ.cloudserv_storage_storageendpoint,
-      endpoint: cloudServStorage.cloudserv_storage_storageendpoint,
+      // region: storageConfig.cloudserv_storage_storageendpoint,
+      endpoint: storageConfig.cloudserv_storage_storageendpoint,
       accessKeyId: servToken.accesskeyid,
       accessKeySecret: servToken.accesskeysecret,
       stsToken: servToken.securitytoken,
-      bucket: cloudServStorage.cloudserv_storage_storagebucket,
+      bucket: storageConfig.cloudserv_storage_storagebucket,
       secure: true
     })
 
@@ -152,11 +183,11 @@ const getUrl = async ({
     // }
 
     return ossUrl
-  } else if (isHuawei) {
+  } else if (provider?.isHuawei) {
     const obs = new ObsClient({
       access_key_id: servToken.accesskeyid,
       secret_access_key: servToken.accesskeysecret,
-      server: cloudServStorage.cloudserv_storage_storageendpoint,
+      server: storageConfig.cloudserv_storage_storageendpoint,
       security_token: servToken.securitytoken
     })
     // 修复地址里面有//就不能下载了
@@ -166,7 +197,7 @@ const getUrl = async ({
     try {
       const Params: IAny = {
         // Method: 'get',
-        Bucket: cloudServStorage.cloudserv_storage_storagebucket,
+        Bucket: storageConfig.cloudserv_storage_storagebucket,
         Key: objectKey
         // Headers: responseHeader
         // Expires: 3600,
@@ -188,8 +219,52 @@ const getUrl = async ({
       console.error(e)
       throw Error(e)
     }
+  } else if (provider?.isMinio) {
+    const S3 = window?.AWS?.S3
+    const s3Params: IAny = {
+      accessKeyId: servToken.accesskeyid,
+      secretAccessKey: servToken.accesskeysecret,
+      sessionToken: servToken.securitytoken,
+      signatureVersion: 'v4',
+      endpoint: storageConfig.cloudserv_storage_storageendpoint,
+      region: storageConfig.cloudserv_storage_region
+    }
+    // minio和url为ip的需要将存储桶后置
+    if (provider?.isMinio || isIpUrl(storageConfig.cloudserv_storage_storageurl)) {
+      s3Params.s3ForcePathStyle = true
+    }
+    const s3 = new S3(s3Params)
+
+    // awss3缩略图没方案处理
+    const params = {
+      Expires: 60 * 60 * 24 * 7,
+      Bucket: storageConfig.cloudserv_storage_storagebucket,
+      Key: objectKey[0] === '/' ? objectKey.slice(1) : objectKey
+    }
+
+    const getSignedUrlPro = () => {
+      return new Promise((resolve, reject) => {
+        s3.getSignedUrl('getObject', params, (err: any, data: any) => {
+          if (err) {
+            console.error(err)
+            reject(new Error(err))
+          } else {
+            if (provider?.isMinio && copeObj) {
+              data = `${data}&x-oss-process=${copeObj}`
+              // data = `${data}&x-oss-process=image/resize,m_fixed,w_100,h_`
+            }
+            resolve(data)
+            console.log(data)
+          }
+        })
+      })
+    }
+
+    const signedUrl = await getSignedUrlPro()
+    // console.log(signedUrl)
+    return signedUrl
   } else {
-    throw Error('暂不支持非阿里云OSS/华为云OBS存储类型')
+    throw Error(`暂不支持${provider?.name}存储类型`)
   }
 }
 
@@ -258,9 +333,8 @@ const downloadFile = async ({
   //   throw Error(e)
   // })
 
-  const isAliYun = CloudServ.isAliyun(storagetype)
-  // const isHuawei = CloudServ.isHuawei(storagetype)
-  if (isAliYun) {
+  const provider = cloudServ.getProvider(storagetype)
+  if (provider?.isAliYun) {
     downloadFileByUrl(url, filename)
   } else {
     axios.get(url, {

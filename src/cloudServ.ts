@@ -30,38 +30,23 @@ class CloudServ {
     lsProxy.removeItem(this.CLOUD_SERVE_KEY)
   }
 
-  private getProvider (sign: StorageType = 'storage') {
+  public getProvider (sign: StorageType = 'storage'): IAny | null {
     const storage: NormalizedCloudServItem | null = this.get(sign)
     if (!storage) {
-      return false
+      return null
     }
-    return storage.cloudserv_storage_provider
-  }
-
-
-  public isAliyun (sign: StorageType = 'storage') {
-    return this.getProvider(sign) === 'aliyun'
-  }
-
-  public isAzure (sign: StorageType = 'storage') {
-    return this.getProvider(sign) === 'azure'
-  }
-
-  public isAwss3 (sign: StorageType = 'storage') {
-    return this.getProvider(sign) === 'awss3'
-  }
-
-  public isHuawei (sign: StorageType = 'storage') {
-    return this.getProvider(sign) === 'huawei'
+    const name = storage.cloudserv_storage_provider
+    return {
+      name: name,
+      isAliyun: name === 'aliyun',
+      isAzure: name === 'azure',
+      isAwss3: name === 'awss3',
+      isHuawei: name === 'huawei',
+      isMinio: name === 'minio'
+    }
   }
 }
 
-export default new CloudServ()
+const cloudServ = new CloudServ()
 
-
-
-
-
-
-
-
+export default cloudServ

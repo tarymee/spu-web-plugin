@@ -39,6 +39,7 @@
   "dependencies": {
     "@amap/amap-jsapi-loader": "^1.0.1",
     "@smart100/wxworksuite-plugin": "^0.0.12",
+    "aws-sdk": "^2.1692.0",
     "axios": "^1.6.0",
     "co": "^4.6.0",
     "dayjs": "^1.11.10",
