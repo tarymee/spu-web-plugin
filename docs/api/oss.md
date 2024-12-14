@@ -27,7 +27,13 @@ function upload ({
   datetime = '',
   storagetype = 'storage',
   onprogress,
-}: IUpload): Promise<any>
+}: IUpload): Promise<{
+  file: File,
+  filename: string, // File.name
+  type: string, // File.type
+  source: string,
+  datetime: string,
+}>
 ```
 
 
