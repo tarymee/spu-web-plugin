@@ -58,8 +58,11 @@ const upload = async ({
   // console.log(file)
   // console.log(source)
   // console.log(datetime)
+  // console.log(provider)
+  // console.log(storageConfig)
+  // debugger
   const promise = new Promise(async (resolve, reject) => {
-    if (provider?.isAliYun) {
+    if (provider?.isAliyun) {
       const ossClient = new OSS({
         // region: storageConfig.cloudserv_storage_storageendpoint,
         endpoint: storageConfig.cloudserv_storage_storageendpoint,
@@ -69,10 +72,6 @@ const upload = async ({
         bucket: storageConfig.cloudserv_storage_storagebucket,
         secure: true
       })
-      // promise.cancel = () => {
-      //   ossClient.cancel()
-      //   reject(new Error('Cancel'))
-      // }
       co(function* () {
         yield ossClient.multipartUpload(objectKey, file, {
           headers: {

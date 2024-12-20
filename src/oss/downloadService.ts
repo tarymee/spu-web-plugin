@@ -151,7 +151,7 @@ const getUrl = async ({
   const copeObj = provider?.isMinio ? getNormalizeAliOssCopeMinio(cope) : getNormalizeAliOssCope(cope)
   const contentType = getContentType(suffix)
 
-  if (provider?.isAliYun) {
+  if (provider?.isAliyun) {
     const ossClient = new OSS({
       // region: storageConfig.cloudserv_storage_storageendpoint,
       endpoint: storageConfig.cloudserv_storage_storageendpoint,
@@ -334,7 +334,7 @@ const downloadFile = async ({
   // })
 
   const provider = cloudServ.getProvider(storagetype)
-  if (provider?.isAliYun) {
+  if (provider?.isAliyun) {
     downloadFileByUrl(url, filename)
   } else {
     axios.get(url, {
