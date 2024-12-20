@@ -1,17 +1,17 @@
 interface IMultiUploadOptions {
-    bucket: string
-    key: string
-    partSize?: number
-    parallel: number
-    onProgress?: (number: number) => void
+  bucket: string
+  key: string
+  partSize?: number
+  parallel: number
+  onProgress?: (number: number) => void
 }
 interface IUploadPartRes {
-    PartNumber: number
-    ETag: string
+  PartNumber: number
+  ETag: string
 }
 
 interface ITask<T> {
-    (): Promise<T>
+  (): Promise<T>
 }
 
 export const obsMultiUpload = async (obs: any, file: File | Blob, options: IMultiUploadOptions) => {
@@ -90,7 +90,7 @@ export const obsMultiUpload = async (obs: any, file: File | Blob, options: IMult
   }
 }
 
-const executeTasks = async <T>(tasks: Array<ITask<T>>, parallel = 3): Promise<Array<T>> => {
+const executeTasks = async <T> (tasks: Array<ITask<T>>, parallel = 3): Promise<Array<T>> => {
   return new Promise((resolve, reject) => {
     const todos = tasks.slice(0, parallel)
     const pendings = tasks.slice(parallel)
