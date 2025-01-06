@@ -66,7 +66,7 @@ class Core {
     // envName = '产品运营中心验证'
     let result = null
     if (envName) {
-      const hostsRoot = document.location.protocol === 'https:' ? 'https://mconfig.xtion.net' : 'http://mconfig.xtion.net:8015'
+      const hostsRoot = document.location.protocol === 'https:' ? 'https://mconfig.xuantongkeji.com' : 'http://mconfig.xuantongkeji.com:8015'
       let response
       try {
         response = await axios.get(`${hostsRoot}/multiplatconfig/env/${envName}`, {

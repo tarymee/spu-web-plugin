@@ -70,7 +70,7 @@ const initApaasSpuTrack = () => {
       }
 
       ApaasSpuTrack.getApaasSpuTrack({
-        url: 'https://log.xtion.net/?project=xw_module',
+        url: 'https://log.xuantongkeji.com/?project=xw_module',
         zip: false,
         online: true,
         http: {
