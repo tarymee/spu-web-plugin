@@ -165,8 +165,10 @@ const upload = async ({
       }
       const upload = s3.upload(params, {}).on('httpUploadProgress', (e: any) => {
         const precent: any = parseInt(e.loaded, 10) / parseInt(e.total, 10)
-        // console.log('httpUploadProgress', e)
-        onprogress && onprogress(precent.toFixed(2))
+        // console.log('httpUploadProgress')
+        // console.log(e)
+        // console.log(precent)
+        onprogress && onprogress(precent)
       })
       upload.send((err: any, data: any) => {
         if (err) {

@@ -68,7 +68,56 @@ const isIpUrl = (url: string) => {
 //   }
 // }
 
-type Cope = { width?: number, height?: number } | string | boolean
+type Cope = { width?: number | string, height?: number | string } | string | boolean
+
+const getAliyunCope = (cope?: Cope) => {
+  let str = ''
+  if (cope) {
+    if (cope === true) {
+      str = 'image/resize,m_fixed,w_100,h_100'
+    } else if (typeof cope === 'string') {
+      str = cope
+    } else if (cope.width || cope.height) {
+      str = 'image/resize,m_fixed'
+      if (cope.width) {
+        const width = String(cope.width).replace('px', '')
+        str += `,w_${width}`
+      }
+      if (cope.height) {
+        const height = String(cope.height).replace('px', '')
+        str += `,h_${height}`
+      }
+    }
+  }
+  return str
+}
+
+const getCope = (cope?: Cope) => {
+  let str = ''
+  if (cope) {
+    if (cope === true) {
+      str = 'image/resize,m_fixed,w_100,h_100'
+    } else if (typeof cope === 'string') {
+      str = cope
+    } else if (cope.width || cope.height) {
+      str = 'image/resize,m_fixed'
+      let width = ''
+      let height = ''
+      if (cope.width && !cope.height) {
+        width = String(cope.width).replace('px', '')
+        height = width
+      } else if (cope.height && !cope.width) {
+        height = String(cope.height).replace('px', '')
+        width = height
+      } else if (cope.width && cope.height) {
+        width = String(cope.width).replace('px', '')
+        height = String(cope.height).replace('px', '')
+      }
+      str += `,w_${width},h_${height}`
+    }
+  }
+  return str
+}
 
 interface IDownload {
   type?: 'att' | 'img',
@@ -77,50 +126,6 @@ interface IDownload {
   storagetype?: StorageType,
   cope?: Cope,
   filename?: string, // 下载文件名
-}
-
-
-const getNormalizeAliOssCopeMinio = (cope?: Cope) => {
-  let copeObj = ''
-  if (cope) {
-    if (cope === true) {
-      copeObj = 'image/resize,m_fixed,w_100,h_100'
-    } else if (typeof cope === 'string') {
-      // 'image/resize,m_fixed,w_100,h_100'
-      copeObj = cope
-    } else if (cope.width || cope.height) {
-      copeObj = 'image/resize,m_fixed'
-      if (cope.width && !cope.height) {
-        copeObj += `,w_${cope.width},h_${cope.width}`
-      } else if (cope.height && !cope.width) {
-        copeObj += `,w_${cope.height},h_${cope.height}`
-      } else if (cope.width && cope.height) {
-        copeObj += `,w_${cope.width},h_${cope.height}`
-      }
-    }
-  }
-  return copeObj
-}
-
-const getNormalizeAliOssCope = (cope?: Cope) => {
-  let copeObj = ''
-  if (cope) {
-    if (cope === true) {
-      copeObj = 'image/resize,m_fixed,w_100,h_100'
-    } else if (typeof cope === 'string') {
-      // 'image/resize,m_fixed,w_100,h_100'
-      copeObj = cope
-    } else if (cope.width || cope.height) {
-      copeObj = 'image/resize,m_fixed'
-      if (cope.width) {
-        copeObj += `,w_${cope.width}`
-      }
-      if (cope.height) {
-        copeObj += `,h_${cope.height}`
-      }
-    }
-  }
-  return copeObj
 }
 
 
@@ -148,7 +153,7 @@ const getUrl = async ({
   const suffix = filename.slice(filename.lastIndexOf('.'))
   const date = dayjs(+datetime).format('YYYYMMDD')
   let objectKey = isAbsoluteUrl ? source : `${source.slice(0, 3)}/${type}/${date}/${tenantCode}/${source}`
-  const copeObj = provider?.isMinio ? getNormalizeAliOssCopeMinio(cope) : getNormalizeAliOssCope(cope)
+  const copeStr = provider?.isAliyun ? getAliyunCope(cope) : getCope(cope)
   const contentType = getContentType(suffix)
 
   if (provider?.isAliyun) {
@@ -173,7 +178,7 @@ const getUrl = async ({
 
     const ossUrl = ossClient.signatureUrl(objectKey, {
       response: responseHeader,
-      process: copeObj
+      process: copeStr
     })
 
     // // 假阿里云会自动拼cloudserv_storage_storagebucket，这里要去掉
@@ -203,9 +208,9 @@ const getUrl = async ({
         // Expires: 3600,
         // Headers: headers
       }
-      if (contentType.startsWith('image') && copeObj) {
+      if (contentType.startsWith('image') && copeStr) {
         Params.QueryParams = {
-          'x-image-process': copeObj
+          'x-image-process': copeStr
         }
       }
       const res = obs.createSignedUrlSync(Params)
@@ -249,8 +254,8 @@ const getUrl = async ({
             console.error(err)
             reject(new Error(err))
           } else {
-            if (provider?.isMinio && copeObj) {
-              data = `${data}&x-oss-process=${copeObj}`
+            if (provider?.isMinio && copeStr) {
+              data = `${data}&x-oss-process=${copeStr}`
               // data = `${data}&x-oss-process=image/resize,m_fixed,w_100,h_`
             }
             resolve(data)
