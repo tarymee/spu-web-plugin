@@ -53,7 +53,7 @@ const upload = async ({
   source = source ? source : (uuidv4() + suffix)
   datetime = datetime ? datetime : Date.now()
   const date = dayjs(+datetime).format('YYYYMMDD')
-  const objectKey = `${source.slice(0, 3)}/${type}/${date}/${tenantCode}/${source}`
+  const osskey = `${source.slice(0, 3)}/${type}/${date}/${tenantCode}/${source}`
 
   // console.log(file)
   // console.log(source)
@@ -73,7 +73,7 @@ const upload = async ({
         secure: true
       })
       co(function* () {
-        yield ossClient.multipartUpload(objectKey, file, {
+        yield ossClient.multipartUpload(osskey, file, {
           headers: {
             'Content-Disposition': 'filename="' + (file.name && encodeURIComponent(file.name)) // 阿里云提供的下载名字
           },
@@ -112,7 +112,7 @@ const upload = async ({
         try {
           const uploadRes = await obsMultiUpload(obs, file, {
             bucket: storageConfig.cloudserv_storage_storagebucket,
-            key: objectKey,
+            key: osskey,
             parallel: 3,
             onProgress: (percent: number) => {
               onprogress && onprogress(percent)
@@ -134,7 +134,7 @@ const upload = async ({
         }
         // obs.putObject({
         //   Bucket: cloudServ.cloudserv_storage_storagebucket,
-        //   Key: objectKey,
+        //   Key: osskey,
         //   SourceFile: file
         // }, (err, result) => {
         //   result.CommonMsg.Status
@@ -160,7 +160,7 @@ const upload = async ({
       })
       const params = {
         Bucket: storageConfig.cloudserv_storage_storagebucket,
-        Key: objectKey,
+        Key: osskey,
         Body: file
       }
       const upload = s3.upload(params, {}).on('httpUploadProgress', (e: any) => {
@@ -176,6 +176,7 @@ const upload = async ({
           reject(err)
         } else {
           resolve({
+            key: osskey,
             source,
             filename: file.name,
             type: file.type,

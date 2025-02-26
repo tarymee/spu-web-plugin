@@ -20,12 +20,13 @@ const urlIsIp = (url) => {
 // 如果是非ip地址 则切换为与主页面一样的 location.protocol 前缀
 const toggleHttpOrHttps = (url) => {
   let res = url
-  if (!urlIsIp(res)) {
-    if (!res.startsWith(location.protocol)) {
-      const arr = res.split('//')
-      arr[0] = location.protocol
-      res = arr.join('//')
-    }
+
+  if (urlIsIp(url)) return res
+
+  if (!res.startsWith(location.protocol)) {
+    const arr = res.split('//')
+    arr[0] = location.protocol
+    res = arr.join('//')
   }
   return res
 }
@@ -80,6 +81,7 @@ class Core {
         // 如果是非ip地址 则切换为与主页面一样的 location.protocol 前缀
         result?.business && (result.business = toggleHttpOrHttps(result.business))
         result?.smartcenter && (result.smartcenter = toggleHttpOrHttps(result.smartcenter))
+        // debugger
       } catch (err) {
         console.error(err)
       }

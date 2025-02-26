@@ -97,6 +97,7 @@ class Login {
 
   getTokenExpires () {
     return this.getData('tokenexpires')
+    // return lsProxy.getItem('tokenexpires') as string
   }
 
   setTokenExpires (value: string) {

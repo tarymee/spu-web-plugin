@@ -12,6 +12,7 @@
 + 执行 npm publish
 
 ## todo
++ 路由跳转时检测token过期则更新
 + axios 支持 错误弹窗
 + spuConfig 支持保存
 + 控件用 lit 改写

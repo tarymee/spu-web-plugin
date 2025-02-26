@@ -21,7 +21,7 @@ let xhr: Promise<ServToken> | null = null
 
 const getServToken = async () => {
   try {
-    const response: ServToken = await axios.get('/api/teapi/auth/servtoken', {}).then((res: any) => res.data)
+    const response: ServToken = await axios.get('/api/teapi/auth/servtoken').then((res: any) => res.data)
     // debugger
     return response
   } catch (e) {
@@ -71,8 +71,6 @@ export const initServToken = () => {
           .catch(() => {
             xhr = null
             isGetting = false
-            // return null
-            // eslint-disable-next-line prefer-promise-reject-errors
             reject(null)
           })
       } else {
@@ -82,50 +80,3 @@ export const initServToken = () => {
     }
   })
 }
-
-
-
-
-
-
-
-
-
-// // let last = 0
-// // let servtoken
-// let isRequesting = false
-// const getServToken = function () {
-//   let servtoken = wx.getStorageSync('servtoken')
-//   let last
-//   if (servtoken) {
-//     last = new Date(servtoken.expiration).getTime()
-//   }
-//   const now = Date.now()
-//   if (!servtoken || (last - now < (1000 * 60 * 5))) {
-//     wx.removeStorageSync('servtoken')
-//     if (!isRequesting) {
-//       isRequesting = true
-//       return request({
-//         url: `${api.HOST}/api/teapi/auth/servtoken`,
-//         method: 'get',
-//         isShowLoading: false
-//       }).then((res) => {
-//         wx.setStorageSync('servtoken', res.data.resp_data)
-//         isRequesting = false
-//         return res.data.resp_data
-//       })
-//     } else {
-//       return new Promise((resolve, reject) => {
-//         const fn = setInterval(() => {
-//           let servtoken = wx.getStorageSync('servtoken')
-//           if (servtoken) {
-//             resolve(servtoken)
-//             clearInterval(fn)
-//           }
-//         }, 200)
-//       })
-//     }
-//   } else {
-//     return Promise.resolve(servtoken)
-//   }
-// }

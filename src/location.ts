@@ -3,10 +3,10 @@ import { cloneDeep } from 'lodash-es'
 import urlquery from './urlquery'
 
 type Location = {
-  longitude: string;
-  latitude: string;
-  address: string;
-  [propName: string]: any;
+  longitude: string
+  latitude: string
+  address: string
+  [propName: string]: any
 } | null
 
 let AMap: any = null
