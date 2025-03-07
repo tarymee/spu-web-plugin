@@ -26,32 +26,35 @@ import { initTest } from './test'
 // // SPUWebPlugin.install = install
 // // SPUWebPlugin.version = version
 
-
-// 基于部署路径查出 modulekey moduleversion
-const arr = location.pathname.split('/')
-const globalOptions: any = {
-  modulename: '',
-  modulekey: arr[1] || '',
-  moduleversion: arr[2] || '',
-  storageproxyprefix: '',
-  router: null
+const getDefaultGlobalOptions = () => {
+  // 基于部署路径查出 modulekey moduleversion
+  const arr = location.pathname.split('/')
+  return {
+    modulename: '',
+    modulekey: arr[1] || '',
+    moduleversion: arr[2] || '',
+    storageproxyprefix: '',
+    router: null
+  }
 }
 
+const globalOptions: any = getDefaultGlobalOptions()
+
 const install = (app: any, options: any) => {
-
-  initStorageProxy(globalOptions)
-
-  urlquery.init()
-
   // console.log(app)
   // console.log(app.version)
   merge(globalOptions, options)
   console.log('@smart100/spu-web-plugin start!')
   console.log('@smart100/spu-web-plugin userOptions: ', options)
   console.log('@smart100/spu-web-plugin globalOptions: ', globalOptions)
+
+  initStorageProxy(globalOptions)
+
+  urlquery.init()
+
   // setTimeout(() => {
   //   console.error('test888')
-  // }, 5000)
+  // }, 1000)
 
   // if (install.installed) return
   // install.installed = true
@@ -150,9 +153,6 @@ const Module = {
   createWebUrl: core.createWebUrl.bind(core),
   getSpuContainerType: getSpuContainerType
 }
-
-
-
 
 export {
   SPUWebPlugin as default,
