@@ -90,7 +90,7 @@ export const obsMultiUpload = async (obs: any, file: File | Blob, options: IMult
   }
 }
 
-const executeTasks = async <T> (tasks: Array<ITask<T>>, parallel = 3): Promise<Array<T>> => {
+const executeTasks = async <T>(tasks: Array<ITask<T>>, parallel = 3): Promise<Array<T>> => {
   return new Promise((resolve, reject) => {
     const todos = tasks.slice(0, parallel)
     const pendings = tasks.slice(parallel)
@@ -109,9 +109,12 @@ const executeTasks = async <T> (tasks: Array<ITask<T>>, parallel = 3): Promise<A
       const todoIndex = tasks.findIndex((task) => {
         return task === todo
       })
-      return todo && todo()
-        .then((todoRes) => dealPending(todoRes, todoIndex))
-        .catch(reject)
+      return (
+        todo &&
+        todo()
+          .then((todoRes) => dealPending(todoRes, todoIndex))
+          .catch(reject)
+      )
     }
     if (!pendings.length) {
       const running = todos.map((todo) => {

@@ -1,4 +1,3 @@
-// import { noBaseRequest } from '@/service/http'
 import { axios } from '../index'
 
 export type ServToken = {

@@ -12,15 +12,15 @@ interface IAMapLoader {
 
 type StorageType = 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y'
 
-type Cope = { width?: number, height?: number } | string | boolean
+type Cope = { width?: number; height?: number } | string | boolean
 
 interface IDownload {
-  type?: 'att' | 'img',
-  source: string,
-  datetime: string | number,
-  storagetype?: StorageType,
-  cope?: Cope,
-  filename?: string, // 下载文件名
+  type?: 'att' | 'img'
+  source: string
+  datetime: string | number
+  storagetype?: StorageType
+  cope?: Cope
+  filename?: string // 下载文件名
 }
 
 interface IDownloadService {
@@ -29,11 +29,11 @@ interface IDownloadService {
 }
 
 interface IUpload {
-  type?: 'att' | 'img',
-  file: File,
-  source?: string,
-  datetime?: string | number,
-  storagetype?: StorageType,
+  type?: 'att' | 'img'
+  file: File
+  source?: string
+  datetime?: string | number
+  storagetype?: StorageType
   onprogress?: (p: number, _checkpoint?: any) => void
 }
 
@@ -49,10 +49,9 @@ interface IUploadService {
 //   router?: any
 // }
 
-
 interface ISPUWebPlugin {
   // install (app: App, option: ISPUWebPluginOptions): void
-  install (app: any, option: any): void
+  install(app: any, option: any): void
   // install: any
   version: string
 }
@@ -60,7 +59,6 @@ interface ISPUWebPlugin {
 declare const SPUWebPlugin: ISPUWebPlugin
 
 export default SPUWebPlugin
-
 
 export const globalOptions: any
 export const lsProxy: any

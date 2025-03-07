@@ -4,7 +4,6 @@ import { lsProxy, axios } from './index'
 import cloudServ from './cloudServ'
 // import { functionCheck } from './utils'
 
-
 // window.aPaaS = {
 //   getWebInitParams (callback: any) {
 //     callback && callback({
@@ -12,7 +11,6 @@ import cloudServ from './cloudServ'
 //     })
 //   }
 // }
-
 
 type JwtResult = {
   LoginUser: IAny
@@ -22,7 +20,7 @@ type JwtResult = {
 class Login {
   private cache: IAny = {}
 
-  private getData (key: string) {
+  private getData(key: string) {
     if (this.cache[key]) {
       return this.cache[key]
     } else {
@@ -32,17 +30,17 @@ class Login {
     }
   }
 
-  private setData (key: string, value: any) {
+  private setData(key: string, value: any) {
     this.cache[key] = value
     lsProxy.setItem(key, value)
   }
 
-  private removeData (key: string) {
+  private removeData(key: string) {
     delete this.cache[key]
     lsProxy.removeItem(key)
   }
 
-  async getEnvname (): Promise<string> {
+  async getEnvname(): Promise<string> {
     let envname = ''
 
     // web 查 context 的 envname
@@ -70,58 +68,58 @@ class Login {
     return envname
   }
 
-  setQueryEnvname (value: string) {
+  setQueryEnvname(value: string) {
     this.setData('envname', value)
   }
 
-  getQueryEnvname () {
+  getQueryEnvname() {
     return this.getData('envname') || ''
   }
 
-  removeQueryEnvname () {
+  removeQueryEnvname() {
     this.removeData('envname')
   }
 
-  getToken () {
+  getToken() {
     return this.getData('token')
     // return lsProxy.getItem('token') as string
   }
 
-  setToken (value: string) {
+  setToken(value: string) {
     this.setData('token', value)
   }
 
-  removeToken () {
+  removeToken() {
     this.removeData('token')
   }
 
-  getTokenExpires () {
+  getTokenExpires() {
     return this.getData('tokenexpires')
     // return lsProxy.getItem('tokenexpires') as string
   }
 
-  setTokenExpires (value: string) {
+  setTokenExpires(value: string) {
     this.setData('tokenexpires', value)
   }
 
-  removeTokenExpires () {
+  removeTokenExpires() {
     this.removeData('tokenexpires')
   }
 
-  getRefreshToken () {
+  getRefreshToken() {
     return this.getData('refreshtoken')
     // return lsProxy.getItem('refreshtoken') as string
   }
 
-  setRefreshToken (value: string) {
+  setRefreshToken(value: string) {
     this.setData('refreshtoken', value)
   }
 
-  removeRefreshToken () {
+  removeRefreshToken() {
     this.removeData('refreshtoken')
   }
 
-  updateToken () {
+  updateToken() {
     // 如果是产品运营中心 则不走刷新token流程
     if (this.checkLogin() && this.getRole() === 'center') {
       console.warn('当前登录为产品运营中心用户，不支持自动刷新token。')
@@ -130,30 +128,32 @@ class Login {
     const token = this.getToken()
     const refreshtoken = this.getRefreshToken()
     const sendToken = this.checkLoginByToken(token) ? token : refreshtoken
-    return axios.get('/api/auth/refreshtoken', {
-      params: {
-        refreshtoken: sendToken
-      },
-      isShowLoadding: false,
-      isShowErrorMessage: false,
-      isSendToken: false,
-      headers: {
-        token: sendToken
-      }
-    }).then((res: any) => {
-      // console.log(res)
-      const data = res?.data
-      if (data) {
-        this.setToken(data.token)
-        this.setRefreshToken(data.refreshtoken)
-        this.setTokenExpires(data.tokenexpires)
-      }
-    })
+    return axios
+      .get('/api/auth/refreshtoken', {
+        params: {
+          refreshtoken: sendToken
+        },
+        isShowLoadding: false,
+        isShowErrorMessage: false,
+        isSendToken: false,
+        headers: {
+          token: sendToken
+        }
+      })
+      .then((res: any) => {
+        // console.log(res)
+        const data = res?.data
+        if (data) {
+          this.setToken(data.token)
+          this.setRefreshToken(data.refreshtoken)
+          this.setTokenExpires(data.tokenexpires)
+        }
+      })
   }
 
   private refreshtokenTimer: number | null = null
 
-  startRefreshtoken () {
+  startRefreshtoken() {
     // 如果是产品运营中心 则不走刷新token流程
     if (this.checkLogin() && this.getRole() === 'center') {
       console.warn('当前登录为产品运营中心用户，不支持自动刷新token。')
@@ -191,22 +191,22 @@ class Login {
     }, time)
   }
 
-  private stopRefreshtoken () {
+  private stopRefreshtoken() {
     clearTimeout(this.refreshtokenTimer as number)
     this.refreshtokenTimer = null
   }
 
-  getUser (key?: string): any {
+  getUser(key?: string): any {
     const user = this.getData('user')
     const userObj = user ? JSON.parse(user) : null
     if (!key) {
       return userObj
     } else {
-      return userObj ? (userObj[key] || '') : ''
+      return userObj ? userObj[key] || '' : ''
     }
   }
 
-  setUser (value: string | IAny) {
+  setUser(value: string | IAny) {
     let res
     if (typeof value === 'string') {
       res = JSON.parse(value)
@@ -221,7 +221,7 @@ class Login {
     this.setData('user', JSON.stringify(res))
   }
 
-  setUserByToken (token: string) {
+  setUserByToken(token: string) {
     const user = this.getUserByToken(token)
     if (user) {
       this.setUser(user)
@@ -230,7 +230,7 @@ class Login {
     }
   }
 
-  getUserByToken (token: string) {
+  getUserByToken(token: string) {
     const jwtInfo = this.jwtDecode(token)
     if (jwtInfo && jwtInfo.LoginUser) {
       return jwtInfo.LoginUser
@@ -239,11 +239,11 @@ class Login {
     }
   }
 
-  removeUser () {
+  removeUser() {
     this.removeData('user')
   }
 
-  private jwtDecode (token?: string) {
+  private jwtDecode(token?: string) {
     if (!token) {
       console.error('token为空 jwt解析token出错')
       return null
@@ -326,7 +326,7 @@ class Login {
   // 查询token所属登录角色
   // tenant: 普通租户登录 默认
   // center: 产品运营中心登录 单点登录时只带 token 没带 refreshtoken 和 tokenexpires
-  getRoleByToken (token?: string) {
+  getRoleByToken(token?: string) {
     let loginRole: 'center' | 'tenant' = 'tenant' // center | tenant
     if (token) {
       const jwtInfo = this.jwtDecode(token)
@@ -338,12 +338,12 @@ class Login {
     return loginRole
   }
 
-  getRole () {
+  getRole() {
     return this.getRoleByToken(this.getToken())
   }
 
   // 检测当前用户是否登录状态
-  checkLogin () {
+  checkLogin() {
     let haslogged = false
     const token = this.getToken()
     if (token) {
@@ -362,7 +362,7 @@ class Login {
   }
 
   // 检测token是否过期
-  checkLoginByToken (token?: string) {
+  checkLoginByToken(token?: string) {
     let haslogged = false
     if (token) {
       const now = Date.now()
@@ -378,20 +378,22 @@ class Login {
 
   // 接口请求回来的 userInfo 有 functioncodes 以便做权限校验
   // 有可能是中心角色请求失败 兼容不报错
-  async getAndSetUserInfo () {
+  async getAndSetUserInfo() {
     try {
-      const accountinfo = await axios.post('/api/teapi/rolepermission/account/getaccountinfo', {
-        positionid: this.getUser('positioncode') || '',
-        deviceinfo: '',
-        sysversion: '',
-        clientversion: ''
-      }).then((res: any) => {
-        if (res.code === 200 && res.data) {
-          return res.data
-        } else {
-          return null
-        }
-      })
+      const accountinfo = await axios
+        .post('/api/teapi/rolepermission/account/getaccountinfo', {
+          positionid: this.getUser('positioncode') || '',
+          deviceinfo: '',
+          sysversion: '',
+          clientversion: ''
+        })
+        .then((res: any) => {
+          if (res.code === 200 && res.data) {
+            return res.data
+          } else {
+            return null
+          }
+        })
       if (accountinfo) {
         this.setUser(accountinfo)
       }
@@ -401,7 +403,7 @@ class Login {
     }
   }
 
-  formatTenant (tenant: ITenantInfo) {
+  formatTenant(tenant: ITenantInfo) {
     if (!tenant) {
       return null
     }
@@ -426,7 +428,7 @@ class Login {
     return result
   }
 
-  async getAndSetTenant (tenantcode?: string) {
+  async getAndSetTenant(tenantcode?: string) {
     try {
       const tenantsRes: null | ITenantInfo[] = await axios.get('/api/auth/tenantlist', {}).then((res: any) => {
         return res?.data?.tenants
@@ -458,7 +460,7 @@ class Login {
   }
 
   // 单点登录
-  async singleLogin (query: IAny) {
+  async singleLogin(query: IAny) {
     query = cloneDeep(query)
 
     let flag = false // 是否登录成功

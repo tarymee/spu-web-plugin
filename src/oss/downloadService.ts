@@ -68,7 +68,7 @@ const isIpUrl = (url: string) => {
 //   }
 // }
 
-type Cope = { width?: number | string, height?: number | string } | string | boolean
+type Cope = { width?: number | string; height?: number | string } | string | boolean
 
 const getAliyunCope = (cope?: Cope) => {
   let str = ''
@@ -120,24 +120,16 @@ const getCope = (cope?: Cope) => {
 }
 
 interface IDownload {
-  type?: 'att' | 'img',
-  source: string,
-  datetime: string | number,
-  storagetype?: StorageType,
-  cope?: Cope,
-  filename?: string, // 下载文件名
+  type?: 'att' | 'img'
+  source: string
+  datetime: string | number
+  storagetype?: StorageType
+  cope?: Cope
+  filename?: string // 下载文件名
 }
 
-
 // 根据文件信息最后生成一个云文件服务可以用的链接http://xxxxx.xxx.jpg
-const getUrl = async ({
-  type = 'img',
-  source = '',
-  filename = '',
-  datetime = '',
-  storagetype = 'storage',
-  cope = ''
-}: IDownload) => {
+const getUrl = async ({ type = 'img', source = '', filename = '', datetime = '', storagetype = 'storage', cope = '' }: IDownload) => {
   const storageConfig = cloudServ.get(storagetype)
   if (!storageConfig) throw Error('无可用存储设置')
   const servToken = await initServToken()
@@ -273,7 +265,6 @@ const getUrl = async ({
   }
 }
 
-
 const downloadFileByUrl = (url: string, filename: string) => {
   const aElm = document.createElement('a')
   aElm.innerHTML = filename
@@ -300,15 +291,7 @@ const downloadFileByBlob = (blob: any, filename: string) => {
   document.body.removeChild(aElm)
 }
 
-const downloadFile = async ({
-  type = 'img',
-  source = '',
-  datetime = '',
-  storagetype = 'storage',
-  cope = '',
-  filename = ''
-}: IDownload) => {
-
+const downloadFile = async ({ type = 'img', source = '', datetime = '', storagetype = 'storage', cope = '', filename = '' }: IDownload) => {
   if (!filename) {
     filename = source
   }
@@ -342,18 +325,21 @@ const downloadFile = async ({
   if (provider?.isAliyun) {
     downloadFileByUrl(url, filename)
   } else {
-    axios.get(url, {
-      responseType: 'blob',
-      isSendToken: false,
-      isShowErrorMessage: false
-    }).then((response: any) => {
-      // console.log(response)
-      // debugger
-      downloadFileByBlob(response.data, filename)
-    }).catch((e: any) => {
-      console.log(e)
-      throw Error(e)
-    })
+    axios
+      .get(url, {
+        responseType: 'blob',
+        isSendToken: false,
+        isShowErrorMessage: false
+      })
+      .then((response: any) => {
+        // console.log(response)
+        // debugger
+        downloadFileByBlob(response.data, filename)
+      })
+      .catch((e: any) => {
+        console.log(e)
+        throw Error(e)
+      })
   }
 }
 

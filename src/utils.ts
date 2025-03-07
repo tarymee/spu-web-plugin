@@ -14,7 +14,6 @@ const getUniqueid = () => {
   return `9${Date.now()}${random}`
 }
 
-
 const functionCheck = (functioncode?: string): boolean => {
   if (!functioncode) return false
   const functioncodes = getUser('functioncodes') || []
@@ -70,13 +69,4 @@ const isvirtuallocation = (): boolean => {
   return urlquery.isvirtuallocation
 }
 
-export {
-  isIOS,
-  getUniqueid,
-  functionCheck,
-  setTitle,
-  getSpuContainerType,
-  isInApp,
-  isdebugger,
-  isvirtuallocation
-}
+export { isIOS, getUniqueid, functionCheck, setTitle, getSpuContainerType, isInApp, isdebugger, isvirtuallocation }

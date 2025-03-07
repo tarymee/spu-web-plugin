@@ -23,24 +23,16 @@ import cloudServ from '../cloudServ'
 import { initServToken } from './servtoken'
 import { obsMultiUpload } from './multiUpload'
 
-
 interface IUpload {
-  type?: 'att' | 'img',
-  file: File,
-  source?: string,
-  datetime?: string | number,
-  storagetype?: StorageType,
+  type?: 'att' | 'img'
+  file: File
+  source?: string
+  datetime?: string | number
+  storagetype?: StorageType
   onprogress?: (p: number, _checkpoint?: IAny) => void
 }
 
-const upload = async ({
-  type = 'img',
-  file,
-  source = '',
-  datetime = '',
-  storagetype = 'storage',
-  onprogress,
-}: IUpload) => {
+const upload = async ({ type = 'img', file, source = '', datetime = '', storagetype = 'storage', onprogress }: IUpload) => {
   if (!file) throw Error('请传入文件')
   const storageConfig = cloudServ.get(storagetype)
   if (!storageConfig) throw Error('无可用存储设置')
@@ -50,7 +42,7 @@ const upload = async ({
   const provider = cloudServ.getProvider(storagetype)
   const tenantCode = getUser('tenantcode')
   const suffix = '.' + file.name.substring(file.name.lastIndexOf('.') + 1)
-  source = source ? source : (uuidv4() + suffix)
+  source = source ? source : uuidv4() + suffix
   datetime = datetime ? datetime : Date.now()
   const date = dayjs(+datetime).format('YYYYMMDD')
   const osskey = `${source.slice(0, 3)}/${type}/${date}/${tenantCode}/${source}`
@@ -97,51 +89,51 @@ const upload = async ({
         reject(error)
       })
     } else if (provider?.isHuawei) {
-        const obs = new ObsClient({
-          access_key_id: servToken.accesskeyid,
-          secret_access_key: servToken.accesskeysecret,
-          server: storageConfig.cloudserv_storage_storageendpoint,
-          security_token: servToken.securitytoken
-        })
-        // const obs = new ObsClient({
-        //   access_key_id: '75ISL4GWAOOO1USWUMRG',
-        //   secret_access_key: 'srn6eJ1BpFbjxoFrJgiQjeS65Z3eKC3rnqeyBBlL',
-        //   server: storageConfig.cloudserv_storage_storageendpoint,
-        //   security_token: 'gQ5jbi1zb3V0aHdlc3QtMogAsKjYcI5CQldRAvQQJysdkZ7tAt6arLsoWHFGCaco8s8FPk6wtbslHWhvg2SZh3QMM4aUA4FhPEWQt9A7gXoC_Lh4DpF6hhHIxUyACKgakNHNPdPegy5G9-sibBXkGueIY1X3K12tzpjbyd08esLKEEu-M_QmfDoDdkgOcyidITc-lOg5EzXb27f91Ym26u2mAMTaNjCLRulJ4rziLSW6IAprSx8LUkuQQE-wUz-tMzVL9oFiVykHz980o0Y0CNdCIwn98Y-xbMdslZ3U8raydy6Wnf2LchXc0ajvMix0gg-CV0tpA4cgiZFqPxwEDXSv42hvfccboWlpGmOVR3llHLUirrlgFod8rhm-Rmk6MIfQw4NA8rddow1Gx6g-MugFV5arMDLfsOhqeSFQRJWizb3q50zk6GcUFulewitxP8HSkXMGt_rDDYCcCEmdu15D3imX5431Mbdt0qCgxH80OPCDmFXw0xMOsggxE0PBVexVY2x3wHGeql3JNyevUZAhqlskNNu77ui2Vnp-ZbHMcxgDLcPuAULINId4V_QGdhAkDaxQk53AE237DAFXtlyWWaBRMsTNVnpq9mCXJup9pdBbjLRVAO4OxfYVnwwvl-w_mb-xCgOf5EPHqA_zbZF8z-ad6JjWgLOQCHaawE7kNGHIQwAgzneik33wP2jPlG1ak9KEWyXr1n2QMJCmDM3bIrRit5_8LLFoPjXcwurBjZ-AomM_ztOe34sdr357atlQcPD7a2xWtrvn9mnqqndg12m7QxnwkmJsOYK4ZO5Hoyb2vd_NX2Nd9PaSIVAcFw=='
-        // })
-        try {
-          const uploadRes = await obsMultiUpload(obs, file, {
-            bucket: storageConfig.cloudserv_storage_storagebucket,
-            key: osskey,
-            parallel: 3,
-            onProgress: (percent: number) => {
-              onprogress && onprogress(percent)
-            }
-          })
-          if (uploadRes) {
-            resolve({
-              source,
-              filename: file.name,
-              type: file.type,
-              date: date,
-              datetime: datetime,
-              file
-            })
+      const obs = new ObsClient({
+        access_key_id: servToken.accesskeyid,
+        secret_access_key: servToken.accesskeysecret,
+        server: storageConfig.cloudserv_storage_storageendpoint,
+        security_token: servToken.securitytoken
+      })
+      // const obs = new ObsClient({
+      //   access_key_id: '75ISL4GWAOOO1USWUMRG',
+      //   secret_access_key: 'srn6eJ1BpFbjxoFrJgiQjeS65Z3eKC3rnqeyBBlL',
+      //   server: storageConfig.cloudserv_storage_storageendpoint,
+      //   security_token: 'gQ5jbi1zb3V0aHdlc3QtMogAsKjYcI5CQldRAvQQJysdkZ7tAt6arLsoWHFGCaco8s8FPk6wtbslHWhvg2SZh3QMM4aUA4FhPEWQt9A7gXoC_Lh4DpF6hhHIxUyACKgakNHNPdPegy5G9-sibBXkGueIY1X3K12tzpjbyd08esLKEEu-M_QmfDoDdkgOcyidITc-lOg5EzXb27f91Ym26u2mAMTaNjCLRulJ4rziLSW6IAprSx8LUkuQQE-wUz-tMzVL9oFiVykHz980o0Y0CNdCIwn98Y-xbMdslZ3U8raydy6Wnf2LchXc0ajvMix0gg-CV0tpA4cgiZFqPxwEDXSv42hvfccboWlpGmOVR3llHLUirrlgFod8rhm-Rmk6MIfQw4NA8rddow1Gx6g-MugFV5arMDLfsOhqeSFQRJWizb3q50zk6GcUFulewitxP8HSkXMGt_rDDYCcCEmdu15D3imX5431Mbdt0qCgxH80OPCDmFXw0xMOsggxE0PBVexVY2x3wHGeql3JNyevUZAhqlskNNu77ui2Vnp-ZbHMcxgDLcPuAULINId4V_QGdhAkDaxQk53AE237DAFXtlyWWaBRMsTNVnpq9mCXJup9pdBbjLRVAO4OxfYVnwwvl-w_mb-xCgOf5EPHqA_zbZF8z-ad6JjWgLOQCHaawE7kNGHIQwAgzneik33wP2jPlG1ak9KEWyXr1n2QMJCmDM3bIrRit5_8LLFoPjXcwurBjZ-AomM_ztOe34sdr357atlQcPD7a2xWtrvn9mnqqndg12m7QxnwkmJsOYK4ZO5Hoyb2vd_NX2Nd9PaSIVAcFw=='
+      // })
+      try {
+        const uploadRes = await obsMultiUpload(obs, file, {
+          bucket: storageConfig.cloudserv_storage_storagebucket,
+          key: osskey,
+          parallel: 3,
+          onProgress: (percent: number) => {
+            onprogress && onprogress(percent)
           }
-        } catch (e) {
-          console.error(e)
-          reject(e)
+        })
+        if (uploadRes) {
+          resolve({
+            source,
+            filename: file.name,
+            type: file.type,
+            date: date,
+            datetime: datetime,
+            file
+          })
         }
-        // obs.putObject({
-        //   Bucket: cloudServ.cloudserv_storage_storagebucket,
-        //   Key: osskey,
-        //   SourceFile: file
-        // }, (err, result) => {
-        //   result.CommonMsg.Status
-        //   console.error(err)
-        //   console.log(result)
-        //   debugger
-        // })
+      } catch (e) {
+        console.error(e)
+        reject(e)
+      }
+      // obs.putObject({
+      //   Bucket: cloudServ.cloudserv_storage_storagebucket,
+      //   Key: osskey,
+      //   SourceFile: file
+      // }, (err, result) => {
+      //   result.CommonMsg.Status
+      //   console.error(err)
+      //   console.log(result)
+      //   debugger
+      // })
     } else if (provider?.isMinio || provider?.isAwss3) {
       // console.error(9874)
       // console.log(S3)

@@ -6,18 +6,12 @@ declare module '*.vue' {
 
 declare module 'co'
 declare module 'uuid'
-
-
 declare module '*.js'
 declare module '*.svg'
 declare module '*.png'
 declare module '*.jpg'
 declare module '*.jpeg'
 declare module '*.gif'
-// declare module '*.bmp'
-// declare module '*.tiff'
-
-// declare module 'the-answer'
 
 interface Window {
   _AMapSecurityConfig: {
@@ -25,11 +19,11 @@ interface Window {
   }
   // Native Module aPaaS 为 G3 SPU 容器注入的 Native-API
   Native: any
-  Module: any;
-  aPaaS: any;
+  Module: any
+  aPaaS: any
   // 日志插件 和 日志实例
-  ApaasSpuTrack: any;
-  apaasSpuTrack: any;
+  ApaasSpuTrack: any
+  apaasSpuTrack: any
   // wx: IAny;
   // AMapUI: IAny;
   // lsProxy: any;

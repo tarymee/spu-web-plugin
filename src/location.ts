@@ -152,12 +152,11 @@ const getLocationPromise = async (): Promise<Location> => {
   }
 
   if (location && !location.address) {
-    location.address = await getAddress(location) || '经纬度获取成功，但地址获取失败。'
+    location.address = (await getAddress(location)) || '经纬度获取成功，但地址获取失败。'
   }
 
   return location
 }
-
 
 const getLocation = async () => {
   // debugger
@@ -186,7 +185,6 @@ const getDistance = async (p1: [number, number], p2: [number, number]) => {
   return AMap.GeometryUtil.distance(p1, p2)
 }
 
-
 // // 两个经纬度距离计算
 // function getDistance (latlng1, latlng2) {
 //   console.log(latlng1)
@@ -205,7 +203,4 @@ const getDistance = async (p1: [number, number], p2: [number, number]) => {
 //   return s * 1000
 // }
 
-export {
-  getLocation,
-  getDistance
-}
+export { getLocation, getDistance }

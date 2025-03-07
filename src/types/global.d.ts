@@ -53,7 +53,7 @@ interface ITenantInfo {
 }
 
 interface Window {
-  AWS: any;
+  AWS: any
 }
 
 declare module 'uuid'

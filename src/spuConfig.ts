@@ -8,7 +8,7 @@ class SpuConfig {
 
   cache: any[] = []
 
-  public async getFun (): Promise<any> {
+  public async getFun(): Promise<any> {
     if (!this.isload) {
       try {
         const res = await spuAxios.post('/lifecycle/getconfigdata', {
@@ -29,7 +29,7 @@ class SpuConfig {
 
   private getPro: any = null
 
-  public async get (dataid?: string | string[]): Promise<any> {
+  public async get(dataid?: string | string[]): Promise<any> {
     if (!this.isload) {
       // 兼容同时间发起多个
       if (!this.getPro) {
@@ -40,7 +40,7 @@ class SpuConfig {
 
     if (dataid) {
       if (Array.isArray(dataid)) {
-        return cloneDeep(this.cache.filter((item: any) => (dataid.some((item2) => item2 === item.dataid))))
+        return cloneDeep(this.cache.filter((item: any) => dataid.some((item2) => item2 === item.dataid)))
       } else {
         return cloneDeep(this.cache.find((item: any) => item.dataid === dataid))
       }
@@ -97,13 +97,10 @@ class SpuConfig {
   // }
 }
 
-function initSpuConfig (options: any) {
+function initSpuConfig(options: any) {
   modulekey = options.modulekey
 }
 
-const spuConfig =  new SpuConfig()
+const spuConfig = new SpuConfig()
 
-export {
-  initSpuConfig,
-  spuConfig
-}
+export { initSpuConfig, spuConfig }

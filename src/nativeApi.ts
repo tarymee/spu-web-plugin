@@ -6,7 +6,7 @@ import core from './core'
 
 class NativeApi {
   // 已经注入api的或者不同域的就不再注入
-  checkIsCanInject (iframe: any) {
+  checkIsCanInject(iframe: any) {
     try {
       return !iframe?.contentWindow?.Module || !!iframe?.contentWindow?.Module
     } catch (err) {
@@ -16,13 +16,13 @@ class NativeApi {
     }
   }
 
-  injectApi (iframe: any, options: any) {
+  injectApi(iframe: any, options: any) {
     const modulekey = options.modulekey
     // const modulekey = 'demospu'
 
     const Module = {
       spuContainerType: '',
-      getContextSync () {
+      getContextSync() {
         return core.getContextSync(modulekey)
       },
       getIndextagSync: getIndextagSync,
@@ -48,7 +48,7 @@ class NativeApi {
     iframe.contentWindow.aPaaS = aPaaS
   }
 
-  inject (iframe: any, options: any) {
+  inject(iframe: any, options: any) {
     if (this.checkIsCanInject(iframe) && options?.modulekey) {
       this.injectApi(iframe, options)
     }

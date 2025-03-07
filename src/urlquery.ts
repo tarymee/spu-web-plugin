@@ -4,15 +4,15 @@ import { ssProxy } from './storageProxy'
 class Urlquery {
   private isinit = false
 
-  get isvirtuallocation (): boolean {
+  get isvirtuallocation(): boolean {
     return ssProxy.getItem('isvirtuallocation') === '1'
   }
 
-  get isdebugger (): boolean {
+  get isdebugger(): boolean {
     return ssProxy.getItem('isdebugger') === '1'
   }
 
-  public init () {
+  public init() {
     if (this.isinit) return false
 
     this.isinit = true
