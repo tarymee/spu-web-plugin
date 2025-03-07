@@ -41,7 +41,7 @@ class Core {
     webDefineData: null
   }
 
-  clearCache () {
+  clearCache() {
     this.loadStatus = 0
     this.cache = {
       envName: '',
@@ -53,7 +53,7 @@ class Core {
   }
 
   // 请求实时G3数据
-  async requestData () {
+  async requestData() {
     const nowEnvname = await Module.getEnvname()
     const nowTenantCode = getUser('tenantcode') || ''
     this.cache.envName = nowEnvname
@@ -63,7 +63,7 @@ class Core {
     return this.cache
   }
 
-  async requestEnvData (envName) {
+  async requestEnvData(envName) {
     // envName = '产品运营中心验证'
     let result = null
     if (envName) {
@@ -89,7 +89,7 @@ class Core {
     return result
   }
 
-  async requestWebDefineData () {
+  async requestWebDefineData() {
     const envId = this.cache.envData?.envid
     const tenantCode = this.cache.tenantCode
     const smartcenter = this.cache?.envData?.smartcenter
@@ -98,12 +98,16 @@ class Core {
       // debugger
       let res
       try {
-        res = await axios.post(`${smartcenter}/api/smartcenter/biz/getTenantWebAndApiDefined`, {
-          envid: envId,
-          tenantcode: tenantCode
-        }, {
-          isShowLoading: false
-        })
+        res = await axios.post(
+          `${smartcenter}/api/smartcenter/biz/getTenantWebAndApiDefined`,
+          {
+            envid: envId,
+            tenantcode: tenantCode
+          },
+          {
+            isShowLoading: false
+          }
+        )
       } catch (err) {
         console.error(err)
       }
@@ -135,7 +139,7 @@ class Core {
   }
 
   requestDataPromise = null
-  async initGetData () {
+  async initGetData() {
     const nowEnvname = await Module.getEnvname()
     const nowTenantCode = getUser('tenantcode') || ''
     // console.log(tenantCode)
@@ -158,7 +162,7 @@ class Core {
     return this.cache
   }
 
-  async getEnvData () {
+  async getEnvData() {
     const res = {
       errorMsg: '',
       data: null
@@ -174,7 +178,7 @@ class Core {
     return res
   }
 
-  async getEnvBusiness () {
+  async getEnvBusiness() {
     let business = ''
     const envData = await this.getEnvData()
     if (envData.data) {
@@ -183,7 +187,7 @@ class Core {
     return business
   }
 
-  async getModuleData (modulekey) {
+  async getModuleData(modulekey) {
     if (!modulekey) {
       modulekey = globalOptions.modulekey
     }
@@ -211,7 +215,7 @@ class Core {
     return res
   }
 
-  getModuleDataSync (modulekey) {
+  getModuleDataSync(modulekey) {
     if (!modulekey) {
       modulekey = globalOptions.modulekey
     }
@@ -239,7 +243,7 @@ class Core {
     return res
   }
 
-  async getContext (modulekey) {
+  async getContext(modulekey) {
     if (!modulekey) {
       modulekey = globalOptions.modulekey
     }
@@ -261,7 +265,7 @@ class Core {
     return context
   }
 
-  getContextSync (modulekey) {
+  getContextSync(modulekey) {
     if (!modulekey) {
       modulekey = globalOptions.modulekey
     }
@@ -283,7 +287,7 @@ class Core {
     return context
   }
 
-  async getModuleBusiness (modulekey) {
+  async getModuleBusiness(modulekey) {
     let business = ''
     const moduleData = await this.getModuleData(modulekey)
     if (moduleData.data) {
@@ -293,7 +297,7 @@ class Core {
     return business
   }
 
-  async checkModule (modulekey) {
+  async checkModule(modulekey) {
     if (!modulekey) {
       modulekey = globalOptions.modulekey
     }
@@ -301,13 +305,13 @@ class Core {
     return !!moduleData.data
   }
 
-  checkPermission (params) {
+  checkPermission(params) {
     let modulekey = params?.modulekey || globalOptions.modulekey
     const moduleData = this.getModuleDataSync(modulekey)
     return !!moduleData.data
   }
 
-  getQueryUrl (query, queryvalue = {}) {
+  getQueryUrl(query, queryvalue = {}) {
     query = cloneDeep(query)
     if (urlquery.isdebugger) {
       query.every((item) => item === '')
@@ -315,13 +319,11 @@ class Core {
       if (isdebuggerQuery) {
         isdebuggerQuery.value = '1'
       } else {
-        query.push(
-          {
-            key: 'isdebugger',
-            value: '1',
-            field_type: ''
-          }
-        )
+        query.push({
+          key: 'isdebugger',
+          value: '1',
+          field_type: ''
+        })
       }
       queryvalue && (queryvalue.isdebugger = '1')
     }
@@ -344,24 +346,26 @@ class Core {
     }
 
     let url = ''
-    query && query.length && query.forEach((item) => {
-      let value = ''
-      if (item.value.indexOf('${') === 0) {
-        const buildInValue = buildInMap[item.value]
-        value = typeof buildInValue !== 'undefined' ? buildInValue : ''
-      } else {
-        value = typeof item.value !== 'undefined' ? item.value : ''
-      }
-      if (queryvalue && typeof queryvalue[item.key] !== 'undefined') {
-        value = queryvalue[item.key]
-      }
-      url += `${item.key}=${value}&`
-    })
+    query &&
+      query.length &&
+      query.forEach((item) => {
+        let value = ''
+        if (item.value.indexOf('${') === 0) {
+          const buildInValue = buildInMap[item.value]
+          value = typeof buildInValue !== 'undefined' ? buildInValue : ''
+        } else {
+          value = typeof item.value !== 'undefined' ? item.value : ''
+        }
+        if (queryvalue && typeof queryvalue[item.key] !== 'undefined') {
+          value = queryvalue[item.key]
+        }
+        url += `${item.key}=${value}&`
+      })
     return url
   }
 
   // pagecode: 'modulekey:indextag'
-  async createWebUrl (modulekey, indextag, queryvalue = {}) {
+  async createWebUrl(modulekey, indextag, queryvalue = {}) {
     let url = ''
     let errorMsg = ''
     let indextagData

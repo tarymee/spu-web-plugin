@@ -6,7 +6,7 @@ class GlobalConfig {
 
   cache: any[] = []
 
-  public async getFun (): Promise<any> {
+  public async getFun(): Promise<any> {
     if (!this.isload) {
       try {
         const res = await axios.post('/api/pemission/rolepermission/globalconfig/getglobalconfigbytype', {
@@ -26,7 +26,7 @@ class GlobalConfig {
 
   private getPro: any = null
 
-  public async get (key?: string | string[]): Promise<any> {
+  public async get(key?: string | string[]): Promise<any> {
     if (!this.isload) {
       // 兼容同时间发起多个
       if (!this.getPro) {
@@ -37,7 +37,7 @@ class GlobalConfig {
 
     if (key) {
       if (Array.isArray(key)) {
-        return cloneDeep(this.cache.filter((item: any) => (key.some((item2) => item2 === item.key))))
+        return cloneDeep(this.cache.filter((item: any) => key.some((item2) => item2 === item.key)))
       } else {
         return cloneDeep(this.cache.find((item: any) => item.key === key))
       }
@@ -49,6 +49,4 @@ class GlobalConfig {
 
 const globalConfig = new GlobalConfig()
 
-export {
-  globalConfig
-}
+export { globalConfig }

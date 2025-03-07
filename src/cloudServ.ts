@@ -5,7 +5,7 @@ class CloudServ {
 
   cacheStorage: NormalizedCloudServ | null = null
 
-  public get (key: StorageType = 'storage'): NormalizedCloudServItem | null {
+  public get(key: StorageType = 'storage'): NormalizedCloudServItem | null {
     if (this.cacheStorage) {
       return this.cacheStorage[key] || null
     }
@@ -18,7 +18,7 @@ class CloudServ {
     return storage[key]
   }
 
-  public set (storage: NormalizedCloudServ | string) {
+  public set(storage: NormalizedCloudServ | string) {
     if (typeof storage === 'object') {
       this.cacheStorage = storage
       storage = JSON.stringify(storage)
@@ -26,11 +26,11 @@ class CloudServ {
     lsProxy.setItem(this.CLOUD_SERVE_KEY, storage)
   }
 
-  public remove () {
+  public remove() {
     lsProxy.removeItem(this.CLOUD_SERVE_KEY)
   }
 
-  public getProvider (sign: StorageType = 'storage'): IAny | null {
+  public getProvider(sign: StorageType = 'storage'): IAny | null {
     const storage: NormalizedCloudServItem | null = this.get(sign)
     if (!storage) {
       return null

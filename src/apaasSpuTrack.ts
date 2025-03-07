@@ -185,8 +185,4 @@ const apaasSpuTrackSendLog = (data: any, isnotretry: boolean = false) => {
   }
 }
 
-export {
-  getIndextagSync,
-  initApaasSpuTrack,
-  apaasSpuTrackSendLog
-}
+export { getIndextagSync, initApaasSpuTrack, apaasSpuTrackSendLog }
