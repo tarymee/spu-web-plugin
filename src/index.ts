@@ -1,23 +1,22 @@
 import { version } from '../package.json'
 import { merge } from 'lodash-es'
-import { WxworksuitePluginInstall, jssdk, isWxworkSuiteTenant, isWxwork, isWxworkPc, isWxworkApp } from '@smart100/wxworksuite-plugin'
 import { v4 as getUuid } from 'uuid'
-
-import { initStorageProxy, lsProxy, ssProxy } from './storageProxy'
+import { installStorageProxy, lsProxy, ssProxy } from './storageProxy'
 import { getLocation, getDistance } from './location'
-import { initAxios, spuAxios, axios } from './axios'
-import { initSpuConfig, spuConfig } from './spuConfig'
+import { installAxios, spuAxios, axios } from './axios'
+import { installSpuConfig, spuConfig } from './spuConfig'
 import { globalConfig } from './globalConfig'
 import { downloadService, uploadService } from './oss'
-import { getUniqueid, functionCheck, setTitle, getSpuContainerType, isInApp, isdebugger, isvirtuallocation } from './utils'
-import urlquery from './urlquery'
+import { getUniqueid, functionCheck, setTitle, isInApp, isdebugger, isvirtuallocation } from './utils'
+import { installUrlquery } from './urlquery'
 import AMapLoader from './AMapLoader'
-import login from './login'
-import core from './core'
+import login, { installAuth } from './login'
+import { Module } from './core'
 import components from './components'
 import { expandexp } from './components/expandexp'
-import { initApaasSpuTrack } from './apaasSpuTrack'
-import { initTest } from './test'
+import { installApaasSpuTrack } from './apaasSpuTrack'
+import { installWxworksuitePlugin, wxworkSuite } from './wxworksuitePlugin'
+import { installTest } from './test'
 
 // class SPUWebPlugin {
 //   static install = install
@@ -44,13 +43,18 @@ const install = (app: any, options: any) => {
   // console.log(app)
   // console.log(app.version)
   merge(globalOptions, options)
-  console.log('@smart100/spu-web-plugin start!')
-  console.log('@smart100/spu-web-plugin userOptions: ', options)
-  console.log('@smart100/spu-web-plugin globalOptions: ', globalOptions)
+  console.log('@smart100/spu-web-plugin install!')
+  console.log('@smart100/spu-web-plugin userOptions', options)
+  console.log('@smart100/spu-web-plugin globalOptions', globalOptions)
 
-  initStorageProxy(globalOptions)
-
-  urlquery.init()
+  installStorageProxy(globalOptions)
+  installUrlquery()
+  installAxios(globalOptions)
+  installSpuConfig(globalOptions)
+  installWxworksuitePlugin() // 安装企微第三方应用插件
+  installAuth(globalOptions)
+  installApaasSpuTrack()
+  installTest(globalOptions)
 
   // setTimeout(() => {
   //   console.error('test888')
@@ -69,55 +73,6 @@ const install = (app: any, options: any) => {
   // } else {
   //   console.error('This plugin requires Vue App Instance')
   // }
-
-  initAxios(globalOptions)
-  initSpuConfig(globalOptions)
-
-  // 安装企微第三方应用插件
-  WxworksuitePluginInstall({
-    getToken: login.getToken.bind(login)
-  })
-
-  login.startRefreshtoken()
-
-  if (globalOptions.router) {
-    globalOptions.router.beforeEach(async (to: any, from: any, next: any) => {
-      // console.log(from)
-      // console.log(to)
-      // const isInitVisit = from.path === '/' && from.name === undefined // 路由初始化访问
-      // console.log('isInitVisit', isInitVisit)
-
-      // 自动登录
-      if (to.query.token) {
-        const singleLoginRes = await login.singleLogin(to.query)
-        if (singleLoginRes.flag) {
-          // debugger
-          // next()
-          await core.initGetData()
-          next({
-            path: to.path,
-            params: to.params,
-            query: singleLoginRes.query
-          })
-        } else {
-          console.error('单点登录失败，请检查链接所传 token 是否非法或过期。')
-          next()
-        }
-      } else {
-        next()
-      }
-    })
-  } else {
-    console.warn('@smart100/spu-web-plugin 需要传入一个 vue-router 实例以便执行单点登录逻辑，如果您没传 vue-router 实例则需要自行在合适的位置执行单点登录代码。')
-  }
-
-  if (login.checkLogin()) {
-    core.initGetData()
-  }
-
-  initApaasSpuTrack()
-
-  initTest(globalOptions)
 }
 
 const SPUWebPlugin = {
@@ -132,23 +87,6 @@ const getRefreshToken = login.getRefreshToken.bind(login)
 const getUser = login.getUser.bind(login)
 const checkLogin = login.checkLogin.bind(login)
 const singleLogin = login.singleLogin.bind(login)
-
-const wxworkSuite = {
-  JSSDK: jssdk,
-  isWxworkSuiteTenant,
-  isWxwork,
-  isWxworkPc,
-  isWxworkApp
-}
-
-const Module = {
-  getModuleData: core.getModuleData.bind(core),
-  getEnvname: login.getEnvname.bind(login),
-  getEnvData: core.getEnvData.bind(core),
-  checkModule: core.checkModule.bind(core),
-  createWebUrl: core.createWebUrl.bind(core),
-  getSpuContainerType: getSpuContainerType
-}
 
 export {
   SPUWebPlugin as default,

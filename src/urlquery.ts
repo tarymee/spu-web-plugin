@@ -56,4 +56,8 @@ class Urlquery {
 
 const urlquery = new Urlquery()
 
-export default urlquery
+function installUrlquery() {
+  urlquery.init()
+}
+
+export { installUrlquery, urlquery }

@@ -1,6 +1,8 @@
-import { globalOptions, getUser, Module } from './index'
+import { globalOptions } from './index'
+import { Module } from './core'
 import { cloneDeep, merge, set } from 'lodash-es'
 import login from './login'
+import core from './core'
 
 // @ts-ignore
 import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.umd.js'
@@ -11,7 +13,7 @@ import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.umd.js'
 // console.log(window.ApaasSpuTrack)
 
 const getWebInitParams = async () => {
-  const user = getUser()
+  const user = login.getUser()
   const envname = await Module.getEnvname()
   return {
     project: globalOptions.modulename,
@@ -30,43 +32,54 @@ const getWebInitParams = async () => {
   }
 }
 
-const getIndextagSync = (params: any) => {
-  const result: any = {
-    code: '',
-    msg: '',
-    indextag: ''
-  }
-
-  if (params.url) {
-    const a = params.url.split('indextag=')
-    if (a.length > 1) {
-      const b = a[1].split('&')
-      result.code = 200
-      result.indextag = b[0]
-      result.msg = '解析成功。'
-    } else {
-      result.code = 404
-      result.msg = '不存在该 url 的 indextag。'
-    }
+const apaasSpuTrackSendLog = (data: any, isnotretry: boolean = false) => {
+  if (window.apaasSpuTrack) {
+    const logtime = Date.now().toString()
+    const baselog = cloneDeep({
+      ...window.apaasSpuTrack.baseLog,
+      logtime: logtime,
+      epochnanos: logtime + '000000',
+      types: '',
+      event: '',
+      url: location.href,
+      properties: {
+        // // 图片导出相关信息
+        // // formtype: apaas | litheform | spu
+        // formtype: 'spu',
+        // // exporttype: 1=普通导出 | 2=后端图片扩展导出 | 3=图片导出SPU
+        // exporttype: '3',
+        // // pagecode
+        // // 当 formtype = apaas 表示低码表单code
+        // // 当 formtype = litheform 表示超表表单code
+        // // 当 formtype = spu 表示配置的spu页面pagecode
+        // pagecode: ''
+      }
+    })
+    const mergedata = merge(baselog, data)
+    // console.log(mergedata)
+    // debugger
+    window.apaasSpuTrack.addLogToQueue(mergedata, true)
   } else {
-    result.code = 404
-    result.msg = '传入 url 为空。'
+    if (!isnotretry) {
+      console.warn('window.apaasSpuTrack 不存在，导出日志延迟3秒后再次发送。')
+      setTimeout(() => {
+        apaasSpuTrackSendLog(data, true)
+      }, 3000)
+    } else {
+      console.error('window.apaasSpuTrack 不存在，导出日志发送失败。')
+    }
   }
-  // console.log(result)
-  // debugger
-  // params.complete && params.complete(result.code, result.indextag, result.msg)
-  return result
 }
 
 // 兼容开启SPU日志
-const initApaasSpuTrack = () => {
+const installApaasSpuTrack = () => {
   setTimeout(() => {
-    if (ApaasSpuTrack && !window.apaasSpuTrack && login.checkLogin() && getUser()) {
+    if (ApaasSpuTrack && !window.apaasSpuTrack && login.checkLogin() && login.getUser()) {
       if (!window?.aPaaS?.getWebInitParams) {
         set(window, 'aPaaS.getWebInitParams', getWebInitParams)
       }
       if (!window?.Module?.getIndextagSync) {
-        set(window, 'Module.getIndextagSync', getIndextagSync)
+        set(window, 'Module.getIndextagSync', core.getIndextagSync.bind(core))
       }
 
       ApaasSpuTrack.getApaasSpuTrack({
@@ -146,43 +159,4 @@ const initApaasSpuTrack = () => {
   }, 3000)
 }
 
-const apaasSpuTrackSendLog = (data: any, isnotretry: boolean = false) => {
-  if (window.apaasSpuTrack) {
-    const logtime = Date.now().toString()
-    const baselog = cloneDeep({
-      ...window.apaasSpuTrack.baseLog,
-      logtime: logtime,
-      epochnanos: logtime + '000000',
-      types: '',
-      event: '',
-      url: location.href,
-      properties: {
-        // // 图片导出相关信息
-        // // formtype: apaas | litheform | spu
-        // formtype: 'spu',
-        // // exporttype: 1=普通导出 | 2=后端图片扩展导出 | 3=图片导出SPU
-        // exporttype: '3',
-        // // pagecode
-        // // 当 formtype = apaas 表示低码表单code
-        // // 当 formtype = litheform 表示超表表单code
-        // // 当 formtype = spu 表示配置的spu页面pagecode
-        // pagecode: ''
-      }
-    })
-    const mergedata = merge(baselog, data)
-    // console.log(mergedata)
-    // debugger
-    window.apaasSpuTrack.addLogToQueue(mergedata, true)
-  } else {
-    if (!isnotretry) {
-      console.warn('window.apaasSpuTrack 不存在，导出日志延迟3秒后再次发送。')
-      setTimeout(() => {
-        apaasSpuTrackSendLog(data, true)
-      }, 3000)
-    } else {
-      console.error('window.apaasSpuTrack 不存在，导出日志发送失败。')
-    }
-  }
-}
-
-export { getIndextagSync, initApaasSpuTrack, apaasSpuTrackSendLog }
+export { installApaasSpuTrack, apaasSpuTrackSendLog }

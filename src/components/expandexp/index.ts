@@ -1,4 +1,7 @@
-import { Module, axios, getUser, wxworkSuite, spuAxios } from '../../index'
+import { Module } from '../../core'
+import { wxworkSuite } from '../../wxworksuitePlugin'
+import { spuAxios, axios } from '../../axios'
+import login from '../../login'
 import { cloneDeep, merge } from 'lodash-es'
 import { downloadService } from '../../oss'
 import { apaasSpuTrackSendLog } from '../../apaasSpuTrack'
@@ -8,9 +11,8 @@ import { Step } from './step'
 import { fixFileName, dealFileSize, dealResultMessage } from './util'
 
 export default class SpuExpandexp extends HTMLElement {
-
   static componentName: string = 'spu-expandexp'
-  static register () {
+  static register() {
     if (!window.customElements.get(SpuExpandexp.componentName)) {
       window.customElements.define(SpuExpandexp.componentName, SpuExpandexp)
     }
@@ -28,195 +30,213 @@ export default class SpuExpandexp extends HTMLElement {
 
   statusTimer: number | null = null
 
-  constructor () {
+  constructor() {
     super()
     this.shadow = this.attachShadow({ mode: 'open' })
   }
 
   // 当自定义元素第一次被连接到文档DOM时被调用。
-  connectedCallback () {
+  connectedCallback() {
     this.initProps()
     this.shadow.innerHTML = renderTemplate(this)
 
-    this.initData({
-      filetype: '1', // 导出文件类型 1: xls 2: csv 目前spu的导出只实现了xls 因此写死xls
-      exportcontent: 'excel', // excel.仅导出单据，link,导出单据和本地链接，photo.导出单据和图片
-      filewatermark: '0', // 1.开启文件水印，0.关闭文件水印
-      iscompress: '0', // 1.压缩，0.原图
-      displaytype: 'horizontal', // horizontal:横向排列 vertical:纵向排列 multi-row:分行展示
-      imagetype: 'origin', // 导出图片类型 png jpg origin 默认origin
-      imagename: '', // 图片命名规则
-      // imagesizepercolumn 和 imageheightcm 为 图片导出SPU新增配置项
-      imagesizepercolumn: '5',
-      imageheightcm: '2',
+    this.initData(
+      {
+        filetype: '1', // 导出文件类型 1: xls 2: csv 目前spu的导出只实现了xls 因此写死xls
+        exportcontent: 'excel', // excel.仅导出单据，link,导出单据和本地链接，photo.导出单据和图片
+        filewatermark: '0', // 1.开启文件水印，0.关闭文件水印
+        iscompress: '0', // 1.压缩，0.原图
+        displaytype: 'horizontal', // horizontal:横向排列 vertical:纵向排列 multi-row:分行展示
+        imagetype: 'origin', // 导出图片类型 png jpg origin 默认origin
+        imagename: '', // 图片命名规则
+        // imagesizepercolumn 和 imageheightcm 为 图片导出SPU新增配置项
+        imagesizepercolumn: '5',
+        imageheightcm: '2',
 
-      expandStatus: '1', // 1普通导出（没有做图片导出服务） 2服务端导出（做了图片导出服务未SPU化） 3安装了图片导出SPU
-      filewatermarkGlobalConfig: '0', // 全局文件水印开关
-      exportConfigInit: false,
-      exportcontentArray: ['excel', 'link', 'photo'], // 当 expandStatus = 2 | 3时才显示导出内容给用户选择
-      percentage: 0,
-      step: new Step(),
-      stepStatus: 0,
-      stepName: 'initial',
-      stepText: '',
-      resultMessage: '',
-      exportDataItem: {},
-      exportId: '',
-      fileName: '',
-      fileSize: '',
-      runningTaskCount: 0,
-      isOldVersionService: false,
-      isWxworkSuiteTenant: wxworkSuite.isWxworkSuiteTenant()
-    }, (key: string, value: any) => {
-      const { exportConfigInit, stepName, stepText, exportcontentArray, exportcontent, isOldVersionService, runningTaskCount, fileName, filetype, fileSize, exportDataItem, percentage, resultMessage, isWxworkSuiteTenant } = this.data
+        expandStatus: '1', // 1普通导出（没有做图片导出服务） 2服务端导出（做了图片导出服务未SPU化） 3安装了图片导出SPU
+        filewatermarkGlobalConfig: '0', // 全局文件水印开关
+        exportConfigInit: false,
+        exportcontentArray: ['excel', 'link', 'photo'], // 当 expandStatus = 2 | 3时才显示导出内容给用户选择
+        percentage: 0,
+        step: new Step(),
+        stepStatus: 0,
+        stepName: 'initial',
+        stepText: '',
+        resultMessage: '',
+        exportDataItem: {},
+        exportId: '',
+        fileName: '',
+        fileSize: '',
+        runningTaskCount: 0,
+        isOldVersionService: false,
+        isWxworkSuiteTenant: wxworkSuite.isWxworkSuiteTenant()
+      },
+      (key: string, value: any) => {
+        const {
+          exportConfigInit,
+          stepName,
+          stepText,
+          exportcontentArray,
+          exportcontent,
+          isOldVersionService,
+          runningTaskCount,
+          fileName,
+          filetype,
+          fileSize,
+          exportDataItem,
+          percentage,
+          resultMessage,
+          isWxworkSuiteTenant
+        } = this.data
 
-      // debugger
-      const $exportSel = this.shadow.querySelector('.export-sel') as any
-      const $exportSelCon = this.shadow.querySelector('.export-sel-con') as any
-      const $exportSectionWrap = this.shadow.querySelector('.export-section-wrap') as any
-      const $exportBtnwrap = this.shadow.querySelector('.export-btnwrap') as any
-      const $exportDownload = this.shadow.querySelector('.export-file-r-download') as any
-      const $exportCancel = this.shadow.querySelector('.export-file-r-cancel') as any
-      const $exportProgress = this.shadow.querySelector('.export-progress') as any
-      const $exportProgressInner = this.shadow.querySelector('.export-progress-inner') as any
-      const $exportProgressText = this.shadow.querySelector('.export-progress-text') as any
-      const $exportTip = this.shadow.querySelector('.export-tip') as any
-      const $exportTit = this.shadow.querySelector('.export-tit') as any
-      const $exportResult = this.shadow.querySelector('.export-result') as any
-      const $fileimg = this.shadow.querySelector('.export-file-l-img') as any
-      const $filename = this.shadow.querySelector('.export-file-l-filename') as any
-      const $filesize = this.shadow.querySelector('.export-file-l-filesize') as any
-      const $wait = this.shadow.querySelector('.export-wait') as any
-      const $waitSpan = this.shadow.querySelector('.export-wait span') as any
-      const $exportWxworkTip = this.shadow.querySelector('.export-wxwork-tip') as any
+        // debugger
+        const $exportSel = this.shadow.querySelector('.export-sel') as any
+        const $exportSelCon = this.shadow.querySelector('.export-sel-con') as any
+        const $exportSectionWrap = this.shadow.querySelector('.export-section-wrap') as any
+        const $exportBtnwrap = this.shadow.querySelector('.export-btnwrap') as any
+        const $exportDownload = this.shadow.querySelector('.export-file-r-download') as any
+        const $exportCancel = this.shadow.querySelector('.export-file-r-cancel') as any
+        const $exportProgress = this.shadow.querySelector('.export-progress') as any
+        const $exportProgressInner = this.shadow.querySelector('.export-progress-inner') as any
+        const $exportProgressText = this.shadow.querySelector('.export-progress-text') as any
+        const $exportTip = this.shadow.querySelector('.export-tip') as any
+        const $exportTit = this.shadow.querySelector('.export-tit') as any
+        const $exportResult = this.shadow.querySelector('.export-result') as any
+        const $fileimg = this.shadow.querySelector('.export-file-l-img') as any
+        const $filename = this.shadow.querySelector('.export-file-l-filename') as any
+        const $filesize = this.shadow.querySelector('.export-file-l-filesize') as any
+        const $wait = this.shadow.querySelector('.export-wait') as any
+        const $waitSpan = this.shadow.querySelector('.export-wait span') as any
+        const $exportWxworkTip = this.shadow.querySelector('.export-wxwork-tip') as any
 
-
-      if (key === 'isWxworkSuiteTenant' || key === 'stepName') {
-        this.vIf($exportWxworkTip, isWxworkSuiteTenant && stepName === 'initial')
-      }
-
-      if (key === 'exportConfigInit') {
-        this.vIf($exportSelCon, exportConfigInit)
-      }
-
-      if (key === 'expandStatus' || key === 'stepName') {
-        // this.vIf($exportSel, (expandStatus !== '1' && stepName === 'initial'))
-        this.vIf($exportSel, (stepName === 'initial'))
-      }
-      if (key === 'exportcontentArray' || key === 'exportcontent') {
-        const mapTitle: any = {
-          excel: '仅导出单据',
-          link: '导出单据和本地链接',
-          photo: '导出单据和图片'
+        if (key === 'isWxworkSuiteTenant' || key === 'stepName') {
+          this.vIf($exportWxworkTip, isWxworkSuiteTenant && stepName === 'initial')
         }
 
-        const exportcontentOptions = exportcontentArray.map((item: string) => {
-          return {
-            label: mapTitle[item],
-            value: item
-          }
-        })
+        if (key === 'exportConfigInit') {
+          this.vIf($exportSelCon, exportConfigInit)
+        }
 
-        const html = exportcontentOptions.map((item: any) => {
-          return `
+        if (key === 'expandStatus' || key === 'stepName') {
+          // this.vIf($exportSel, (expandStatus !== '1' && stepName === 'initial'))
+          this.vIf($exportSel, stepName === 'initial')
+        }
+        if (key === 'exportcontentArray' || key === 'exportcontent') {
+          const mapTitle: any = {
+            excel: '仅导出单据',
+            link: '导出单据和本地链接',
+            photo: '导出单据和图片'
+          }
+
+          const exportcontentOptions = exportcontentArray.map((item: string) => {
+            return {
+              label: mapTitle[item],
+              value: item
+            }
+          })
+
+          const html = exportcontentOptions
+            .map((item: any) => {
+              return `
             <div class="export-sel-con-item">
               <input type="radio" id="${item.value}" name="exportcontent" value="${item.value}" ${item.value === exportcontent ? 'checked' : ''} />
               <label for="${item.value}">${item.label}</label>
             </div>
           `
-        }).join('')
+            })
+            .join('')
 
-        $exportSelCon.innerHTML = html
-        // set(exportcontent)
-      }
+          $exportSelCon.innerHTML = html
+          // set(exportcontent)
+        }
 
+        // 状态标题
+        if (key === 'stepText') {
+          this.vText($exportTit, stepText)
+        }
 
-      // 状态标题
-      if (key === 'stepText') {
-        this.vText($exportTit, stepText)
-      }
+        // 下载按钮显隐
+        this.vIf($exportDownload, (stepName === 'error' || stepName === 'success') && exportDataItem?.exportfileurl)
 
-      // 下载按钮显隐
-      this.vIf($exportDownload, ((stepName === 'error' || stepName === 'success') && exportDataItem?.exportfileurl))
+        // 取消按钮显隐
+        this.vIf(
+          $exportCancel,
+          (stepName === 'running' || stepName === 'ready') && (!exportDataItem?.exportstate || exportDataItem?.exportstate === 'readyrun' || exportDataItem?.exportstate === 'running')
+        )
 
-      // 取消按钮显隐
-      this.vIf($exportCancel, ((stepName === 'running' || stepName === 'ready') && (!exportDataItem?.exportstate || exportDataItem?.exportstate === 'readyrun' || exportDataItem?.exportstate === 'running')))
+        // 进度条
+        if (key === 'stepName') {
+          this.vIf($exportProgress, stepName === 'running' || stepName === 'ready' || stepName === 'success' || stepName === 'error' || stepName === 'ext_readyrun' || stepName === 'ext_running')
+        }
+        if (key === 'percentage' || key === 'stepName') {
+          this.vIf($exportProgressText, percentage < 100)
+          if (percentage >= 100) {
+            this.vText($exportProgressText, `100%`)
+            $exportProgressInner.setAttribute('style', `width: 100%`)
 
-      // 进度条
-      if (key === 'stepName') {
-        this.vIf($exportProgress, (stepName === 'running' || stepName === 'ready' || stepName === 'success' || stepName === 'error' || stepName === 'ext_readyrun' || stepName === 'ext_running'))
-      }
-      if (key === 'percentage' || key === 'stepName') {
-        this.vIf($exportProgressText, percentage < 100)
-        if (percentage >= 100) {
-          this.vText($exportProgressText, `100%`)
-          $exportProgressInner.setAttribute('style', `width: 100%`)
+            if (stepName === 'success') {
+              $exportProgressInner.classList.add('success')
+            } else if (stepName === 'error') {
+              $exportProgressInner.classList.add('error')
+            }
+          } else {
+            this.vText($exportProgressText, `${percentage}%`)
+            $exportProgressInner.setAttribute('style', `width: ${percentage}%`)
 
-          if (stepName === 'success') {
-            $exportProgressInner.classList.add('success')
-          } else if (stepName === 'error') {
-            $exportProgressInner.classList.add('error')
+            $exportProgressInner.classList.remove('success')
+            $exportProgressInner.classList.remove('error')
           }
-        } else {
-          this.vText($exportProgressText, `${percentage}%`)
-          $exportProgressInner.setAttribute('style', `width: ${percentage}%`)
+        }
 
-          $exportProgressInner.classList.remove('success')
-          $exportProgressInner.classList.remove('error')
+        if (key === 'stepName') {
+          this.vIf($exportSectionWrap, stepName !== 'initial')
+          this.vIf($exportBtnwrap, stepName === 'initial')
+          this.vIf($exportTip, stepName === 'running' || stepName === 'ready' || stepName === 'ext_readyrun' || stepName === 'ext_running' || stepName === 'success')
+        }
+
+        if (key === 'resultMessage') {
+          this.vIf($exportResult, !!resultMessage)
+          this.vText($exportResult, resultMessage)
+        }
+        if (key === 'stepName') {
+          if (stepName === 'success') {
+            $exportResult.classList.add('success')
+          } else if (stepName === 'error') {
+            $exportResult.classList.add('error')
+          } else {
+            $exportResult.classList.remove('success')
+          }
+        }
+
+        if (key === 'exportcontent') {
+          if (exportcontent === 'link') {
+            $fileimg.classList.add('zip')
+            $fileimg.classList.remove('excel')
+          } else {
+            $fileimg.classList.add('excel')
+            $fileimg.classList.remove('zip')
+          }
+        }
+
+        if (key === 'fileName' || key === 'filetype' || key === 'exportcontent') {
+          const fileNameWithSuffix = fixFileName(fileName, filetype, exportcontent)
+          this.vText($filename, fileNameWithSuffix)
+        }
+        if (key === 'fileSize') {
+          this.vText($filesize, fileSize)
+        }
+
+        if (key === 'isOldVersionService' || key === 'runningTaskCount') {
+          const flag = !isOldVersionService && runningTaskCount > 0
+          this.vIf($wait, flag)
+          if (flag) {
+            this.vText($waitSpan, runningTaskCount)
+          } else {
+            this.vText($waitSpan, '')
+          }
         }
       }
-
-
-      if (key === 'stepName') {
-        this.vIf($exportSectionWrap, stepName !== 'initial')
-        this.vIf($exportBtnwrap, stepName === 'initial')
-        this.vIf($exportTip, (stepName === 'running' || stepName === 'ready' || stepName === 'ext_readyrun' || stepName === 'ext_running' || stepName === 'success'))
-      }
-
-      if (key === 'resultMessage') {
-        this.vIf($exportResult, !!resultMessage)
-        this.vText($exportResult, resultMessage)
-      }
-      if (key === 'stepName') {
-        if (stepName === 'success') {
-          $exportResult.classList.add('success')
-        } else if (stepName === 'error') {
-          $exportResult.classList.add('error')
-        } else {
-          $exportResult.classList.remove('success')
-        }
-      }
-
-      if (key === 'exportcontent') {
-        if (exportcontent === 'link') {
-          $fileimg.classList.add('zip')
-          $fileimg.classList.remove('excel')
-        } else {
-          $fileimg.classList.add('excel')
-          $fileimg.classList.remove('zip')
-        }
-      }
-
-      if (key === 'fileName' || key === 'filetype' || key === 'exportcontent') {
-        const fileNameWithSuffix = fixFileName(fileName, filetype, exportcontent)
-        this.vText($filename, fileNameWithSuffix)
-      }
-      if (key === 'fileSize') {
-        this.vText($filesize, fileSize)
-      }
-
-      if (key === 'isOldVersionService' || key === 'runningTaskCount') {
-        const flag = !isOldVersionService && runningTaskCount > 0
-        this.vIf($wait, flag)
-        if (flag) {
-          this.vText($waitSpan, runningTaskCount)
-        } else {
-          this.vText($waitSpan, '')
-        }
-      }
-
-
-    })
+    )
     this.data.fileName = this.props.sheetname
 
     this.initEvent()
@@ -224,7 +244,7 @@ export default class SpuExpandexp extends HTMLElement {
     this.getExpandexpConfig()
   }
 
-  vText (ele: any, text: string) {
+  vText(ele: any, text: string) {
     const oldValue = ele.innerHTML || ''
     const newValue = text || ''
     if (oldValue !== newValue) {
@@ -233,7 +253,7 @@ export default class SpuExpandexp extends HTMLElement {
     }
   }
 
-  vIf (ele: any, flag: boolean) {
+  vIf(ele: any, flag: boolean) {
     const elc = ele.classList
     if (flag) {
       elc.contains('hide') && elc.remove('hide')
@@ -242,7 +262,7 @@ export default class SpuExpandexp extends HTMLElement {
     }
   }
 
-  vOp (ele: any, flag: boolean) {
+  vOp(ele: any, flag: boolean) {
     const elc = ele.classList
     if (flag) {
       elc.contains('opacity0') && elc.remove('opacity0')
@@ -251,16 +271,16 @@ export default class SpuExpandexp extends HTMLElement {
     }
   }
 
-  initData (data: any, setCallback: any) {
+  initData(data: any, setCallback: any) {
     this.data = cloneDeep(data)
     const dataP = cloneDeep(data)
     for (const x in dataP) {
       Object.defineProperty(this.data, x, {
-        get: function getter () {
+        get: function getter() {
           // console.log('get!')
           return dataP[x]
         },
-        set: function getter (value) {
+        set: function getter(value) {
           // console.log('set!')
           dataP[x] = value
           setCallback(x, value)
@@ -271,7 +291,7 @@ export default class SpuExpandexp extends HTMLElement {
     }
   }
 
-  initProps () {
+  initProps() {
     const attributes = getAttributes(this)
     this.props = {
       ...this.defaultProps,
@@ -284,7 +304,7 @@ export default class SpuExpandexp extends HTMLElement {
     console.log('this.props', this.props)
   }
 
-  initEvent () {
+  initEvent() {
     // this.shadow.querySelector('.spu-expandexp')!.addEventListener('click', (e) => {
     //   // console.log(this)
     //   // console.log(this.shadow)
@@ -314,7 +334,6 @@ export default class SpuExpandexp extends HTMLElement {
       this.vIf(ele, true)
     })
 
-
     this.shadow.querySelector('.spu-expandexp-confirm-modal-th-close')!.addEventListener('click', () => {
       const ele = this.shadow.querySelector('.spu-expandexp-confirm')
       this.vIf(ele, false)
@@ -340,7 +359,7 @@ export default class SpuExpandexp extends HTMLElement {
     })
   }
 
-  async getExpandexpConfig () {
+  async getExpandexpConfig() {
     let isInstallexpandexp = await Module.checkModule('expandexp')
     // isInstallexpandexp = false
     console.log('isInstallexpandexp', isInstallexpandexp)
@@ -387,13 +406,18 @@ export default class SpuExpandexp extends HTMLElement {
       })
     } else {
       axios
-        .post('/api/expandexp/global/searchExpGloConfig', {
-          key: 'export-config-switch',
-          tenantcode: getUser('tenantcode'),
-          productcode: getUser('productcode')
-        }, {}, {
-          isShowLoading: false
-        })
+        .post(
+          '/api/expandexp/global/searchExpGloConfig',
+          {
+            key: 'export-config-switch',
+            tenantcode: login.getUser('tenantcode'),
+            productcode: login.getUser('productcode')
+          },
+          {},
+          {
+            isShowLoading: false
+          }
+        )
         .then((res: any) => {
           // res.data.exttype = '1'
           // res.data.exttype: 2开启了为服务端导出 1为普通导出
@@ -405,7 +429,8 @@ export default class SpuExpandexp extends HTMLElement {
         })
         .catch((err: Error) => {
           this.data.expandStatus = '1'
-        }).finally(() => {
+        })
+        .finally(() => {
           // 发送日志
           this.sendLog({
             types: 'exportopenmodal',
@@ -436,7 +461,8 @@ export default class SpuExpandexp extends HTMLElement {
               })
               .catch(() => {
                 this.data.filewatermarkGlobalConfig = '0'
-              }).finally(() => {
+              })
+              .finally(() => {
                 this.data.filewatermark = this.data.filewatermarkGlobalConfig === '1' ? '1' : '0'
                 this.data.exportConfigInit = true
               })
@@ -445,7 +471,7 @@ export default class SpuExpandexp extends HTMLElement {
     }
   }
 
-  getExportcontentValue () {
+  getExportcontentValue() {
     let result = ''
     const eles = this.shadow.querySelectorAll('.export-sel-con input[type=radio][name=exportcontent]') as any
     // console.log(eles)
@@ -458,7 +484,7 @@ export default class SpuExpandexp extends HTMLElement {
     return result
   }
 
-  async handleExport () {
+  async handleExport() {
     this.updateStep('ready')
     this.data.fileSize = dealFileSize('')
 
@@ -534,7 +560,7 @@ export default class SpuExpandexp extends HTMLElement {
     })
   }
 
-  handleDownload () {
+  handleDownload() {
     // console.log(this.data)
     // console.log(this.data.exportDataItem)
 
@@ -572,7 +598,7 @@ export default class SpuExpandexp extends HTMLElement {
     })
   }
 
-  async handleTest () {
+  async handleTest() {
     console.log(this.data)
     console.log(this.data.exportDataItem)
 
@@ -597,7 +623,7 @@ export default class SpuExpandexp extends HTMLElement {
     // DownloadService.downloadFile(this, fixExportFileUrl, date, exportFileName, 'att', 'storage-1d')
   }
 
-  handleCencel () {
+  handleCencel() {
     const $message = this.shadow.querySelector('.spu-expandexp-message') as any
     // this.vText($message, '取消成功！')
     // this.vIf($message, true)
@@ -644,11 +670,10 @@ export default class SpuExpandexp extends HTMLElement {
             this.vIf($message, false)
           }, 2000)
         }, 2000)
-
       })
   }
 
-  updateStep (statusName: string) {
+  updateStep(statusName: string) {
     if (statusName === 'next') {
       this.data.step.next()
     } else {
@@ -659,11 +684,15 @@ export default class SpuExpandexp extends HTMLElement {
     this.data.stepText = this.data.step.statusText
   }
 
-  async updateStatus () {
+  async updateStatus() {
     axios
-      .post(`/api/teapi/queue/impexp/expStatus?dynamicid=${this.data.exportId}`, {}, {
-        isShowLoading: false
-      })
+      .post(
+        `/api/teapi/queue/impexp/expStatus?dynamicid=${this.data.exportId}`,
+        {},
+        {
+          isShowLoading: false
+        }
+      )
       .then((res: any) => {
         let responseData = res?.data?.states
         let currentData = null
@@ -750,35 +779,40 @@ export default class SpuExpandexp extends HTMLElement {
       })
   }
 
-  stopInterval () {
+  stopInterval() {
     if (this.statusTimer) {
       window.clearInterval(this.statusTimer)
       this.statusTimer = null
     }
   }
 
-  sendLog (data: any) {
-    apaasSpuTrackSendLog(merge({
-      // types: 'exportdownloadfile',
-      // event: 'exportdownloadfile',
-      properties: {
-        formtype: 'spu',
-        exporttype: this.data.expandStatus,
-        pagecode: this.props.pagecode
-      }
-    }, data))
+  sendLog(data: any) {
+    apaasSpuTrackSendLog(
+      merge(
+        {
+          // types: 'exportdownloadfile',
+          // event: 'exportdownloadfile',
+          properties: {
+            formtype: 'spu',
+            exporttype: this.data.expandStatus,
+            pagecode: this.props.pagecode
+          }
+        },
+        data
+      )
+    )
   }
 
-  removeSelf () {
+  removeSelf() {
     this.parentNode!.removeChild(this)
   }
 
-  attributeChangedCallback (name: any, oldValue: any, newValue: any) {
+  attributeChangedCallback(name: any, oldValue: any, newValue: any) {
     console.log('属性变化', name, oldValue, newValue)
   }
 
   // 当组件从 DOM 文档移除后调用。
-  disconnectedCallback () {
+  disconnectedCallback() {
     this.stopInterval()
     // console.log('disconnectedCallback')
     // setTimeout(() => {
@@ -791,7 +825,7 @@ class Expandexp {
   ele!: HTMLElement
   config!: any
 
-  constructor (config: any) {
+  constructor(config: any) {
     SpuExpandexp.register()
     this.config = config
     this.ele = document.createElement('spu-expandexp')
@@ -823,6 +857,4 @@ const expandexp = (config: any) => {
   new Expandexp(config)
 }
 
-export {
-  expandexp
-}
+export { expandexp }

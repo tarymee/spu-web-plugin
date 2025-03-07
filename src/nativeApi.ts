@@ -1,7 +1,4 @@
-import { globalOptions, axios, getUser, Module } from './index'
-import { get, cloneDeep } from 'lodash-es'
 import login from './login'
-import { getIndextagSync } from './apaasSpuTrack'
 import core from './core'
 
 class NativeApi {
@@ -25,7 +22,7 @@ class NativeApi {
       getContextSync() {
         return core.getContextSync(modulekey)
       },
-      getIndextagSync: getIndextagSync,
+      getIndextagSync: core.getIndextagSync.bind(core),
       checkPermission: core.checkPermission.bind(core),
       linkToPage: window?.Module?.linkToPage,
       linkToModule: window?.Module?.linkToModule,

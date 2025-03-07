@@ -1,6 +1,7 @@
-import { globalOptions, axios, getUser, Module } from './index'
+import { globalOptions } from './index'
+import { axios } from './axios'
 import { get, cloneDeep } from 'lodash-es'
-import urlquery from './urlquery'
+import { urlquery } from './urlquery'
 import login from './login'
 
 const urlIsIp = (url) => {
@@ -54,8 +55,8 @@ class Core {
 
   // 请求实时G3数据
   async requestData() {
-    const nowEnvname = await Module.getEnvname()
-    const nowTenantCode = getUser('tenantcode') || ''
+    const nowEnvname = await login.getEnvname()
+    const nowTenantCode = login.getUser('tenantcode') || ''
     this.cache.envName = nowEnvname
     this.cache.tenantCode = nowTenantCode
     this.cache.envData = await this.requestEnvData(nowEnvname)
@@ -140,8 +141,8 @@ class Core {
 
   requestDataPromise = null
   async initGetData() {
-    const nowEnvname = await Module.getEnvname()
-    const nowTenantCode = getUser('tenantcode') || ''
+    const nowEnvname = await login.getEnvname()
+    const nowTenantCode = login.getUser('tenantcode') || ''
     // console.log(tenantCode)
     if (this.cache.envName === nowEnvname && this.cache.tenantCode === nowTenantCode && this.loadStatus === 2) {
       return this.cache
@@ -406,8 +407,57 @@ class Core {
       errorMsg
     }
   }
+
+  getIndextagSync(params) {
+    const result = {
+      code: '',
+      msg: '',
+      indextag: ''
+    }
+
+    if (params.url) {
+      const a = params.url.split('indextag=')
+      if (a.length > 1) {
+        const b = a[1].split('&')
+        result.code = 200
+        result.indextag = b[0]
+        result.msg = '解析成功。'
+      } else {
+        result.code = 404
+        result.msg = '不存在该 url 的 indextag。'
+      }
+    } else {
+      result.code = 404
+      result.msg = '传入 url 为空。'
+    }
+    // console.log(result)
+    // debugger
+    // params.complete && params.complete(result.code, result.indextag, result.msg)
+    return result
+  }
+
+  // : Promise<'h5' | 'web' | 'app' | 'smartcenter' | 'smartconfigurationcenter' | ''>
+  async getSpuContainerType() {
+    // 只有app端才提供原生拍照能力
+    if (window?.aPaaS?.getPhoto) {
+      return 'app'
+    } else if (window?.Module?.spuContainerType) {
+      return window.Module.spuContainerType
+    } else {
+      return ''
+    }
+  }
 }
 
 const core = new Core()
 
-export default core
+const Module = {
+  getModuleData: core.getModuleData.bind(core),
+  getEnvname: login.getEnvname.bind(login),
+  getEnvData: core.getEnvData.bind(core),
+  checkModule: core.checkModule.bind(core),
+  createWebUrl: core.createWebUrl.bind(core),
+  getSpuContainerType: core.getSpuContainerType(core)
+}
+
+export { core as default, Module }

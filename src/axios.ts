@@ -4,7 +4,7 @@ import { get } from 'lodash-es'
 import { loadding } from './components/loadding'
 import login from './login'
 import core from './core'
-import urlquery from './urlquery'
+import { urlquery } from './urlquery'
 
 interface Response {
   code: number | string
@@ -186,9 +186,9 @@ const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
 let spuAxios: any = null
 let normalAxios: any = null
 
-function initAxios(options: any) {
+function installAxios(options: any) {
   spuAxios = createAxiosInstance('spu', options)
   normalAxios = createAxiosInstance('normal', options)
 }
 
-export { initAxios, spuAxios, normalAxios as axios }
+export { installAxios, spuAxios, normalAxios as axios }

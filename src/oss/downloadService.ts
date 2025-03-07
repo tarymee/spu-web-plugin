@@ -10,7 +10,8 @@ import 'aws-sdk/dist/aws-sdk.min.js'
 import dayjs from 'dayjs'
 import cloudServ from '../cloudServ'
 import { initServToken } from './servtoken'
-import { axios, getUser } from '../index'
+import { axios } from '../axios'
+import login from '../login'
 // import { get } from 'lodash-es'
 // import qs from 'qs'
 
@@ -135,7 +136,7 @@ const getUrl = async ({ type = 'img', source = '', filename = '', datetime = '',
   const servToken = await initServToken()
   if (!servToken) throw Error('无可用servToken')
 
-  const tenantCode = getUser('tenantcode')
+  const tenantCode = login.getUser('tenantcode')
   const provider = cloudServ.getProvider(storagetype)
 
   if (!filename) {

@@ -18,7 +18,7 @@ import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import co from 'co'
 
-import { getUser } from '../index'
+import login from '../login'
 import cloudServ from '../cloudServ'
 import { initServToken } from './servtoken'
 import { obsMultiUpload } from './multiUpload'
@@ -40,7 +40,7 @@ const upload = async ({ type = 'img', file, source = '', datetime = '', storaget
   if (!servToken) throw Error('无可用servToken')
 
   const provider = cloudServ.getProvider(storagetype)
-  const tenantCode = getUser('tenantcode')
+  const tenantCode = login.getUser('tenantcode')
   const suffix = '.' + file.name.substring(file.name.lastIndexOf('.') + 1)
   source = source ? source : uuidv4() + suffix
   datetime = datetime ? datetime : Date.now()

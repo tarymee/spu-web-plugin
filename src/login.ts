@@ -1,16 +1,9 @@
 import { cloneDeep } from 'lodash-es'
 import jwtDecode from 'jwt-decode'
-import { lsProxy, axios } from './index'
+import { lsProxy } from './storageProxy'
+import { axios } from './axios'
 import cloudServ from './cloudServ'
-// import { functionCheck } from './utils'
-
-// window.aPaaS = {
-//   getWebInitParams (callback: any) {
-//     callback && callback({
-//       envname: 'xxx'
-//     })
-//   }
-// }
+import core from './core'
 
 type JwtResult = {
   LoginUser: IAny
@@ -542,4 +535,42 @@ class Login {
 
 const login = new Login()
 
-export default login
+function installAuth(options: any) {
+  login.startRefreshtoken()
+  if (options.router) {
+    options.router.beforeEach(async (to: any, from: any, next: any) => {
+      // console.log(from)
+      // console.log(to)
+      // const isInitVisit = from.path === '/' && from.name === undefined // 路由初始化访问
+      // console.log('isInitVisit', isInitVisit)
+
+      // 自动登录
+      if (to.query.token) {
+        const singleLoginRes = await login.singleLogin(to.query)
+        if (singleLoginRes.flag) {
+          // debugger
+          // next()
+          await core.initGetData()
+          next({
+            path: to.path,
+            params: to.params,
+            query: singleLoginRes.query
+          })
+        } else {
+          console.error('单点登录失败，请检查链接所传 token 是否非法或过期。')
+          next()
+        }
+      } else {
+        next()
+      }
+    })
+  } else {
+    console.warn('@smart100/spu-web-plugin 需要传入一个 vue-router 实例以便执行单点登录逻辑，如果您没传 vue-router 实例则需要自行在合适的位置执行单点登录代码。')
+  }
+
+  if (login.checkLogin()) {
+    core.initGetData()
+  }
+}
+
+export { login as default, installAuth }

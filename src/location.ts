@@ -1,6 +1,6 @@
 import AMapLoader from './AMapLoader'
 import { cloneDeep } from 'lodash-es'
-import urlquery from './urlquery'
+import { urlquery } from './urlquery'
 
 type Location = {
   longitude: string

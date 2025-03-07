@@ -1,4 +1,4 @@
-import { spuAxios } from './index'
+import { spuAxios } from './axios'
 import { cloneDeep } from 'lodash-es'
 
 let modulekey = ''
@@ -97,10 +97,10 @@ class SpuConfig {
   // }
 }
 
-function initSpuConfig(options: any) {
+function installSpuConfig(options: any) {
   modulekey = options.modulekey
 }
 
 const spuConfig = new SpuConfig()
 
-export { initSpuConfig, spuConfig }
+export { installSpuConfig, spuConfig }

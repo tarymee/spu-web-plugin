@@ -1,11 +1,5 @@
-// import { loadding } from './components/loadding'
-// import { lsProxy } from './storageProxy'
-// import core, { Module } from './core'
-import { globalOptions, axios, getUser, getToken, getRefreshToken, getTokenExpires, Module } from './index'
-import { get, cloneDeep } from 'lodash-es'
-
-async function initTest(options: any) {
-  // console.log('initTest')
+async function installTest(options: any) {
+  // console.log('installTest')
   // loadding.open()
   // const envname = await login.getEnvname()
   // console.log(envname)
@@ -15,4 +9,4 @@ async function initTest(options: any) {
   // console.log(apiOrigin)
 }
 
-export { initTest }
+export { installTest }

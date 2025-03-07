@@ -33,11 +33,13 @@ class StorageProxy {
   }
 }
 
-const lsProxy: StorageProxy = new StorageProxy('local')
-const ssProxy: StorageProxy = new StorageProxy('session')
+let lsProxy!: StorageProxy
+let ssProxy!: StorageProxy
 
-function initStorageProxy(options: any) {
+function installStorageProxy(options: any) {
   STORAGENAMESPACE = options.storageproxyprefix || options.modulekey
+  lsProxy = new StorageProxy('local')
+  ssProxy = new StorageProxy('session')
 }
 
-export { initStorageProxy, lsProxy, ssProxy }
+export { installStorageProxy, lsProxy, ssProxy }
