@@ -1,12 +1,4 @@
-import OSS from '../package/ali-oss/aliyun-oss-sdk.apaas.min.js'
-// import * as OSS from '../package/ali-oss/aliyun-oss-sdk.apaas.min.js'
-// const OSS = require('../package/ali-oss/aliyun-oss-sdk.apaas.min.js')
-import ObsClient from '../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js'
-// import * as ObsClient from '../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js'
-// const ObsClient = require('../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js')
-
-import 'aws-sdk/dist/aws-sdk.min.js'
-
+import { AliClient, ObsClient, S3Client } from './OSSClient'
 import dayjs from 'dayjs'
 import cloudServ from '../cloudServ'
 import { initServToken } from './servtoken'
@@ -23,8 +15,6 @@ import login from '../login'
 //   return path.split('/')
 // }
 
-// console.log(OSS)
-// debugger
 const getContentType = (suffix: string) => {
   const map: IAny = {
     '.jpg': 'image/jpeg',
@@ -150,7 +140,7 @@ const getUrl = async ({ type = 'img', source = '', filename = '', datetime = '',
   const contentType = getContentType(suffix)
 
   if (provider?.isAliyun) {
-    const ossClient = new OSS({
+    const ossClient = new AliClient({
       // region: storageConfig.cloudserv_storage_storageendpoint,
       endpoint: storageConfig.cloudserv_storage_storageendpoint,
       accessKeyId: servToken.accesskeyid,
@@ -218,7 +208,6 @@ const getUrl = async ({ type = 'img', source = '', filename = '', datetime = '',
       throw Error(e)
     }
   } else if (provider?.isMinio) {
-    const S3 = window?.AWS?.S3
     const s3Params: IAny = {
       accessKeyId: servToken.accesskeyid,
       secretAccessKey: servToken.accesskeysecret,
@@ -231,7 +220,7 @@ const getUrl = async ({ type = 'img', source = '', filename = '', datetime = '',
     if (provider?.isMinio || isIpUrl(storageConfig.cloudserv_storage_storageurl)) {
       s3Params.s3ForcePathStyle = true
     }
-    const s3 = new S3(s3Params)
+    const s3 = new S3Client(s3Params)
 
     // awss3缩略图没方案处理
     const params = {

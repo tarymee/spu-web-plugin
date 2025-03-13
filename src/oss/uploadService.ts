@@ -1,19 +1,4 @@
-import OSS from '../package/ali-oss/aliyun-oss-sdk.apaas.min.js'
-// const OSS = require('../package/ali-oss/aliyun-oss-sdk.apaas.min.js')
-
-import ObsClient from '../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js'
-// const ObsClient = require('../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js')
-
-// import '../package/aws-sdk/aws-sdk.min.js'
-import 'aws-sdk/dist/aws-sdk.min.js'
-// var S3 = require('aws-sdk/clients/s3')
-// import S3 from 'aws-sdk/clients/s3'
-// import S3 from 'aws-sdk'
-// import S3 from 'aws-sdk/dist/aws-sdk.js'
-// import * as S3 from 'aws-sdk/dist/aws-sdk.js'
-// import AWS from '../package/aws-sdk/aws-sdk.min.js'
-// import * as AWS from 'aws-sdk'
-
+import { AliClient, ObsClient, S3Client } from './OSSClient'
 import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import co from 'co'
@@ -55,7 +40,7 @@ const upload = async ({ type = 'img', file, source = '', datetime = '', storaget
   // debugger
   const promise = new Promise(async (resolve, reject) => {
     if (provider?.isAliyun) {
-      const ossClient = new OSS({
+      const ossClient = new AliClient({
         // region: storageConfig.cloudserv_storage_storageendpoint,
         endpoint: storageConfig.cloudserv_storage_storageendpoint,
         accessKeyId: servToken.accesskeyid,
@@ -135,13 +120,9 @@ const upload = async ({ type = 'img', file, source = '', datetime = '', storaget
       //   debugger
       // })
     } else if (provider?.isMinio || provider?.isAwss3) {
-      // console.error(9874)
-      // console.log(S3)
-      // console.log(window.AWS)
-      const S3 = window?.AWS?.S3
       // debugger
       // debugger
-      const s3 = new S3({
+      const s3 = new S3Client({
         accessKeyId: servToken.accesskeyid,
         secretAccessKey: servToken.accesskeysecret,
         sessionToken: servToken.securitytoken,
