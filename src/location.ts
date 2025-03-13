@@ -36,7 +36,9 @@ const init = async () => {
 const getAmapLocation = async (): Promise<Location> => {
   await init()
   return new Promise((resolve, reject) => {
+    // https://blog.csdn.net/Liu331013/article/details/115423749
     geolocation.getCurrentPosition((status: string, result: any) => {
+      console.log(status, result)
       if (status === 'complete') {
         const { lng, lat } = result.position
         // console.log('getAmapLocation success')
@@ -59,10 +61,10 @@ const getSpuLocation = async (): Promise<Location> => {
     let isload = false
     setTimeout(() => {
       if (!isload) {
-        console.error('getSpuLocation timeout 10000')
+        console.error('getSpuLocation timeout 30000')
         resolve(null)
       }
-    }, 10000)
+    }, 30000)
     window.Native.getLocation((result: any, error: any, status: any) => {
       isload = true
       // console.log('getLocation result', result)
