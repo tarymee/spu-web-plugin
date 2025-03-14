@@ -69,6 +69,7 @@ const upload = async ({ type = 'img', file, source = '', datetime = '', storaget
                 type: file.type,
                 date: date,
                 datetime: datetime,
+                storage: storagetype,
                 file
               })
             }
@@ -107,6 +108,7 @@ const upload = async ({ type = 'img', file, source = '', datetime = '', storaget
             type: file.type,
             date: date,
             datetime: datetime,
+            storage: storagetype,
             file
           })
         }
@@ -158,6 +160,7 @@ const upload = async ({ type = 'img', file, source = '', datetime = '', storaget
             type: file.type,
             date: date,
             datetime: datetime,
+            storage: storagetype,
             file
           })
         }

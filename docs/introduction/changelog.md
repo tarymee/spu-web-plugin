@@ -5,7 +5,7 @@
 - feat: 优化云储存引用 ossclient 方法 支持上传后返回 storage
 - fix(#66015): app 定位改成 30 秒超时
 - fix(#64389): 兼容 web 引擎开发者模式设置 isdebugger
-- fix(#66015): web 引擎端 isdebugger 模式不开启 vconsole
+- fix: web 引擎端 isdebugger 模式不开启 vconsole
 
 ## v1.0.0
 
