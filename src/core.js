@@ -2,7 +2,7 @@ import { globalOptions } from './index'
 import { axios } from './axios'
 import { get, cloneDeep } from 'lodash-es'
 import { urlquery } from './urlquery'
-import login from './login'
+import { getToken, getEnvname, getUser, getRefreshToken, getTokenExpires } from './login'
 
 const urlIsIp = (url) => {
   const hostname = url.split('://')[1].split(':')[0].split('/')[0]
@@ -55,8 +55,8 @@ class Core {
 
   // 请求实时G3数据
   async requestData() {
-    const nowEnvname = await login.getEnvname()
-    const nowTenantCode = login.getUser('tenantcode') || ''
+    const nowEnvname = await getEnvname()
+    const nowTenantCode = getUser('tenantcode') || ''
     this.cache.envName = nowEnvname
     this.cache.tenantCode = nowTenantCode
     this.cache.envData = await this.requestEnvData(nowEnvname)
@@ -68,7 +68,10 @@ class Core {
     // envName = '产品运营中心验证'
     let result = null
     if (envName) {
-      const hostsRoot = document.location.protocol === 'https:' ? 'https://mconfig.xuantongkeji.com' : 'http://mconfig.xuantongkeji.com:8015'
+      const hostsRoot =
+        document.location.protocol === 'https:'
+          ? 'https://mconfig.xuantongkeji.com'
+          : 'http://mconfig.xuantongkeji.com:8015'
       let response
       try {
         response = await axios.get(`${hostsRoot}/multiplatconfig/env/${envName}`, {
@@ -141,8 +144,8 @@ class Core {
 
   requestDataPromise = null
   async initGetData() {
-    const nowEnvname = await login.getEnvname()
-    const nowTenantCode = login.getUser('tenantcode') || ''
+    const nowEnvname = await getEnvname()
+    const nowTenantCode = getUser('tenantcode') || ''
     // console.log(tenantCode)
     if (this.cache.envName === nowEnvname && this.cache.tenantCode === nowTenantCode && this.loadStatus === 2) {
       return this.cache
@@ -330,9 +333,9 @@ class Core {
     }
 
     const buildInMap = {
-      '${token}': login.getToken(), // eslint-disable-line no-template-curly-in-string
-      '${refreshtoken}': login.getRefreshToken(), // eslint-disable-line no-template-curly-in-string
-      '${tokenexpires}': login.getTokenExpires(), // eslint-disable-line no-template-curly-in-string
+      '${token}': getToken(), // eslint-disable-line no-template-curly-in-string
+      '${refreshtoken}': getRefreshToken(), // eslint-disable-line no-template-curly-in-string
+      '${tokenexpires}': getTokenExpires(), // eslint-disable-line no-template-curly-in-string
       '${envname}': this.cache.envName || '' // eslint-disable-line no-template-curly-in-string
     }
 
@@ -386,7 +389,9 @@ class Core {
           } else if (indextagData.url) {
             url = `${moduleBusiness}/${indextagData.url}`
           } else {
-            url = `${moduleBusiness}/${moduleData.data.modulekey}/${moduleData.data.moduleversion}${indextagData.path.indexOf('/') === 0 ? '' : '/'}${indextagData.path}${indextagData.location}`
+            url = `${moduleBusiness}/${moduleData.data.modulekey}/${moduleData.data.moduleversion}${
+              indextagData.path.indexOf('/') === 0 ? '' : '/'
+            }${indextagData.path}${indextagData.location}`
           }
 
           if (url.indexOf('?') === -1) {
@@ -453,7 +458,7 @@ const core = new Core()
 
 const Module = {
   getModuleData: core.getModuleData.bind(core),
-  getEnvname: login.getEnvname.bind(login),
+  getEnvname: getEnvname,
   getEnvData: core.getEnvData.bind(core),
   checkModule: core.checkModule.bind(core),
   createWebUrl: core.createWebUrl.bind(core),

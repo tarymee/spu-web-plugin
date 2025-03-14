@@ -1,9 +1,16 @@
-import { WxworksuitePluginInstall, jssdk, isWxworkSuiteTenant, isWxwork, isWxworkPc, isWxworkApp } from '@smart100/wxworksuite-plugin'
-import login from './login'
+import {
+  WxworksuitePluginInstall,
+  jssdk,
+  isWxworkSuiteTenant,
+  isWxwork,
+  isWxworkPc,
+  isWxworkApp
+} from '@smart100/wxworksuite-plugin'
+import { getToken } from './login'
 
 function installWxworksuitePlugin() {
   WxworksuitePluginInstall({
-    getToken: login.getToken.bind(login)
+    getToken: getToken
   })
 }
 

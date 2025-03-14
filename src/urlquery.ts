@@ -1,7 +1,7 @@
 import VConsole from 'vconsole'
 import { ssProxy } from './storageProxy'
 import { isMobile } from './utils'
-import login from './login'
+import { getUser } from './login'
 
 class Urlquery {
   private isinit = false
@@ -21,7 +21,7 @@ class Urlquery {
     if (webSetting) {
       try {
         webSetting = JSON.parse(webSetting)
-        if (webSetting[login.getUser('tenantcode')]?.devmodel) {
+        if (webSetting[getUser('tenantcode')]?.devmodel) {
           flag = true
         }
       } catch (err) {

@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { AxiosInstance, AxiosResponse } from 'axios'
 import { get } from 'lodash-es'
 import { loadding } from './components/loadding'
-import login from './login'
+import { getToken, checkLogin, getRole, updateToken } from './login'
 import core from './core'
 import { urlquery } from './urlquery'
 
@@ -38,16 +38,16 @@ const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
       if (isSendToken) {
         // 请求接口前校验是否过期 如果过期先刷新token
         if (config.url !== '/api/auth/refreshtoken') {
-          if (!login.checkLogin() && login.getRole() !== 'center') {
+          if (!checkLogin() && getRole() !== 'center') {
             try {
-              await login.updateToken()
+              await updateToken()
             } catch (err) {
               console.error(err)
             }
           }
         }
 
-        const token = login.getToken()
+        const token = getToken()
         if (config?.headers && token) {
           config.headers.token = token
         }

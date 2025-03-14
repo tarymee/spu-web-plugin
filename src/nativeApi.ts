@@ -1,4 +1,4 @@
-import login from './login'
+import { getUser } from './login'
 import core from './core'
 
 class NativeApi {
@@ -36,7 +36,7 @@ class NativeApi {
     }
 
     const aPaaS = {
-      getUserInfoSync: login.getUser.bind(login),
+      getUserInfoSync: getUser,
       getToken: window?.aPaaS?.getToken
     }
 

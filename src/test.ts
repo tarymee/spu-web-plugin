@@ -1,7 +1,6 @@
 async function installTest(options: any) {
   // console.log('installTest')
   // loadding.open()
-  // const envname = await login.getEnvname()
   // console.log(envname)
   // const coreData = await core.getData()
   // console.log(coreData)

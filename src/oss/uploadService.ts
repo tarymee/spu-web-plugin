@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import co from 'co'
 
-import login from '../login'
+import { getUser } from '../login'
 import cloudServ from '../cloudServ'
 import { initServToken } from './servtoken'
 import { obsMultiUpload } from './multiUpload'
@@ -17,7 +17,14 @@ interface IUpload {
   onprogress?: (p: number, _checkpoint?: IAny) => void
 }
 
-const upload = async ({ type = 'img', file, source = '', datetime = '', storagetype = 'storage', onprogress }: IUpload) => {
+const upload = async ({
+  type = 'img',
+  file,
+  source = '',
+  datetime = '',
+  storagetype = 'storage',
+  onprogress
+}: IUpload) => {
   if (!file) throw Error('请传入文件')
   const storageConfig = cloudServ.get(storagetype)
   if (!storageConfig) throw Error('无可用存储设置')
@@ -25,7 +32,7 @@ const upload = async ({ type = 'img', file, source = '', datetime = '', storaget
   if (!servToken) throw Error('无可用servToken')
 
   const provider = cloudServ.getProvider(storagetype)
-  const tenantCode = login.getUser('tenantcode')
+  const tenantCode = getUser('tenantcode')
   const suffix = '.' + file.name.substring(file.name.lastIndexOf('.') + 1)
   source = source ? source : uuidv4() + suffix
   datetime = datetime ? datetime : Date.now()

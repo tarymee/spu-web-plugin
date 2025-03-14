@@ -10,7 +10,16 @@ import { downloadService, uploadService } from './oss'
 import { getUniqueid, functionCheck, setTitle, isInApp, isdebugger, isvirtuallocation } from './utils'
 import { installUrlquery } from './urlquery'
 import AMapLoader from './AMapLoader'
-import login, { installAuth } from './login'
+import {
+  getToken,
+  checkLogin,
+  getUser,
+  getRefreshToken,
+  getTokenExpires,
+  updateToken,
+  singleLogin,
+  installAuth
+} from './login'
 import { Module } from './core'
 import components from './components'
 import { expandexp } from './components/expandexp'
@@ -57,7 +66,7 @@ const install = (app: any, options: any) => {
   installTest(globalOptions)
 
   // setTimeout(() => {
-  //   console.error('test888')
+  //   console.error('test998898')
   // }, 1000)
 
   // if (install.installed) return
@@ -79,14 +88,6 @@ const SPUWebPlugin = {
   install,
   version
 }
-
-const updateToken = login.updateToken.bind(login)
-const getToken = login.getToken.bind(login)
-const getTokenExpires = login.getTokenExpires.bind(login)
-const getRefreshToken = login.getRefreshToken.bind(login)
-const getUser = login.getUser.bind(login)
-const checkLogin = login.checkLogin.bind(login)
-const singleLogin = login.singleLogin.bind(login)
 
 export {
   SPUWebPlugin as default,

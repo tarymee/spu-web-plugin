@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import cloudServ from '../cloudServ'
 import { initServToken } from './servtoken'
 import { axios } from '../axios'
-import login from '../login'
+import { getUser } from '../login'
 // import { get } from 'lodash-es'
 // import qs from 'qs'
 
@@ -120,19 +120,27 @@ interface IDownload {
 }
 
 // 根据文件信息最后生成一个云文件服务可以用的链接http://xxxxx.xxx.jpg
-const getUrl = async ({ type = 'img', source = '', filename = '', datetime = '', storagetype = 'storage', cope = '' }: IDownload) => {
+const getUrl = async ({
+  type = 'img',
+  source = '',
+  filename = '',
+  datetime = '',
+  storagetype = 'storage',
+  cope = ''
+}: IDownload) => {
   const storageConfig = cloudServ.get(storagetype)
   if (!storageConfig) throw Error('无可用存储设置')
   const servToken = await initServToken()
   if (!servToken) throw Error('无可用servToken')
 
-  const tenantCode = login.getUser('tenantcode')
+  const tenantCode = getUser('tenantcode')
   const provider = cloudServ.getProvider(storagetype)
 
   if (!filename) {
     filename = source
   }
-  const isAbsoluteUrl = !!source.match(/\/att\//) || !!source.match(/\/img\//) || !!source.match(/att\//) || !!source.match(/img\//)
+  const isAbsoluteUrl =
+    !!source.match(/\/att\//) || !!source.match(/\/img\//) || !!source.match(/att\//) || !!source.match(/img\//)
   const suffix = filename.slice(filename.lastIndexOf('.'))
   const date = dayjs(+datetime).format('YYYYMMDD')
   let objectKey = isAbsoluteUrl ? source : `${source.slice(0, 3)}/${type}/${date}/${tenantCode}/${source}`
@@ -281,13 +289,24 @@ const downloadFileByBlob = (blob: any, filename: string) => {
   document.body.removeChild(aElm)
 }
 
-const downloadFile = async ({ type = 'img', source = '', datetime = '', storagetype = 'storage', cope = '', filename = '' }: IDownload) => {
+const downloadFile = async ({
+  type = 'img',
+  source = '',
+  datetime = '',
+  storagetype = 'storage',
+  cope = '',
+  filename = ''
+}: IDownload) => {
   if (!filename) {
     filename = source
   }
 
   const suffix = filename.slice(filename.lastIndexOf('.'))
-  const realFilename = filename.replace(suffix, '') + dayjs(+datetime).format('_YYYYMMDDHHmmssS') + String(Math.floor(Math.random() * 9000) + 1000) + suffix
+  const realFilename =
+    filename.replace(suffix, '') +
+    dayjs(+datetime).format('_YYYYMMDDHHmmssS') +
+    String(Math.floor(Math.random() * 9000) + 1000) +
+    suffix
 
   // console.log(filename)
   const url = await getUrl({

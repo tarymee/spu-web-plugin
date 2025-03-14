@@ -1,5 +1,5 @@
-import AMapLoader from './AMapLoader'
 import { cloneDeep } from 'lodash-es'
+import AMapLoader from './AMapLoader'
 import { urlquery } from './urlquery'
 
 type Location = {
@@ -17,7 +17,7 @@ let lastLocation: Location = null
 let runing = false
 let locationPromise: Promise<Location>
 
-const init = async () => {
+async function init() {
   if (!AMap) {
     AMap = await AMapLoader.load({
       plugins: ['AMap.Geolocation', 'AMap.Geocoder']
@@ -33,7 +33,7 @@ const init = async () => {
   }
 }
 
-const getAmapLocation = async (): Promise<Location> => {
+async function getAmapLocation(): Promise<Location> {
   await init()
   return new Promise((resolve, reject) => {
     // https://blog.csdn.net/Liu331013/article/details/115423749
@@ -56,7 +56,7 @@ const getAmapLocation = async (): Promise<Location> => {
   })
 }
 
-const getSpuLocation = async (): Promise<Location> => {
+async function getSpuLocation(): Promise<Location> {
   return new Promise((resolve, reject) => {
     let isload = false
     setTimeout(() => {
@@ -84,7 +84,7 @@ const getSpuLocation = async (): Promise<Location> => {
   })
 }
 
-const getAmapCityLocation = async (): Promise<Location> => {
+async function getAmapCityLocation(): Promise<Location> {
   await init()
   return new Promise((resolve, reject) => {
     geolocation.getCityInfo((status: string, result: any) => {
@@ -107,7 +107,7 @@ const getAmapCityLocation = async (): Promise<Location> => {
   })
 }
 
-const getAddress = async (position: Location): Promise<string> => {
+async function getAddress(position: Location): Promise<string> {
   await init()
   return new Promise((resolve, reject) => {
     if (position) {
@@ -125,7 +125,7 @@ const getAddress = async (position: Location): Promise<string> => {
 }
 
 // 定位流程: 缓存 > 判断环境（APP，小程序，企微）基于环境获取定位 > 高德地图高精度定位 > 百度地图定位 > 高德城市定位
-const getLocationPromise = async (): Promise<Location> => {
+async function getLocationPromise(): Promise<Location> {
   let location: Location = null
 
   // 在 SPU 容器里使用 Native-API 的定位
@@ -160,7 +160,7 @@ const getLocationPromise = async (): Promise<Location> => {
   return location
 }
 
-const getLocation = async () => {
+async function getLocation() {
   // debugger
   // 缓存30秒
   if (datetime && Date.now() - datetime <= 30000 && lastLocation && !runing) {
@@ -182,7 +182,7 @@ const getLocation = async () => {
   return locationRes
 }
 
-const getDistance = async (p1: [number, number], p2: [number, number]) => {
+async function getDistance(p1: [number, number], p2: [number, number]) {
   await init()
   return AMap.GeometryUtil.distance(p1, p2)
 }

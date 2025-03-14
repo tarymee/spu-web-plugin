@@ -1,7 +1,7 @@
 import { Module } from '../../core'
 import { wxworkSuite } from '../../wxworksuitePlugin'
 import { spuAxios, axios } from '../../axios'
-import login from '../../login'
+import { getUser } from '../../login'
 import { cloneDeep, merge } from 'lodash-es'
 import { downloadService } from '../../oss'
 import { apaasSpuTrackSendLog } from '../../apaasSpuTrack'
@@ -139,7 +139,9 @@ export default class SpuExpandexp extends HTMLElement {
             .map((item: any) => {
               return `
             <div class="export-sel-con-item">
-              <input type="radio" id="${item.value}" name="exportcontent" value="${item.value}" ${item.value === exportcontent ? 'checked' : ''} />
+              <input type="radio" id="${item.value}" name="exportcontent" value="${item.value}" ${
+                item.value === exportcontent ? 'checked' : ''
+              } />
               <label for="${item.value}">${item.label}</label>
             </div>
           `
@@ -161,12 +163,23 @@ export default class SpuExpandexp extends HTMLElement {
         // 取消按钮显隐
         this.vIf(
           $exportCancel,
-          (stepName === 'running' || stepName === 'ready') && (!exportDataItem?.exportstate || exportDataItem?.exportstate === 'readyrun' || exportDataItem?.exportstate === 'running')
+          (stepName === 'running' || stepName === 'ready') &&
+            (!exportDataItem?.exportstate ||
+              exportDataItem?.exportstate === 'readyrun' ||
+              exportDataItem?.exportstate === 'running')
         )
 
         // 进度条
         if (key === 'stepName') {
-          this.vIf($exportProgress, stepName === 'running' || stepName === 'ready' || stepName === 'success' || stepName === 'error' || stepName === 'ext_readyrun' || stepName === 'ext_running')
+          this.vIf(
+            $exportProgress,
+            stepName === 'running' ||
+              stepName === 'ready' ||
+              stepName === 'success' ||
+              stepName === 'error' ||
+              stepName === 'ext_readyrun' ||
+              stepName === 'ext_running'
+          )
         }
         if (key === 'percentage' || key === 'stepName') {
           this.vIf($exportProgressText, percentage < 100)
@@ -191,7 +204,14 @@ export default class SpuExpandexp extends HTMLElement {
         if (key === 'stepName') {
           this.vIf($exportSectionWrap, stepName !== 'initial')
           this.vIf($exportBtnwrap, stepName === 'initial')
-          this.vIf($exportTip, stepName === 'running' || stepName === 'ready' || stepName === 'ext_readyrun' || stepName === 'ext_running' || stepName === 'success')
+          this.vIf(
+            $exportTip,
+            stepName === 'running' ||
+              stepName === 'ready' ||
+              stepName === 'ext_readyrun' ||
+              stepName === 'ext_running' ||
+              stepName === 'success'
+          )
         }
 
         if (key === 'resultMessage') {
@@ -410,8 +430,8 @@ export default class SpuExpandexp extends HTMLElement {
           '/api/expandexp/global/searchExpGloConfig',
           {
             key: 'export-config-switch',
-            tenantcode: login.getUser('tenantcode'),
-            productcode: login.getUser('productcode')
+            tenantcode: getUser('tenantcode'),
+            productcode: getUser('productcode')
           },
           {},
           {
@@ -564,7 +584,10 @@ export default class SpuExpandexp extends HTMLElement {
     // console.log(this.data)
     // console.log(this.data.exportDataItem)
 
-    let fixExportFileUrl = this.data.exportDataItem.exportfileurl[0] === '/' ? this.data.exportDataItem.exportfileurl : '/' + this.data.exportDataItem.exportfileurl
+    let fixExportFileUrl =
+      this.data.exportDataItem.exportfileurl[0] === '/'
+        ? this.data.exportDataItem.exportfileurl
+        : '/' + this.data.exportDataItem.exportfileurl
     let exportFileName = this.data.exportDataItem.filename
     let date = this.data.exportDataItem.initdate
 

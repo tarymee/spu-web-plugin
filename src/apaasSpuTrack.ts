@@ -1,7 +1,7 @@
 import { globalOptions } from './index'
 import { Module } from './core'
 import { cloneDeep, merge, set } from 'lodash-es'
-import login from './login'
+import { getUser, checkLogin } from './login'
 import core from './core'
 
 // @ts-ignore
@@ -13,7 +13,7 @@ import ApaasSpuTrack from './package/apaas-track/apaas-spu/index.umd.js'
 // console.log(window.ApaasSpuTrack)
 
 const getWebInitParams = async () => {
-  const user = login.getUser()
+  const user = getUser()
   const envname = await Module.getEnvname()
   return {
     project: globalOptions.modulename,
@@ -74,7 +74,7 @@ const apaasSpuTrackSendLog = (data: any, isnotretry: boolean = false) => {
 // 兼容开启SPU日志
 const installApaasSpuTrack = () => {
   setTimeout(() => {
-    if (ApaasSpuTrack && !window.apaasSpuTrack && login.checkLogin() && login.getUser()) {
+    if (ApaasSpuTrack && !window.apaasSpuTrack && checkLogin() && getUser()) {
       if (!window?.aPaaS?.getWebInitParams) {
         set(window, 'aPaaS.getWebInitParams', getWebInitParams)
       }
