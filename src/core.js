@@ -462,7 +462,7 @@ const Module = {
   getEnvData: core.getEnvData.bind(core),
   checkModule: core.checkModule.bind(core),
   createWebUrl: core.createWebUrl.bind(core),
-  getSpuContainerType: core.getSpuContainerType(core)
+  getSpuContainerType: core.getSpuContainerType.bind(core)
 }
 
 export { core as default, Module }
