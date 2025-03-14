@@ -6,6 +6,11 @@ const isIOS = () => {
   return /(iPhone|iPad|iPod|IOS)/i.test(ua)
 }
 
+const isMobile = () => {
+  const ua = navigator.userAgent
+  return ua.indexOf('Mobile') >= 0
+}
+
 // 生成唯一id
 const getUniqueid = () => {
   const random = Math.ceil(Math.random() * 100000)
@@ -58,4 +63,4 @@ const isvirtuallocation = (): boolean => {
   return urlquery.isvirtuallocation
 }
 
-export { isIOS, getUniqueid, functionCheck, setTitle, isInApp, isdebugger, isvirtuallocation }
+export { isIOS, isMobile, getUniqueid, functionCheck, setTitle, isInApp, isdebugger, isvirtuallocation }

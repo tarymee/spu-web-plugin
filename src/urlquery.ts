@@ -1,5 +1,7 @@
 import VConsole from 'vconsole'
 import { ssProxy } from './storageProxy'
+import { isMobile } from './utils'
+import login from './login'
 
 class Urlquery {
   private isinit = false
@@ -12,6 +14,30 @@ class Urlquery {
     return ssProxy.getItem('isdebugger') === '1'
   }
 
+  // 获取 web 端引擎是否开了开发者模式
+  private getWebDevmodel() {
+    let flag = false
+    let webSetting: any = window.localStorage.getItem('setting')
+    if (webSetting) {
+      try {
+        webSetting = JSON.parse(webSetting)
+        if (webSetting[login.getUser('tenantcode')]?.devmodel) {
+          flag = true
+        }
+      } catch (err) {
+        // console.error(err)
+      }
+    }
+    return flag
+  }
+
+  // 单点登录后 获取 web 开发者模式 如果是则设置 isdebugger
+  public dealWebDebugger() {
+    if (!this.isdebugger && !isMobile() && this.getWebDevmodel()) {
+      ssProxy.setItem('isdebugger', '1')
+    }
+  }
+
   public init() {
     if (this.isinit) return false
 
@@ -20,7 +46,9 @@ class Urlquery {
     // 调试
     if (location.href.indexOf('isdebugger=1') >= 0 || ssProxy.getItem('isdebugger') === '1') {
       ssProxy.setItem('isdebugger', '1')
-      new VConsole({ theme: 'dark' }) /* eslint-disable-line no-new */
+      if (isMobile()) {
+        new VConsole({ theme: 'dark' }) /* eslint-disable-line no-new */
+      }
     } else {
       ssProxy.setItem('isdebugger', '0')
     }

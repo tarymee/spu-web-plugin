@@ -4,6 +4,7 @@ import { lsProxy } from './storageProxy'
 import { axios } from './axios'
 import cloudServ from './cloudServ'
 import core from './core'
+import { urlquery } from './urlquery'
 
 type JwtResult = {
   LoginUser: IAny
@@ -509,6 +510,9 @@ class Login {
         // 这里兼容报错
         await this.getAndSetTenant()
         await this.getAndSetUserInfo()
+
+        // 单点登录后 获取 web 开发者模式 如果是则设置 isdebugger
+        urlquery.dealWebDebugger()
 
         flag = true
       }
