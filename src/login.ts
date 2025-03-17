@@ -113,11 +113,18 @@ function removeRefreshToken() {
 }
 
 function updateToken() {
-  // 如果是产品运营中心 则不走刷新token流程
-  if (checkLogin() && getRole() === 'center') {
+  const loginState = getLoginState()
+
+  if (!loginState.islogin && loginState.type <= 1) {
+    console.warn('当前未登录/token过期，不支持自动刷新token。')
+    return false
+  }
+
+  if (loginState.role === 'center') {
     console.warn('当前登录为产品运营中心用户，不支持自动刷新token。')
     return false
   }
+
   const token = getToken()
   const refreshtoken = getRefreshToken()
   const sendToken = checkLoginByToken(token) ? token : refreshtoken
@@ -148,23 +155,25 @@ function updateToken() {
 let refreshtokenTimer: number | null = null
 
 function startRefreshtoken() {
+  const loginState = getLoginState()
   // 如果是产品运营中心 则不走刷新token流程
-  if (checkLogin() && getRole() === 'center') {
+  if (loginState.role === 'center') {
     console.warn('当前登录为产品运营中心用户，不支持自动刷新token。')
     return false
   }
 
-  stopRefreshtoken()
+  // stopRefreshtoken()
+  clearTimeout(refreshtokenTimer as number)
+  refreshtokenTimer = null
 
   // 如果有登录 但 refreshtoken 不是完整 token 则10秒后【需要等单点登录走完后才刷新不然会被覆盖】刷新一次取到完整 token
   // 如果有登录 且 refreshtoken 是完整 token 如果剩余时间大于10分钟 则每隔10分钟刷一次 否则过期前15秒更新 token
-  // 如果没登录 每隔1分钟走token更新逻辑(如果刚开始没登录 后面才登录【不需要再在登陆后写刷新token逻辑】)
+  // 如果没登录 每隔10秒走token更新逻辑(如果刚开始没登录 后面才登录【不需要再在登陆后写刷新token逻辑】)
   let time = 0
-  if (checkLogin()) {
+  if (loginState.islogin) {
     const user = getUserByToken(getRefreshToken())
     if (user?.tokenId) {
       time = Number(getTokenExpires()) - Date.now() - 1000 * 15
-      // time = 10000
       // 如果剩余时间大于10分钟 则每隔10分钟刷一次
       if (time > 600000) {
         time = 600000
@@ -175,20 +184,19 @@ function startRefreshtoken() {
       time = 10000
     }
   } else {
-    time = 60000
+    if (loginState.type === 2) {
+      time = 0
+    } else {
+      time = 10000
+    }
   }
   // time = 5000
   refreshtokenTimer = window.setTimeout(async () => {
-    if (checkLogin()) {
+    if (getLoginState().type >= 2) {
       await updateToken()
     }
     startRefreshtoken()
   }, time)
-}
-
-function stopRefreshtoken() {
-  clearTimeout(refreshtokenTimer as number)
-  refreshtokenTimer = null
 }
 
 function getUser(key?: string): any {
@@ -337,38 +345,69 @@ function getRole() {
   return getRoleByToken(getToken())
 }
 
-// 检测当前用户是否登录状态
-function checkLogin() {
-  let haslogged = false
-  const token = getToken()
-  if (token) {
-    if (getRole() === 'center') {
-      haslogged = checkLoginByToken(token)
-    } else {
-      const refreshtoken = getRefreshToken()
-      const tokenexpires = getTokenExpires()
-      const now = Date.now()
-      if (token && refreshtoken && tokenexpires && Number(tokenexpires) > now) {
-        haslogged = checkLoginByToken(token)
-      }
-    }
-  }
-  return haslogged
-}
-
 // 检测token是否过期
 function checkLoginByToken(token?: string) {
   let haslogged = false
   if (token) {
-    const now = Date.now()
     const jwtInfo = parseToken(token)
     if (jwtInfo?.exp) {
-      haslogged = Number(jwtInfo.exp + '000') > now
+      haslogged = Number(jwtInfo.exp + '000') > Date.now()
     } else {
       haslogged = false
     }
   }
   return haslogged
+}
+
+// 检测当前用户是否登录状态
+function checkLogin() {
+  return checkLoginByToken(getToken())
+  // return getLoginState().islogin
+}
+
+function getLoginState() {
+  let role: 'center' | 'tenant' = 'tenant' // center | tenant
+  let islogin = false
+  // 0: 未登录 缓存中没有token refreshtoken tokenexpires
+  // 1: 有登录过 缓存中有token refreshtoken tokenexpires token 过期 refreshtoken 过期
+  // 2: 有登录过 缓存中有token refreshtoken tokenexpires token 过期 refreshtoken 未过期
+  // 10: 有登录过 缓存中有token refreshtoken tokenexpires token 未过期 refreshtoken 未过期
+  let type: 0 | 1 | 2 | 10 = 0
+
+  const token = getToken()
+
+  if (token) {
+    role = getRoleByToken(token)
+    if (role === 'center') {
+      // 产品运营中心的token是永久的不会过期 且 没有 refreshtoken 和 tokenexpires
+      islogin = checkLoginByToken(token)
+      type = 10
+    } else {
+      const refreshtoken = getRefreshToken()
+      const tokenexpires = getTokenExpires()
+      const now = Date.now()
+
+      if (refreshtoken && tokenexpires) {
+        if (Number(tokenexpires) > now && checkLoginByToken(token)) {
+          islogin = true
+          type = 10
+        } else {
+          islogin = false
+          if (checkLoginByToken(refreshtoken)) {
+            type = 2
+          } else {
+            type = 1
+          }
+        }
+      }
+    }
+  }
+
+  return {
+    role,
+    islogin,
+    type
+  }
 }
 
 // 接口请求回来的 userInfo 有 functioncodes 以便做权限校验
@@ -596,7 +635,6 @@ export {
   // removeRefreshToken,
   updateToken,
   // startRefreshtoken,
-  // stopRefreshtoken,
   getUser,
   // setUser,
   getRole,
@@ -604,6 +642,7 @@ export {
   // getUserByToken,
   // setUserByToken,
   checkLogin,
+  getLoginState,
   // checkLoginByToken,
   singleLogin
 }

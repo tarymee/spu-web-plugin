@@ -3,6 +3,7 @@
 ## v1.0.4
 
 - feat: 请求刷新 token 接口时传递 headers.tecode 以便根据租户的 token 过期设置返回正确的值
+- feat: 优化刷新 token 机制
 
 ## v1.0.3
 
