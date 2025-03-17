@@ -1,6 +1,10 @@
 # 更新日志
 
-## v1.0.2
+## v1.0.4
+
+- feat: 请求刷新 token 接口时传递 headers.tecode 以便根据租户的 token 过期设置返回正确的值
+
+## v1.0.3
 
 - feat: 优化云储存引用 ossclient 方法 支持上传后返回 storage
 - fix(#66015): app 定位改成 30 秒超时

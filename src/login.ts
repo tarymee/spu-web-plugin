@@ -130,7 +130,8 @@ function updateToken() {
       isShowErrorMessage: false,
       isSendToken: false,
       headers: {
-        token: sendToken
+        token: sendToken,
+        tecode: getUser('tenantcode')
       }
     })
     .then((res: any) => {
@@ -163,6 +164,7 @@ function startRefreshtoken() {
     const user = getUserByToken(getRefreshToken())
     if (user?.tokenId) {
       time = Number(getTokenExpires()) - Date.now() - 1000 * 15
+      // time = 10000
       // 如果剩余时间大于10分钟 则每隔10分钟刷一次
       if (time > 600000) {
         time = 600000
