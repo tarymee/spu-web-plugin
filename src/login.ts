@@ -133,7 +133,7 @@ function updateToken() {
       params: {
         refreshtoken: sendToken
       },
-      isShowLoadding: false,
+      isShowLoading: false,
       isShowErrorMessage: false,
       isSendToken: false,
       headers: {

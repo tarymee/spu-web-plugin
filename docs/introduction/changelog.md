@@ -1,5 +1,9 @@
 # 更新日志
 
+## v1.0.5
+
+- fix: 修复刷新 token 接口时不用弹 loadding 窗的问题
+
 ## v1.0.4
 
 - feat: 请求刷新 token 接口时传递 headers.tecode 以便根据租户的 token 过期设置返回正确的值
