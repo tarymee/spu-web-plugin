@@ -490,6 +490,17 @@ async function singleLogin(query: IAny) {
   const envname = query.envname
   const context = query.context
 
+  function setBaseInfo() {
+    setToken(token)
+    setUserByToken(token) // 解析token为用户信息存入
+    refreshtoken ? setRefreshToken(refreshtoken) : removeRefreshToken()
+    tokenexpires ? setTokenExpires(tokenexpires) : removeTokenExpires()
+    envname ? setQueryEnvname(envname) : removeQueryEnvname()
+    // context 上下文字段 产品运营中心安装 卸载 配置 和 产品配置中心业务配置 页面需要用到
+    // web 端有传 app没传 需要做兼容
+    context && lsProxy.setItem('context', decodeURIComponent(context))
+  }
+
   if (checkLoginByToken(token)) {
     let isneedlogin = true // 是否需要走单点登录流程
     const loginRole = getRoleByToken(token)
@@ -517,16 +528,7 @@ async function singleLogin(query: IAny) {
     // debugger
 
     if (isneedlogin) {
-      setToken(token)
-      setUserByToken(token) // 解析token为用户信息存入
-
-      refreshtoken ? setRefreshToken(refreshtoken) : removeRefreshToken()
-      tokenexpires ? setTokenExpires(tokenexpires) : removeTokenExpires()
-      envname ? setQueryEnvname(envname) : removeQueryEnvname()
-
-      // context 上下文字段 产品运营中心安装 卸载 配置 和 产品配置中心业务配置 页面需要用到
-      // web 端有传 app没传 需要做兼容
-      context && lsProxy.setItem('context', decodeURIComponent(context))
+      setBaseInfo()
 
       // 单点登录写入 token 之后 换取完整的 refreshtoken
       try {
@@ -575,7 +577,8 @@ async function singleLogin(query: IAny) {
     }
   } else {
     flag = false
-    console.error('没传 token 或所传 token 已过期，无法单点登录。')
+    setBaseInfo() // 传递的token过期依然写入 如果不写入的话 有可能之前的token本来没过期 页面依然可用
+    console.error('单点登录失败，请检查链接所传 token/refreshtoken/tokenexpires 是否非法或过期。')
   }
 
   // 登录成功之后 获取spu信息
@@ -583,14 +586,14 @@ async function singleLogin(query: IAny) {
     await core.initGetData()
   }
 
-  // 单点登录后 无论是否成功 都需要删除 query 中相关参数
-  token && delete query.token
-  refreshtoken && delete query.refreshtoken
-  tokenexpires && delete query.tokenexpires
-  envname && delete query.envname
-  context && delete query.context
-
-  // debugger
+  if (flag) {
+    // 单点登录成功 需要删除 query 中相关参数
+    token && delete query.token
+    refreshtoken && delete query.refreshtoken
+    tokenexpires && delete query.tokenexpires
+    envname && delete query.envname
+    context && delete query.context
+  }
 
   return {
     flag,
@@ -617,9 +620,9 @@ function installAuth(options: any) {
             query: singleLoginRes.query
           })
         } else {
-          console.error('单点登录失败，请检查链接所传 token 是否非法或过期。')
           next()
         }
+        options.singleLoginCallback && options.singleLoginCallback(singleLoginRes)
       } else {
         next()
       }

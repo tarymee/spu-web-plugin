@@ -1,5 +1,9 @@
 # 更新日志
 
+## v1.0.7
+
+- feature: 支持单点登录回调 singleLoginCallback
+
 ## v1.0.6
 
 - feature: 单点登录成功之后获取环境信息和租户配置信息 以及设置 tecode

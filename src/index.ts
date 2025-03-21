@@ -42,6 +42,7 @@ const getDefaultGlobalOptions = () => {
     modulekey: arr[1] || '',
     moduleversion: arr[2] || '',
     storageproxyprefix: '',
+    singleLoginCallback: null,
     router: null
   }
 }
