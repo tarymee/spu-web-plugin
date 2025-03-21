@@ -1,77 +1,28 @@
-import { cloneDeep } from 'lodash-es'
+import { get, cloneDeep } from 'lodash-es'
 import jwtDecode from 'jwt-decode'
 import { lsProxy } from './storageProxy'
 import { axios } from './axios'
 import cloudServ from './cloudServ'
 import core from './core'
 import { urlquery } from './urlquery'
+import { decrypt } from './crypt'
+import { getData, setData, removeData } from './storageCache'
+import {
+  setQueryEnvname,
+  removeQueryEnvname,
+  requestEnvdata,
+  getEnvname,
+  removeEnvdata,
+  saveEnvdata,
+  setTecode,
+  removeTecode,
+  getTecode
+} from './envService'
 
 type JwtResult = {
   LoginUser: IAny
   exp: number
 } | null
-
-const cache: IAny = {}
-
-function getData(key: string) {
-  if (cache[key]) {
-    return cache[key]
-  } else {
-    const data = lsProxy.getItem(key)
-    cache[key] = data
-    return data
-  }
-}
-
-function setData(key: string, value: any) {
-  cache[key] = value
-  lsProxy.setItem(key, value)
-}
-
-function removeData(key: string) {
-  delete cache[key]
-  lsProxy.removeItem(key)
-}
-
-async function getEnvname(): Promise<string> {
-  let envname = ''
-
-  // web 查 context 的 envname
-  let context: any = lsProxy.getItem('context')
-  context && (context = JSON.parse(context))
-  const contextEnvname = context?.envname || ''
-
-  // 链接有些spu可能会传 envname
-  const queryEnvname = getQueryEnvname()
-
-  if (contextEnvname) {
-    envname = contextEnvname
-  } else if (queryEnvname) {
-    envname = queryEnvname
-  } else if (window?.aPaaS?.getWebInitParams && window?.Native?.setNavigationBarReturnButton) {
-    // 手机端 查 envname
-    // 只有手机端有 setNavigationBarReturnButton 方法
-    envname = await new Promise((resolve, reject) => {
-      window.aPaaS.getWebInitParams((params: any) => {
-        resolve(params?.envname || '')
-      })
-    })
-  }
-
-  return envname
-}
-
-function setQueryEnvname(value: string) {
-  setData('envname', value)
-}
-
-function getQueryEnvname() {
-  return getData('envname') || ''
-}
-
-function removeQueryEnvname() {
-  removeData('envname')
-}
 
 function getToken() {
   return getData('token')
@@ -136,9 +87,9 @@ function updateToken() {
       isShowLoading: false,
       isShowErrorMessage: false,
       isSendToken: false,
+      isSendTecode: true,
       headers: {
-        token: sendToken,
-        tecode: getUser('tenantcode')
+        token: sendToken
       }
     })
     .then((res: any) => {
@@ -260,7 +211,7 @@ function parseToken(token?: string) {
 }
 
 // // 产品运营中心token
-// {
+// const token = {
 //   "LoginUser": {
 //     "appId": "100",
 //     "tenantCode": "1656652",
@@ -283,7 +234,7 @@ function parseToken(token?: string) {
 // }
 
 // // 租户token
-// {
+// const token = {
 //   "exp": 1720161305,
 //   "LoginUser": {
 //     "accountInfoCode": "1803686723986010112",
@@ -326,6 +277,7 @@ function parseToken(token?: string) {
 //     "isSmsLogin": false
 //   }
 // }
+
 // 查询token所属登录角色
 // tenant: 普通租户登录 默认
 // center: 产品运营中心登录 单点登录时只带 token 没带 refreshtoken 和 tokenexpires
@@ -493,6 +445,40 @@ async function getAndSetTenant(tenantcode?: string) {
   }
 }
 
+async function requestAndSetTenantSetting(tenantcode?: string) {
+  try {
+    const res = await axios.post(
+      '/api/auth/tenantsettings',
+      {
+        tenantcode: tenantcode || ''
+      },
+      {
+        isSendToken: false,
+        isSendTecode: true,
+        isShowErrorMessage: false
+      }
+    )
+
+    let tenantSetting = res?.data?.resp_data?.econfig || ''
+    if (tenantSetting) {
+      tenantSetting = decrypt(tenantSetting)
+    }
+    // console.log(tenantSetting)
+    if (tenantSetting) {
+      lsProxy.setItem('tenantsetting', tenantSetting)
+    } else {
+      removeTenantSetting()
+    }
+  } catch (err) {
+    console.error(err)
+    removeTenantSetting()
+  }
+}
+
+function removeTenantSetting() {
+  lsProxy.removeItem('tenantsetting')
+}
+
 // 单点登录
 async function singleLogin(query: IAny) {
   query = cloneDeep(query)
@@ -527,6 +513,8 @@ async function singleLogin(query: IAny) {
         flag = true
       }
     }
+    // isneedlogin = true
+    // debugger
 
     if (isneedlogin) {
       setToken(token)
@@ -543,8 +531,9 @@ async function singleLogin(query: IAny) {
       // 单点登录写入 token 之后 换取完整的 refreshtoken
       try {
         if (checkLogin()) {
-          const user = getUserByToken(getRefreshToken())
-          if (!user?.tokenId) {
+          const refreshTokenUser = getUserByToken(getRefreshToken())
+          const tokenUser = getUserByToken(getToken())
+          if (!refreshTokenUser?.tokenId && tokenUser?.tokenId) {
             updateToken()
           }
         }
@@ -552,7 +541,30 @@ async function singleLogin(query: IAny) {
         console.error(err)
       }
 
-      // 这里兼容报错
+      // 获取环境信息和租户配置信息
+      const nowEnvname = await getEnvname()
+      if (nowEnvname) {
+        const envData = await requestEnvdata(nowEnvname)
+        // debugger
+        if (envData) {
+          saveEnvdata(envData)
+          if (envData.tenantcode) {
+            setTecode(envData.tenantcode)
+            // 租户配置
+            await requestAndSetTenantSetting(envData.tenantcode)
+          } else {
+            removeTenantSetting()
+            removeTecode()
+          }
+        } else {
+          removeEnvdata()
+          removeTecode()
+        }
+      } else {
+        removeEnvdata()
+        removeTecode()
+      }
+
       await getAndSetTenant()
       await getAndSetUserInfo()
 
@@ -564,6 +576,11 @@ async function singleLogin(query: IAny) {
   } else {
     flag = false
     console.error('没传 token 或所传 token 已过期，无法单点登录。')
+  }
+
+  // 登录成功之后 获取spu信息
+  if (flag) {
+    await core.initGetData()
   }
 
   // 单点登录后 无论是否成功 都需要删除 query 中相关参数
@@ -594,9 +611,6 @@ function installAuth(options: any) {
       if (to.query.token) {
         const singleLoginRes = await singleLogin(to.query)
         if (singleLoginRes.flag) {
-          // debugger
-          // next()
-          await core.initGetData()
           next({
             path: to.path,
             params: to.params,
@@ -623,7 +637,6 @@ function installAuth(options: any) {
 
 export {
   installAuth,
-  getEnvname,
   getToken,
   // setToken,
   // removeToken,

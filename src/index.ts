@@ -52,11 +52,6 @@ const install = (app: any, options: any) => {
   // console.log(app)
   // console.log(app.version)
   merge(globalOptions, options)
-  console.log(`@smart100/spu-web-plugin@${version} install!`)
-  console.log(`@smart100/spu-web-plugin@${version} userOptions`)
-  console.log(options)
-  console.log(`@smart100/spu-web-plugin@${version} globalOptions`)
-  console.log(globalOptions)
 
   installStorageProxy(globalOptions)
   installUrlquery()
@@ -67,8 +62,14 @@ const install = (app: any, options: any) => {
   installApaasSpuTrack()
   installTest(globalOptions)
 
+  console.log(`@smart100/spu-web-plugin@${version} install!`)
+  console.log(`@smart100/spu-web-plugin@${version} userOptions`)
+  console.log(options)
+  console.log(`@smart100/spu-web-plugin@${version} globalOptions`)
+  console.log(globalOptions)
+
   // setTimeout(() => {
-  //   console.error('test998898')
+  //   console.error('5416546544')
   // }, 1000)
 
   // if (install.installed) return

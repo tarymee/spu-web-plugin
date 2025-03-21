@@ -63,4 +63,41 @@ function isvirtuallocation(): boolean {
   return urlquery.isvirtuallocation
 }
 
-export { isIOS, isMobile, getUniqueid, functionCheck, setTitle, isInApp, isdebugger, isvirtuallocation }
+function urlIsIp(url: string) {
+  const hostname = url.split('://')[1].split(':')[0].split('/')[0]
+  const arr = hostname.split('.')
+  if (arr.length !== 4) return false
+  let flag = true
+  for (let i = 0, len = arr.length; i < len; i++) {
+    if (!Number.isInteger(Number(arr[i]))) {
+      flag = false
+      break
+    }
+  }
+  return flag
+}
+
+// 如果是非ip地址 则切换为与主页面一样的 location.protocol 前缀
+function toggleHttpOrHttps(url: string) {
+  let res = url
+  if (!urlIsIp(res)) {
+    if (!res.startsWith(location.protocol)) {
+      const arr = res.split('//')
+      arr[0] = location.protocol
+      res = arr.join('//')
+    }
+  }
+  return res
+}
+
+export {
+  isIOS,
+  isMobile,
+  getUniqueid,
+  functionCheck,
+  setTitle,
+  isInApp,
+  isdebugger,
+  isvirtuallocation,
+  toggleHttpOrHttps
+}

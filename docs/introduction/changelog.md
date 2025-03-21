@@ -1,5 +1,10 @@
 # 更新日志
 
+## v1.0.6
+
+- feature: 单点登录成功之后获取环境信息和租户配置信息 以及设置 tecode
+- feature: axios 支持配置是否传 tecode
+
 ## v1.0.5
 
 - fix: 修复刷新 token 接口时不用弹 loadding 窗的问题

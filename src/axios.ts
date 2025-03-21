@@ -5,6 +5,7 @@ import { loadding } from './components/loadding'
 import { getToken, updateToken, getLoginState } from './login'
 import core from './core'
 import { urlquery } from './urlquery'
+import { getTecode } from './envService'
 
 interface Response {
   code: number | string
@@ -71,6 +72,16 @@ const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
       if (type !== 'spu' && urlquery.isdebugger && config.url.indexOf('api/teapi/dy-biz/') > -1) {
         if (config?.headers) {
           config.headers.debug = 'true'
+        }
+      }
+
+      if (type !== 'spu') {
+        const isSendTecode = get(config, 'isSendTecode', false)
+        if (isSendTecode) {
+          const tecode = getTecode()
+          if (config?.headers && tecode) {
+            config.headers.tecode = tecode
+          }
         }
       }
 

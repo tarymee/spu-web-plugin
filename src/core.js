@@ -2,35 +2,8 @@ import { globalOptions } from './index'
 import { axios } from './axios'
 import { get, cloneDeep } from 'lodash-es'
 import { urlquery } from './urlquery'
-import { getToken, getEnvname, getUser, getRefreshToken, getTokenExpires } from './login'
-
-const urlIsIp = (url) => {
-  const hostname = url.split('://')[1].split(':')[0].split('/')[0]
-  const arr = hostname.split('.')
-  if (arr.length !== 4) return false
-  let flag = true
-  for (let i = 0, len = arr.length; i < len; i++) {
-    if (!Number.isInteger(Number(arr[i]))) {
-      flag = false
-      break
-    }
-  }
-  return flag
-}
-
-// 如果是非ip地址 则切换为与主页面一样的 location.protocol 前缀
-const toggleHttpOrHttps = (url) => {
-  let res = url
-
-  if (urlIsIp(url)) return res
-
-  if (!res.startsWith(location.protocol)) {
-    const arr = res.split('//')
-    arr[0] = location.protocol
-    res = arr.join('//')
-  }
-  return res
-}
+import { getToken, getUser, getRefreshToken, getTokenExpires } from './login'
+import { getEnvname, getEnvdata } from './envService'
 
 class Core {
   loadStatus = 0 // 0未开始 1正在加载 2加载完成
@@ -42,15 +15,48 @@ class Core {
     webDefineData: null
   }
 
-  clearCache() {
-    this.loadStatus = 0
-    this.cache = {
-      envName: '',
-      envData: null,
-      tenantCode: '',
-      webDefineData: null
+  // isinit = false
+  // async init() {
+  //   if (this.isinit) return
+  //   this.cache.tenantCode = getUser('tenantcode') || ''
+  //   this.cache.envName = await getEnvname()
+  //   this.cache.envData = await getEnvdata()
+  //   this.cache.webDefineData = await this.requestWebDefineData()
+  //   this.isinit = true
+  // }
+
+  // async getCache() {
+  //   if (this.isinit) {
+  //     return this.cache
+  //   } else {
+  //     await this.init()
+  //     return this.cache
+  //   }
+  // }
+
+  requestDataPromise = null
+
+  async initGetData() {
+    const nowEnvname = await getEnvname()
+    const nowTenantCode = getUser('tenantcode') || ''
+    // console.log(tenantCode)
+    if (this.cache.envName === nowEnvname && this.cache.tenantCode === nowTenantCode && this.loadStatus === 2) {
+      return this.cache
     }
-    this.requestDataPromise = null
+
+    // 兼容同时间发起多个
+    if (this.loadStatus === 1 && this.requestDataPromise) {
+      // console.error(2122)
+      // console.log(this.requestDataPromise)
+      // debugger
+      return this.requestDataPromise
+    }
+
+    this.loadStatus = 1
+    this.requestDataPromise = this.requestData()
+    await this.requestDataPromise
+    this.loadStatus = 2
+    return this.cache
   }
 
   // 请求实时G3数据
@@ -59,38 +65,9 @@ class Core {
     const nowTenantCode = getUser('tenantcode') || ''
     this.cache.envName = nowEnvname
     this.cache.tenantCode = nowTenantCode
-    this.cache.envData = await this.requestEnvData(nowEnvname)
+    this.cache.envData = await getEnvdata()
     this.cache.webDefineData = await this.requestWebDefineData()
     return this.cache
-  }
-
-  async requestEnvData(envName) {
-    // envName = '产品运营中心验证'
-    let result = null
-    if (envName) {
-      const hostsRoot =
-        document.location.protocol === 'https:'
-          ? 'https://mconfig.xuantongkeji.com'
-          : 'http://mconfig.xuantongkeji.com:8015'
-      let response
-      try {
-        response = await axios.get(`${hostsRoot}/multiplatconfig/env/${envName}`, {
-          isShowLoading: false,
-          isSendToken: false
-        })
-        // console.log(response)
-        // debugger
-        result = get(response, 'data.0')
-
-        // 如果是非ip地址 则切换为与主页面一样的 location.protocol 前缀
-        result?.business && (result.business = toggleHttpOrHttps(result.business))
-        result?.smartcenter && (result.smartcenter = toggleHttpOrHttps(result.smartcenter))
-        // debugger
-      } catch (err) {
-        console.error(err)
-      }
-    }
-    return result
   }
 
   async requestWebDefineData() {
@@ -140,30 +117,6 @@ class Core {
       }
     }
     return result
-  }
-
-  requestDataPromise = null
-  async initGetData() {
-    const nowEnvname = await getEnvname()
-    const nowTenantCode = getUser('tenantcode') || ''
-    // console.log(tenantCode)
-    if (this.cache.envName === nowEnvname && this.cache.tenantCode === nowTenantCode && this.loadStatus === 2) {
-      return this.cache
-    }
-
-    // 兼容同时间发起多个
-    if (this.loadStatus === 1 && this.requestDataPromise) {
-      // console.error(2122)
-      // console.log(this.requestDataPromise)
-      // debugger
-      return this.requestDataPromise
-    }
-
-    this.loadStatus = 1
-    this.requestDataPromise = this.requestData()
-    await this.requestDataPromise
-    this.loadStatus = 2
-    return this.cache
   }
 
   async getEnvData() {
