@@ -1,5 +1,9 @@
 # 更新日志
 
+## v1.0.8
+
+- fix: 单点登录写入 token 后需重新计算刷新 token 的时间
+
 ## v1.0.7
 
 - feature: 支持单点登录回调 singleLoginCallback
