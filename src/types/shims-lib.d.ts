@@ -14,9 +14,6 @@ declare module '*.jpeg'
 declare module '*.gif'
 
 interface Window {
-  _AMapSecurityConfig: {
-    securityJsCode: string
-  }
   // Native Module aPaaS 为 G3 SPU 容器注入的 Native-API
   Native: any
   Module: any
@@ -24,6 +21,20 @@ interface Window {
   // 日志插件 和 日志实例
   ApaasSpuTrack: any
   apaasSpuTrack: any
+  // minio 客户端
+  AWS: any
+  // 高德地图
+  AMapLoader: any
+  // _AMapSecurityConfig: {
+  //   securityJsCode: string
+  // }
+  AMap: any
+  AMapUI: IAny
+  // 百度地图
+  BMap: any
+  __baiduMapInitial: any
+  // 腾讯地图
+  TMap: any
   // wx: IAny;
   // AMapUI: IAny;
   // lsProxy: any;

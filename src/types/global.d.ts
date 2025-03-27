@@ -52,9 +52,5 @@ interface ITenantInfo {
   productversionlist: IProductVersion[]
 }
 
-interface Window {
-  AWS: any
-}
-
 declare module 'uuid'
 declare module 'co'

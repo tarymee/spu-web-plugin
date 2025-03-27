@@ -5,7 +5,6 @@ import { axios } from './axios'
 import cloudServ from './cloudServ'
 import core from './core'
 import { urlquery } from './urlquery'
-import { decrypt } from './crypt'
 import { getData, setData, removeData } from './storageCache'
 import {
   setQueryEnvname,
@@ -15,9 +14,9 @@ import {
   removeEnvdata,
   saveEnvdata,
   setTecode,
-  removeTecode,
-  getTecode
+  removeTecode
 } from './envService'
+import { tenantSetting } from './tenantSetting'
 
 type JwtResult = {
   LoginUser: IAny
@@ -358,41 +357,6 @@ async function getAndSetTenant(tenantcode?: string) {
   }
 }
 
-async function requestAndSetTenantSetting(tenantcode?: string) {
-  try {
-    const res = await axios.post(
-      '/api/auth/tenantsettings',
-      {
-        tenantcode: tenantcode || ''
-      },
-      {
-        isSendToken: false,
-        isSendTecode: true,
-        isShowErrorMessage: false
-      }
-    )
-
-    let tenantSetting = res?.data?.resp_data?.econfig || ''
-    if (tenantSetting) {
-      tenantSetting = decrypt(tenantSetting)
-    }
-    // console.log(tenantSetting)
-    if (tenantSetting) {
-      lsProxy.setItem('tenantsetting', tenantSetting)
-    } else {
-      removeTenantSetting()
-    }
-  } catch (err) {
-    console.error(err)
-    removeTenantSetting()
-  }
-}
-
-function removeTenantSetting() {
-  lsProxy.removeItem('tenantsetting')
-}
-
-
 function updateToken() {
   const loginState = getLoginState()
 
@@ -481,8 +445,6 @@ function startRefreshtoken() {
   }, time)
 }
 
-
-
 // 单点登录
 async function singleLogin(query: IAny) {
   query = cloneDeep(query)
@@ -560,9 +522,9 @@ async function singleLogin(query: IAny) {
           if (envData.tenantcode) {
             setTecode(envData.tenantcode)
             // 租户配置
-            await requestAndSetTenantSetting(envData.tenantcode)
+            await tenantSetting.requestAndSetTenantSetting(envData.tenantcode)
           } else {
-            removeTenantSetting()
+            tenantSetting.removeTenantSetting()
             removeTecode()
           }
         } else {

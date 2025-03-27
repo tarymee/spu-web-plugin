@@ -1,5 +1,6 @@
 import { getUser } from './login'
 import { urlquery } from './urlquery'
+import { get } from 'lodash-es'
 
 function isIOS() {
   const ua = navigator.userAgent
@@ -90,6 +91,43 @@ function toggleHttpOrHttps(url: string) {
   return res
 }
 
+const urlMap = new Map<string, Promise<any>>()
+function importJS(url: string, attrName = ''): Promise<any> {
+  let p = urlMap.get(url)
+  if (p) {
+    return p.then(() => {
+      return Promise.resolve(attrName ? get(window, attrName) : undefined)
+    })
+  }
+  const script: any = document.createElement('script')
+  script.setAttribute('type', 'text/javascript')
+  script.setAttribute('src', url)
+  document.getElementsByTagName('head')[0].appendChild(script)
+
+  p = new Promise((resolve, reject) => {
+    script.onload = script.onreadystatechange = function () {
+      const f = script.readyState
+      if (f && f !== 'loaded' && f !== 'complete') return
+      script.onload = script.onreadystatechange = null
+      resolve(undefined)
+    }
+    script.onerror = () => reject(new Error('加载失败'))
+  })
+  urlMap.set(url, p)
+  // console.log('importJS:', url, attrName)
+  return p.then(() => {
+    return Promise.resolve(attrName ? get(window, attrName) : undefined)
+  })
+}
+
+const delay = (timeout = 1000) => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(null)
+    }, timeout)
+  })
+}
+
 export {
   isIOS,
   isMobile,
@@ -99,5 +137,7 @@ export {
   isInApp,
   isdebugger,
   isvirtuallocation,
-  toggleHttpOrHttps
+  toggleHttpOrHttps,
+  importJS,
+  delay
 }
