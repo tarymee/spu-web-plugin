@@ -41,7 +41,7 @@ class MapApi {
     if (this.isLbssettingEnable) {
       return this.setting?.secretkey?.web || ''
     } else {
-      return AMapKey.production.securityjscode
+      return AMapKey.production.securityJsCode
     }
   }
 
@@ -86,19 +86,15 @@ class MapApi {
   }
 
   async initAmap() {
-    // 关掉高德地图代理地址验证
-    // if (this.secretkey) {
-    //   window._AMapSecurityConfig = {
-    //     securityJsCode: this.secretkey
-    //   }
-    // }
+    if (this.secretkey) {
+      window._AMapSecurityConfig = {
+        securityJsCode: this.secretkey
+      }
+    }
 
-    // h5低码表单目前没有用过 AMapLoader.load 考虑去掉hook？、
-    // web 端加载的插件 参考
-    // const plugin = ['AMap.Geolocation', 'AMap.Autocomplete', 'AMap.PlaceSearch', 'AMap.Scale', 'AMap.OverView', 'AMap.ToolBar', 'AMap.MapType', 'AMap.PolyEditor', 'AMap.CircleEditor', 'AMap.Geocoder', 'AMap.MarkerClusterer']
+    const plugin = ['AMap.Geolocation']
+    // plugin.push('AMap.Geocoder') // 不开放地址查询 改用ipaas
 
-    const plugin = ['AMap.Geolocation', 'AMap.Geocoder']
-    // const plugin: string[] = []
     const AMap = await AMapLoader.load({
       key: this.key,
       version: '2.0',

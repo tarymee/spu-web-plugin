@@ -1,6 +1,8 @@
 import { urlquery } from '../urlquery'
 import { cloneDeep } from 'lodash-es'
 import { mapApi } from './MapApi'
+import { getAMapKey } from './AMapKey'
+import { axios } from '../axios'
 import { wgs84ToGcj02, BMapTransformBD09ToGCJ02Points } from './utils'
 
 type Location = {
@@ -85,12 +87,87 @@ const getLocationByNavigator = async (): Promise<Location> => {
   })
 }
 
+// ipaas ip 定位
+const getIPLocationByIpaas = async (
+  ip?: string
+): Promise<Location> => {
+  return new Promise((resolve, reject) => {
+    const AMapKey = getAMapKey()
+
+    axios.post(
+      'https://silkroad.wxchina.com/api/openapi/publishEvent?topic=xw-listener&subtopic=xw-listener&apicaseid=6684389338001815271',
+      {
+        key: AMapKey.key, // 好像不传也没问题 因为key是在ipaas那边设置的
+        ip: ip || ''
+      }
+    )
+      .then((res: any) => {
+        // console.log(res)
+        // debugger
+
+        // res.data.rectangle = '113.1017375,22.93212254;113.6770499,23.3809537'
+        if (res.data.rectangle) {
+          const rectangle = res.data.rectangle
+          const rects = rectangle.split(';').map((rect: any) => {
+            const [longitude, latitude] = rect.split(',')
+            return {
+              longitude: Number(longitude),
+              latitude: Number(latitude)
+            }
+          })
+
+          resolve({
+            longitude: ((rects[0].longitude + rects[1].longitude) / 2).toString(),
+            latitude: ((rects[0].latitude + rects[1].latitude) / 2).toString()
+          })
+        } else {
+          console.error('getIPLocationByIpaas fail')
+          resolve(null)
+        }
+      }).catch((err: any) => {
+        console.error(err)
+        console.error('getIPLocationByIpaas fail')
+        resolve(null)
+      })
+  })
+}
+
+// ipaas 逆地址解析
+const getAddressByIpaas = async (position: Location): Promise<string> => {
+  // 如果不设置安全秘钥的话 js-api的逆地址查询不成功 返回 INVALID_USER_SCODE 改成用ipaas服务查询
+  return new Promise(async (resolve, reject) => {
+    if (position) {
+      try {
+        const AMapKey = getAMapKey()
+        const result = await axios.post('https://silkroad.wxchina.com/api/openapi/publishEvent?topic=xw-listener&subtopic=xw-listener&apicaseid=6684389338001809906', {
+          longitude: position.longitude,
+          latitude: position.latitude,
+          key: AMapKey.key
+          // extensions: 'all'
+        })
+        // console.log(result)
+
+        if (result?.data?.formatted_address) {
+          resolve(result?.data?.formatted_address)
+        } else {
+          console.error('getAddressByAmap fail')
+          resolve('')
+        }
+      } catch (error) {
+        console.error(error)
+        console.error('getAddressByAmap fail')
+        resolve('')
+      }
+    }
+  })
+}
+
 // 高德定位
 const getLocationByAmap = async (): Promise<Location> => {
   return new Promise((resolve, reject) => {
     const geolocation = new window.AMap.Geolocation({
       enableHighAccuracy: true,
-      timeout: 5000
+      timeout: 15000
     })
 
     geolocation.getCurrentPosition((status: string, result: any) => {
@@ -116,9 +193,11 @@ const getCityLocationByAmap = async (): Promise<Location> => {
   return new Promise((resolve, reject) => {
     const geolocation = new window.AMap.Geolocation({
       enableHighAccuracy: true,
-      timeout: 5000
+      timeout: 15000
     })
     geolocation.getCityInfo((status: string, result: any) => {
+      // console.log(result)
+      // debugger
       if (status === 'complete') {
         const lng = result.position[0].toString()
         const lat = result.position[1].toString()
@@ -137,21 +216,24 @@ const getCityLocationByAmap = async (): Promise<Location> => {
 
 // 高德逆地址解析
 const getAddressByAmap = async (position: Location): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    if (position) {
-      new window.AMap.Geocoder({
-        city: '',
-        radius: 500
-      }).getAddress([position.longitude, position.latitude], (status: string, result: any) => {
-        if (status === 'complete' && result.info === 'OK' && result.regeocode) {
-          resolve(result?.regeocode?.formattedAddress || '')
-        } else {
-          console.error('getAddressByAmap fail')
-          resolve('')
-        }
-      })
-    }
-  })
+  // return new Promise((resolve, reject) => {
+  //   if (position) {
+  //     new window.AMap.Geocoder({
+  //       city: '',
+  //       radius: 500
+  //     }).getAddress([position.longitude, position.latitude], (status: string, result: any) => {
+  //       if (status === 'complete' && result.info === 'OK' && result.regeocode) {
+  //         resolve(result?.regeocode?.formattedAddress || '')
+  //       } else {
+  //         console.error('getAddressByAmap fail')
+  //         resolve('')
+  //       }
+  //     })
+  //   }
+  // })
+  // 如果不设置安全秘钥的话 js-api的逆地址查询不成功 返回 INVALID_USER_SCODE 改成用ipaas服务查询
+  const address = await getAddressByIpaas(position)
+  return address
 }
 
 // 腾讯ip定位：通过终端设备IP地址获取其当前所在地理位置，精确到市级，常用于显示当地城市天气预报、初始化用户城市等非精确定位场景。
@@ -267,6 +349,7 @@ const getCityLocationByBMap = async (): Promise<Location> => {
   return new Promise((resolve, reject) => {
     new window.BMap.LocalCity().get(async (res: any) => {
       // console.log(res)
+      // debugger
       const lng = res.center.lng.toString()
       const lat = res.center.lat.toString()
       if (lng && lat) {
@@ -329,43 +412,35 @@ const getLocationPromise = async (): Promise<Location> => {
 
   if (!location) {
     location = await getLocationByNavigator()
-    // console.log(location)
-    // debugger
   }
-
-  // if (process.env.NODE_ENV !== 'production') {
-  //   location = null
-  // }
 
   if (!location) {
     if (mapApi.type === 'amap') {
       location = await getLocationByAmap()
-      // 城市定位结果不精确 仅在isvirtuallocation模式下使用
-      if (!location && urlquery.isvirtuallocation) {
+      // ip城市定位结果不精确 但总比定不到位好
+      if (!location) {
         location = await getCityLocationByAmap()
       }
     } else if (mapApi.type === 'tencent') {
       location = await getIPLocationByTMap()
     } else if (mapApi.type === 'baidu') {
       location = await getLocationByBMap()
-
-      // if (process.env.NODE_ENV !== 'production') {
-      //   location = await getCityLocationByBMap()
-      // }
-
-      // ip城市定位结果不精确 仅在isvirtuallocation模式下使用
-      if (!location && urlquery.isvirtuallocation) {
+      // ip城市定位结果不精确 但总比定不到位好
+      if (!location) {
         location = await getCityLocationByBMap()
       }
     }
   }
 
+  if (!location) {
+    location = await getIPLocationByIpaas()
+  }
+
   // 开发模式下为了方便测试提供虚拟定位
-  // process.env.NODE_ENV !== 'production'
   if (!location && urlquery.isvirtuallocation) {
     location = {
-      longitude: '113.34331353081598',
-      latitude: '23.105349663628473'
+      longitude: '116.397454',
+      latitude: '39.908671'
     }
   }
 
@@ -376,7 +451,7 @@ const getLocationPromise = async (): Promise<Location> => {
   return location
 }
 
-// WGS84、GCJ-02、BD-09 坐标系
+// WGS84 GCJ-02 BD-09 坐标系
 // https://www.jianshu.com/p/559029832a67
 async function getLocation() {
   await mapApi.init()
@@ -404,13 +479,21 @@ async function getLocation() {
 // 逆地址解析
 const getAddress = async (position: Location): Promise<string> => {
   await mapApi.init()
+
   let address = ''
-  if (mapApi.type === 'amap') {
-    address = await getAddressByAmap(position)
-  } else if (mapApi.type === 'tencent') {
-    address = await getAddressByTMap(position)
-  } else if (mapApi.type === 'baidu') {
-    address = await getAddressByBmap(position)
+
+  // 先统一用ipaas解析 因为需要储存一致的地址格式（各地图商逆地址查询的地址格式不统一）
+  // 如果不行再按照各地图商解析
+  address = await getAddressByIpaas(position)
+
+  if (!address) {
+    if (mapApi.type === 'amap') {
+      address = await getAddressByAmap(position)
+    } else if (mapApi.type === 'tencent') {
+      address = await getAddressByTMap(position)
+    } else if (mapApi.type === 'baidu') {
+      address = await getAddressByBmap(position)
+    }
   }
   return address
 }

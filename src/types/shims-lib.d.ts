@@ -25,9 +25,9 @@ interface Window {
   AWS: any
   // 高德地图
   AMapLoader: any
-  // _AMapSecurityConfig: {
-  //   securityJsCode: string
-  // }
+  _AMapSecurityConfig: {
+    securityJsCode: string
+  }
   AMap: any
   AMapUI: IAny
   // 百度地图
