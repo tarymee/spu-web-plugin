@@ -9,6 +9,7 @@ import { globalConfig } from './globalConfig'
 import { downloadService, uploadService } from './oss'
 import { getUniqueid, functionCheck, setTitle, isInApp, isdebugger, isvirtuallocation } from './utils'
 import { installUrlquery } from './urlquery'
+import { mapService } from './map/MapService'
 import AMapLoader from './map/AMapLoader'
 import {
   getToken,
@@ -113,6 +114,7 @@ export {
   setTitle,
   isInApp,
   AMapLoader,
+  mapService,
   singleLogin,
   updateToken,
   getToken,

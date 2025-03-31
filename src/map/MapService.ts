@@ -18,14 +18,14 @@ interface ILbsSettingData {
   setting: ILbsSetting
 }
 
-class MapApi {
+class MapService {
   isInit = false
 
   get isLbssettingEnable() {
     return tenantSetting.get('lbssetting')?.enable === '1'
   }
 
-  get setting(): ILbsSetting | undefined {
+  private get setting(): ILbsSetting | undefined {
     return tenantSetting.get('lbssetting')?.setting
   }
 
@@ -53,6 +53,27 @@ class MapApi {
     }
   }
 
+  get AMap() {
+    if (!this.isInit || this.type !== 'amap') {
+      return null
+    }
+    return window.AMap
+  }
+
+  get TMap() {
+    if (!this.isInit || this.type !== 'tencent') {
+      return null
+    }
+    return window.TMap
+  }
+
+  get BMap() {
+    if (!this.isInit || this.type !== 'baidu') {
+      return null
+    }
+    return window.BMap
+  }
+
   async init() {
     if (this.isInit) return
 
@@ -72,11 +93,11 @@ class MapApi {
     }
   }
 
-  reset() {
-    this.isInit = false
-  }
+  // reset() {
+  //   this.isInit = false
+  // }
 
-  async initTecent() {
+  private async initTecent() {
     await importJS(
       `https://map.qq.com/api/gljs?v=1.exp&libraries=service&key=${this.key}`,
       // `https://map.qq.com/api/gljs?v=1.exp&key=${this.key}`,
@@ -85,12 +106,12 @@ class MapApi {
     await delay(300)
   }
 
-  async initAmap() {
-    if (this.secretkey) {
-      window._AMapSecurityConfig = {
-        securityJsCode: this.secretkey
-      }
-    }
+  private async initAmap() {
+    // if (this.secretkey) {
+    //   window._AMapSecurityConfig = {
+    //     securityJsCode: this.secretkey
+    //   }
+    // }
 
     const plugin = ['AMap.Geolocation']
     // plugin.push('AMap.Geocoder') // 不开放地址查询 改用ipaas
@@ -112,7 +133,7 @@ class MapApi {
     // console.log(window.AMap === aaaa)
   }
 
-  initBaidu() {
+  private async initBaidu() {
     // await importJS(
     //     `https://api.map.baidu.com/api?v=1.0&&type=webgl&ak=${this.key}`,
     //     'BMap'
@@ -141,6 +162,6 @@ class MapApi {
   }
 }
 
-const mapApi = new MapApi()
+const mapService = new MapService()
 
-export { mapApi }
+export { mapService }

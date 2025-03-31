@@ -10,6 +10,14 @@ interface IAMapLoader {
   }) => Promise<any>
 }
 
+interface IMapService {
+  init: () => Promise<any>
+  type: 'amap' | 'tencent' | 'baidu'
+  AMap: any
+  BMap: any
+  TMap: any
+}
+
 type StorageType = 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y'
 
 type Cope = { width?: number; height?: number } | string | boolean
@@ -83,6 +91,7 @@ export const functionCheck: (functioncode?: string) => boolean
 export const setTitle: (pagetitle?: string) => void
 export const isInApp: () => boolean
 export const AMapLoader: IAMapLoader
+export const mapService: IMapService
 export const singleLogin: any
 export const updateToken: () => Promise<void>
 export const getToken: () => string

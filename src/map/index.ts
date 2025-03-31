@@ -1,6 +1,6 @@
 import { urlquery } from '../urlquery'
 import { cloneDeep } from 'lodash-es'
-import { mapApi } from './MapApi'
+import { mapService } from './MapService'
 import { getAMapKey } from './AMapKey'
 import { axios } from '../axios'
 import { wgs84ToGcj02, BMapTransformBD09ToGCJ02Points } from './utils'
@@ -415,15 +415,15 @@ const getLocationPromise = async (): Promise<Location> => {
   }
 
   if (!location) {
-    if (mapApi.type === 'amap') {
+    if (mapService.type === 'amap') {
       location = await getLocationByAmap()
       // ip城市定位结果不精确 但总比定不到位好
       if (!location) {
         location = await getCityLocationByAmap()
       }
-    } else if (mapApi.type === 'tencent') {
+    } else if (mapService.type === 'tencent') {
       location = await getIPLocationByTMap()
-    } else if (mapApi.type === 'baidu') {
+    } else if (mapService.type === 'baidu') {
       location = await getLocationByBMap()
       // ip城市定位结果不精确 但总比定不到位好
       if (!location) {
@@ -454,7 +454,7 @@ const getLocationPromise = async (): Promise<Location> => {
 // WGS84 GCJ-02 BD-09 坐标系
 // https://www.jianshu.com/p/559029832a67
 async function getLocation() {
-  await mapApi.init()
+  await mapService.init()
   // debugger
   // 缓存30秒
   if (datetime && Date.now() - datetime <= cachetime && lastLocation && !runing) {
@@ -478,7 +478,7 @@ async function getLocation() {
 
 // 逆地址解析
 const getAddress = async (position: Location): Promise<string> => {
-  await mapApi.init()
+  await mapService.init()
 
   let address = ''
 
@@ -487,11 +487,11 @@ const getAddress = async (position: Location): Promise<string> => {
   address = await getAddressByIpaas(position)
 
   if (!address) {
-    if (mapApi.type === 'amap') {
+    if (mapService.type === 'amap') {
       address = await getAddressByAmap(position)
-    } else if (mapApi.type === 'tencent') {
+    } else if (mapService.type === 'tencent') {
       address = await getAddressByTMap(position)
-    } else if (mapApi.type === 'baidu') {
+    } else if (mapService.type === 'baidu') {
       address = await getAddressByBmap(position)
     }
   }
@@ -499,7 +499,7 @@ const getAddress = async (position: Location): Promise<string> => {
 }
 
 // const getDistance = async (p1: [number, number], p2: [number, number]) => {
-//   await mapApi.init()
+//   await mapService.init()
 //   return window.AMap.GeometryUtil.distance(p1, p2)
 // }
 

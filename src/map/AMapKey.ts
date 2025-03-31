@@ -1,4 +1,4 @@
-import { mapApi } from './MapApi'
+import { mapService } from './MapService'
 
 // 高德地图 web端key 和 安全密钥
 const AMapKey = {
@@ -15,10 +15,10 @@ const AMapKey = {
 }
 
 const getAMapKey = () => {
-  if (mapApi.isLbssettingEnable && mapApi.type === 'amap') {
+  if (mapService.isLbssettingEnable && mapService.type === 'amap') {
     return {
-      key: mapApi.key,
-      securityJsCode: mapApi.secretkey
+      key: mapService.key,
+      securityJsCode: mapService.secretkey
     }
   } else {
     return {
