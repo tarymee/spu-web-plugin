@@ -20,6 +20,7 @@ let locationPromise: Promise<Location>
 
 // app端默认坐标为 gcj02
 const getLocationByNative = async (): Promise<Location> => {
+  console.log('getLocationByNative start...')
   return new Promise((resolve, reject) => {
     let isload = false
     setTimeout(() => {
@@ -28,17 +29,19 @@ const getLocationByNative = async (): Promise<Location> => {
         resolve(null)
       }
     }, 30000)
-    window.Native.getLocation((result: any, error: any, status: any) => {
-      // console.log('getLocation result', result)
+    window.Native.getLocation((res: any, error: any, status: any) => {
+      // console.log('getLocation res', res)
       // console.log('getLocation error', error)
       // console.log('getLocation status', status)
       isload = true
-      if (result && result?.longitude && result?.latitude) {
-        resolve({
-          longitude: result.longitude.toString(),
-          latitude: result.latitude.toString(),
-          address: result.address || ''
-        })
+      if (res && res?.longitude && res?.latitude) {
+        const result = {
+          longitude: res.longitude.toString(),
+          latitude: res.latitude.toString(),
+          address: res.address || ''
+        }
+        console.log(`getLocationByNative success: ${JSON.stringify(result)}`)
+        resolve(result)
       } else {
         console.error('getLocationByNative fail')
         resolve(null)
@@ -49,6 +52,7 @@ const getLocationByNative = async (): Promise<Location> => {
 
 // 浏览器定位: 需要开启https
 const getLocationByNavigator = async (): Promise<Location> => {
+  console.log('getLocationByNavigator start...')
   return new Promise((resolve, reject) => {
     if ('geolocation' in navigator) {
       const time = setTimeout(() => {
@@ -65,10 +69,12 @@ const getLocationByNavigator = async (): Promise<Location> => {
             const Gcj02 = wgs84ToGcj02(position.coords.longitude, position.coords.latitude)
             // console.log(Gcj02)
             // debugger
-            resolve({
+            const result = {
               latitude: Gcj02.lat.toString(),
               longitude: Gcj02.lng.toString()
-            })
+            }
+            console.log(`getLocationByNavigator success: ${JSON.stringify(result)}`)
+            resolve(result)
           } else {
             console.error('getLocationByNavigator fail')
             resolve(null)
@@ -91,6 +97,7 @@ const getLocationByNavigator = async (): Promise<Location> => {
 const getIPLocationByIpaas = async (
   ip?: string
 ): Promise<Location> => {
+  console.log('getIPLocationByIpaas start...')
   return new Promise((resolve, reject) => {
     const AMapKey = getAMapKey()
 
@@ -116,10 +123,12 @@ const getIPLocationByIpaas = async (
             }
           })
 
-          resolve({
+          const result = {
             longitude: ((rects[0].longitude + rects[1].longitude) / 2).toString(),
             latitude: ((rects[0].latitude + rects[1].latitude) / 2).toString()
-          })
+          }
+          console.log(`getIPLocationByIpaas success: ${JSON.stringify(result)}`)
+          resolve(result)
         } else {
           console.error('getIPLocationByIpaas fail')
           resolve(null)
@@ -134,6 +143,7 @@ const getIPLocationByIpaas = async (
 
 // ipaas 逆地址解析
 const getAddressByIpaas = async (position: Location): Promise<string> => {
+  console.log('getAddressByIpaas start...')
   // 如果不设置安全秘钥的话 js-api的逆地址查询不成功 返回 INVALID_USER_SCODE 改成用ipaas服务查询
   return new Promise(async (resolve, reject) => {
     if (position) {
@@ -146,16 +156,17 @@ const getAddressByIpaas = async (position: Location): Promise<string> => {
           // extensions: 'all'
         })
         // console.log(result)
-
-        if (result?.data?.formatted_address) {
-          resolve(result?.data?.formatted_address)
+        const address = result?.data?.formatted_address
+        if (address) {
+          console.log(`getAddressByIpaas success: ${address}`)
+          resolve(address)
         } else {
-          console.error('getAddressByAmap fail')
+          console.error('getAddressByIpaas fail')
           resolve('')
         }
       } catch (error) {
         console.error(error)
-        console.error('getAddressByAmap fail')
+        console.error('getAddressByIpaas fail')
         resolve('')
       }
     }
@@ -164,22 +175,24 @@ const getAddressByIpaas = async (position: Location): Promise<string> => {
 
 // 高德定位
 const getLocationByAmap = async (): Promise<Location> => {
+  console.log('getLocationByAmap start...')
   return new Promise((resolve, reject) => {
     const geolocation = new window.AMap.Geolocation({
       enableHighAccuracy: true,
       timeout: 15000
     })
 
-    geolocation.getCurrentPosition((status: string, result: any) => {
+    geolocation.getCurrentPosition((status: string, res: any) => {
       // console.log(status, result)
       // debugger
       if (status === 'complete') {
-        const { lng, lat } = result.position
-        // console.log('getLocationByAmap success')
-        resolve({
+        const { lng, lat } = res.position
+        const result = {
           longitude: lng.toString(),
           latitude: lat.toString()
-        })
+        }
+        console.log(`getLocationByAmap success: ${JSON.stringify(result)}`)
+        resolve(result)
       } else {
         console.error('getLocationByAmap fail')
         resolve(null)
@@ -190,22 +203,24 @@ const getLocationByAmap = async (): Promise<Location> => {
 
 // 高德城市定位
 const getCityLocationByAmap = async (): Promise<Location> => {
+  console.log('getCityLocationByAmap start...')
   return new Promise((resolve, reject) => {
     const geolocation = new window.AMap.Geolocation({
       enableHighAccuracy: true,
       timeout: 15000
     })
-    geolocation.getCityInfo((status: string, result: any) => {
-      // console.log(result)
+    geolocation.getCityInfo((status: string, res: any) => {
+      // console.log(res)
       // debugger
       if (status === 'complete') {
-        const lng = result.position[0].toString()
-        const lat = result.position[1].toString()
-        // console.log('getCityLocationByAmap success')
-        resolve({
+        const lng = res.position[0].toString()
+        const lat = res.position[1].toString()
+        const result = {
           longitude: lng.toString(),
           latitude: lat.toString()
-        })
+        }
+        console.log(`getCityLocationByAmap success: ${JSON.stringify(result)}`)
+        resolve(result)
       } else {
         console.error('getCityLocationByAmap fail')
         resolve(null)
@@ -216,6 +231,8 @@ const getCityLocationByAmap = async (): Promise<Location> => {
 
 // 高德逆地址解析
 const getAddressByAmap = async (position: Location): Promise<string> => {
+  console.log('getAddressByAmap start...')
+  console.log('getAddressByAmap changeto getAddressByIpaas')
   // return new Promise((resolve, reject) => {
   //   if (position) {
   //     new window.AMap.Geocoder({
@@ -238,17 +255,19 @@ const getAddressByAmap = async (position: Location): Promise<string> => {
 
 // 腾讯ip定位：通过终端设备IP地址获取其当前所在地理位置，精确到市级，常用于显示当地城市天气预报、初始化用户城市等非精确定位场景。
 const getIPLocationByTMap = async (ip?: string): Promise<Location> => {
+  console.log('getIPLocationByTMap start...')
   return new Promise((resolve, reject) => {
     const ipLocation = new window.TMap.service.IPLocation()
     const params = ip ? { ip } : {}
     ipLocation
       .locate(params)
       .then((res: any) => {
-        const { result } = res
-        resolve({
-          longitude: result.location.lng.toString(),
-          latitude: result.location.lat.toString()
-        })
+        const result = {
+          longitude: res.result.location.lng.toString(),
+          latitude: res.result.location.lat.toString()
+        }
+        console.log(`getIPLocationByTMap success: ${JSON.stringify(result)}`)
+        resolve(result)
       })
       .catch((err: any) => {
         console.error(err)
@@ -260,6 +279,7 @@ const getIPLocationByTMap = async (ip?: string): Promise<Location> => {
 
 // 腾讯逆地址解析
 const getAddressByTMap = async (position: Location): Promise<string> => {
+  console.log('getAddressByTMap start...')
   return new Promise((resolve, reject) => {
     if (position) {
       const location = new window.TMap.LatLng(position.latitude, position.longitude)
@@ -274,7 +294,9 @@ const getAddressByTMap = async (position: Location): Promise<string> => {
         .then((res: any) => {
           // console.log(res)
           // debugger
-          resolve(res?.result?.formatted_addresses?.recommend || res?.result?.address)
+          const address = res?.result?.formatted_addresses?.recommend || res?.result?.address
+          console.log(`getAddressByTMap success: ${address}`)
+          resolve(address)
         })
         .catch((err: any) => {
           console.error(err)
@@ -287,12 +309,13 @@ const getAddressByTMap = async (position: Location): Promise<string> => {
 
 // 百度浏览器定位
 const getLocationByBMap = async (): Promise<Location> => {
+  console.log('getLocationByBMap start...')
   return new Promise((resolve, reject) => {
     new window.BMap.Geolocation().getCurrentPosition(
-      async (result: any) => {
-        // console.log(result)
+      async (res: any) => {
+        // console.log(res)
         // debugger
-        if (!result) {
+        if (!res) {
           console.error('getLocationByBMap fail')
           resolve(null)
           return
@@ -324,18 +347,20 @@ const getLocationByBMap = async (): Promise<Location> => {
 
         // 不用转换
         // const point: any = await BMapTransformBD09ToGCJ02Points([{
-        //   lng: result.longitude,
-        //   lat: result.latitude
+        //   lng: res.longitude,
+        //   lat: res.latitude
         // }])
         // console.log(point)
         // debugger
 
-        const lng = result.point.lng.toString()
-        const lat = result.point.lat.toString()
-        resolve({
+        const lng = res.point.lng.toString()
+        const lat = res.point.lat.toString()
+        const result = {
           longitude: lng,
           latitude: lat
-        })
+        }
+        console.log(`getLocationByBMap success: ${JSON.stringify(result)}`)
+        resolve(result)
       },
       {
         enableHighAccuracy: true
@@ -346,6 +371,7 @@ const getLocationByBMap = async (): Promise<Location> => {
 
 // 百度城市定位
 const getCityLocationByBMap = async (): Promise<Location> => {
+  console.log('getCityLocationByBMap start...')
   return new Promise((resolve, reject) => {
     new window.BMap.LocalCity().get(async (res: any) => {
       // console.log(res)
@@ -362,10 +388,12 @@ const getCityLocationByBMap = async (): Promise<Location> => {
         ])
         // console.log(point)
         // debugger
-        resolve({
+        const result = {
           longitude: point[0].lng,
           latitude: point[0].lat
-        })
+        }
+        console.log(`getCityLocationByBMap success: ${JSON.stringify(result)}`)
+        resolve(result)
       } else {
         console.error('getCityLocationByBMap fail')
         resolve(null)
@@ -376,6 +404,7 @@ const getCityLocationByBMap = async (): Promise<Location> => {
 
 // 百度逆地址解析
 const getAddressByBmap = async (position: Location): Promise<string> => {
+  console.log('getAddressByBmap start...')
   return new Promise(async (resolve, reject) => {
     // resolve('')
     if (!position) {
@@ -395,8 +424,15 @@ const getAddressByBmap = async (position: Location): Promise<string> => {
     // console.log(point)
     // debugger
     new window.BMap.Geocoder().getLocation(point, (result: any) => {
-      console.log(result)
-      resolve(result.address || '')
+      // console.log(result)
+      const address = result?.address
+      if (address) {
+        console.log(`getAddressByBmap success: ${address}`)
+        resolve(address)
+      } else {
+        console.error('getAddressByBmap fail')
+        resolve('')
+      }
     })
   })
 }
