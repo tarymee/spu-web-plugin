@@ -43,7 +43,6 @@ class TenantSetting {
     if (tenantsettingStr) {
       const tenantsetting = JSON.parse(tenantsettingStr)
 
-
       // tenantsetting.lbssetting = {
       //   enable: '1',
       //   setting: {
@@ -62,16 +61,15 @@ class TenantSetting {
       //     }
       //   }
       // }
-      // // tenantsetting.lbssetting.setting.type = 'amap'
-      // // tenantsetting.lbssetting.setting.key.web = '1993ac213d2f4675ac1bffb1b03ef1f0'
-      // // tenantsetting.lbssetting.setting.secretkey.web = '816fe46b7b7bce145940b93c1e4818fa'
+      // tenantsetting.lbssetting.setting.type = 'amap'
+      // tenantsetting.lbssetting.setting.key.web = '1993ac213d2f4675ac1bffb1b03ef1f0'
+      // tenantsetting.lbssetting.setting.secretkey.web = '816fe46b7b7bce145940b93c1e4818fa'
 
-      // // tenantsetting.lbssetting.setting.type = 'tencent'
-      // // tenantsetting.lbssetting.setting.key.web = 'NHBBZ-K5LCQ-LF35M-2CTDP-E4OO7-AIBFT'
+      // tenantsetting.lbssetting.setting.type = 'tencent'
+      // tenantsetting.lbssetting.setting.key.web = 'NHBBZ-K5LCQ-LF35M-2CTDP-E4OO7-AIBFT'
 
       // tenantsetting.lbssetting.setting.type = 'baidu'
       // tenantsetting.lbssetting.setting.key.web = '7r3bsPeQqJ74vsxf3EOXg7C1AM4lOWA1'
-
 
       if (key) {
         return tenantsetting[key]

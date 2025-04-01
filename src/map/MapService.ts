@@ -19,7 +19,8 @@ interface ILbsSettingData {
 }
 
 class MapService {
-  isInit = false
+  private isInit = false
+  private initPromise: any = null
 
   get isLbssettingEnable() {
     return tenantSetting.get('lbssetting')?.enable === '1'
@@ -53,37 +54,53 @@ class MapService {
     }
   }
 
-  get AMap() {
-    if (!this.isInit || this.type !== 'amap') {
-      return null
-    }
-    return window.AMap
-  }
+  AMap: any = null
+  TMap: any = null
+  BMap: any = null
+  MapCore: any = null
 
-  get TMap() {
-    if (!this.isInit || this.type !== 'tencent') {
-      return null
-    }
-    return window.TMap
-  }
+  // get AMap() {
+  //   if (!this.isInit || this.type !== 'amap') {
+  //     return null
+  //   }
+  //   return window.AMap
+  // }
 
-  get BMap() {
-    if (!this.isInit || this.type !== 'baidu') {
-      return null
-    }
-    return window.BMap
-  }
+  // get TMap() {
+  //   if (!this.isInit || this.type !== 'tencent') {
+  //     return null
+  //   }
+  //   return window.TMap
+  // }
+
+  // get BMap() {
+  //   if (!this.isInit || this.type !== 'baidu') {
+  //     return null
+  //   }
+  //   return window.BMap
+  // }
+
+  // get MapCore() {
+  //   if (!this.isInit) {
+  //     return null
+  //   }
+  //   return window.BMap
+  // }
 
   async init() {
     if (this.isInit) return
 
-    this.isInit = true
+    // 兼容同时间发起多个
+    if (this.initPromise) {
+      return this.initPromise
+    }
 
+    this.initPromise = this._init()
+    await this.initPromise
+  }
+
+  private async _init() {
     const type = this.type
-
-    // if (process.env.NODE_ENV === 'development') {
-    //     type = 'baidu'
-    // }
     if (type === 'tencent') {
       await this.initTecent()
     } else if (type === 'amap') {
@@ -91,6 +108,7 @@ class MapService {
     } else if (type === 'baidu') {
       await this.initBaidu()
     }
+    this.isInit = true
   }
 
   // reset() {
@@ -103,6 +121,8 @@ class MapService {
       // `https://map.qq.com/api/gljs?v=1.exp&key=${this.key}`,
       'TMap'
     )
+    this.TMap = window.TMap
+    this.MapCore = window.TMap
     await delay(300)
   }
 
@@ -126,6 +146,8 @@ class MapService {
       }
     })
     window.AMap = AMap
+    this.AMap = AMap
+    this.MapCore = window.AMap
     // console.log(window)
     // console.log(window.AMap)
     // console.log(window.AMapUI)
@@ -144,7 +166,10 @@ class MapService {
     //     mp.centerAndZoom(new BMap.Point(121.491, 31.233), 11)
     // }
     return new Promise((resolve, reject) => {
-      window.__baiduMapInitial = function () {
+      window.BMAP_INITIAL_CALLBACK = () => {
+        this.BMap = window.BMap
+        this.MapCore = window.BMap
+        // debugger
         // 启用google标准坐标体系
         // coordsType 指定输入输出的坐标类型，BMAP_COORD_GCJ02为gcj02坐标，BMAP_COORD_BD09为bd0ll坐标，默认为BMAP_COORD_BD09。
         window.BMap.coordType = 'BMAP_COORD_GCJ02'
@@ -152,8 +177,8 @@ class MapService {
       }
       const script = document.createElement('script')
       // 使用最新 3.0 api https://lbsyun.baidu.com/index.php?title=jspopular3.0
-      script.src = `https://api.map.baidu.com/api?v=3.0&ak=${this.key}&callback=__baiduMapInitial`
-      // script.src = `https://api.map.baidu.com/api?v=1.0&&type=webgl&ak=${this.key}&callback=__baiduMapInitial`
+      script.src = `https://api.map.baidu.com/api?v=3.0&ak=${this.key}&callback=BMAP_INITIAL_CALLBACK`
+      // script.src = `https://api.map.baidu.com/api?v=1.0&&type=webgl&ak=${this.key}&callback=BMAP_INITIAL_CALLBACK`
       script.onerror = (err) => {
         reject(err)
       }

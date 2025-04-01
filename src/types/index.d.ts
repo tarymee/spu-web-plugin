@@ -1,5 +1,25 @@
 // import type { App } from 'vue'
 // import type { AxiosInstance } from 'axios'
+declare global {
+  interface Window {
+    // 高德地图
+    AMapLoader: any
+    _AMapSecurityConfig: {
+      securityJsCode: string
+    }
+    AMap: any
+    AMapUI: any
+    // 百度地图
+    BMap: any
+    BMAP_ANCHOR_TOP_LEFT: any
+    BMAP_ANCHOR_TOP_RIGHT: any
+    BMAP_ANCHOR_BOTTOM_LEFT: any
+    BMAP_ANCHOR_BOTTOM_RIGHT: any
+    BMAP_INITIAL_CALLBACK: any
+    // 腾讯地图
+    TMap: any
+  }
+}
 
 interface IAMapLoader {
   load: (options?: {
@@ -16,6 +36,7 @@ interface IMapService {
   AMap: any
   BMap: any
   TMap: any
+  MapCore: any
 }
 
 type StorageType = 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y'
