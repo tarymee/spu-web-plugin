@@ -127,45 +127,51 @@ class MapService {
   }
 
   private async initAmap() {
-    if (this.secretkey) {
-      window._AMapSecurityConfig = {
-        securityJsCode: this.secretkey
-      }
-    }
+    return new Promise(async (resolve, reject) => {
+      // 高德地图api初始化失败 没有返回reject 因此用超时机制检测
+      const time = setTimeout(() => {
+        console.error('initAmap fail: 请检查 AMap key 是否正确配置')
+        resolve(null)
+      }, 3000)
 
-    const plugin = ['AMap.Geolocation', 'AMap.Geocoder']
-
-    const AMap = await AMapLoader.load({
-      key: this.key,
-      version: '2.0',
-      plugins: plugin,
-      AMapUI: {
-        version: '1.1',
-        plugins: []
+      if (this.secretkey) {
+        window._AMapSecurityConfig = {
+          securityJsCode: this.secretkey
+        }
       }
+
+      const plugin = ['AMap.Geolocation', 'AMap.Geocoder']
+      // debugger
+
+      const AMap = await AMapLoader.load({
+        key: this.key,
+        version: '2.0',
+        plugins: plugin,
+        AMapUI: {
+          version: '1.1',
+          plugins: []
+        }
+      })
+      // debugger
+      clearTimeout(time)
+
+      window.AMap = AMap
+      this.AMap = window.AMap
+      this.MapCore = window.AMap
+      // console.log(window)
+      // console.log(window.AMap)
+      // console.log(window.AMapUI)
+      // console.log(window.AMapLoader)
+      // console.log(window.AMap === aaaa)
+      resolve(window.AMap)
     })
-    window.AMap = AMap
-    this.AMap = AMap
-    this.MapCore = window.AMap
-    // console.log(window)
-    // console.log(window.AMap)
-    // console.log(window.AMapUI)
-    // console.log(window.AMapLoader)
-    // console.log(window.AMap === aaaa)
   }
 
   private async initBaidu() {
-    // await importJS(
-    //     `https://api.map.baidu.com/api?v=1.0&&type=webgl&ak=${this.key}`,
-    //     'BMap'
-    // )
-    // await delay(300)
-    // function initialize() {
-    //     const mp = new BMap.Map('map')
-    //     mp.centerAndZoom(new BMap.Point(121.491, 31.233), 11)
-    // }
     return new Promise((resolve, reject) => {
-      window.BMAP_INITIAL_CALLBACK = () => {
+      window.BMAP_INITIAL_CALLBACK = (e: any) => {
+        // console.log(e)
+        // debugger
         this.BMap = window.BMap
         this.MapCore = window.BMap
         // debugger
