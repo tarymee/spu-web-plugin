@@ -232,25 +232,26 @@ const getCityLocationByAmap = async (): Promise<Location> => {
 // 高德逆地址解析
 const getAddressByAmap = async (position: Location): Promise<string> => {
   console.log('getAddressByAmap start...')
-  console.log('getAddressByAmap changeto getAddressByIpaas')
-  // return new Promise((resolve, reject) => {
-  //   if (position) {
-  //     new window.AMap.Geocoder({
-  //       city: '',
-  //       radius: 500
-  //     }).getAddress([position.longitude, position.latitude], (status: string, result: any) => {
-  //       if (status === 'complete' && result.info === 'OK' && result.regeocode) {
-  //         resolve(result?.regeocode?.formattedAddress || '')
-  //       } else {
-  //         console.error('getAddressByAmap fail')
-  //         resolve('')
-  //       }
-  //     })
-  //   }
-  // })
-  // 如果不设置安全秘钥的话 js-api的逆地址查询不成功 返回 INVALID_USER_SCODE 改成用ipaas服务查询
-  const address = await getAddressByIpaas(position)
-  return address
+  return new Promise((resolve, reject) => {
+    if (position) {
+      new window.AMap.Geocoder({
+        city: '',
+        radius: 500
+      }).getAddress([position.longitude, position.latitude], (status: string, result: any) => {
+        // console.log(status)
+        // console.log(result)
+        // debugger
+        if (status === 'complete' && result.info === 'OK' && result?.regeocode?.formattedAddress) {
+          const address = result.regeocode.formattedAddress || ''
+          console.log(`getAddressByAmap success: ${address}`)
+          resolve(address)
+        } else {
+          console.error(`getAddressByAmap fail: status = ${status}, result = ${result}`)
+          resolve('')
+        }
+      })
+    }
+  })
 }
 
 // 腾讯ip定位：通过终端设备IP地址获取其当前所在地理位置，精确到市级，常用于显示当地城市天气预报、初始化用户城市等非精确定位场景。
@@ -437,8 +438,7 @@ const getAddressByBmap = async (position: Location): Promise<string> => {
   })
 }
 
-// 定位流程: 缓存 > 判断环境（APP，小程序，企微）基于环境获取定位 > 地图商高精度定位 > 地图商城市ip定位
-const getLocationPromise = async (): Promise<Location> => {
+const getLocationPromise = async (isuseiplocarion = false): Promise<Location> => {
   let location: Location = null
 
   // 在 SPU 容器里使用 Native-API 的定位
@@ -449,27 +449,25 @@ const getLocationPromise = async (): Promise<Location> => {
   if (!location) {
     location = await getLocationByNavigator()
   }
+  // location = null
 
   if (!location) {
     if (mapService.type === 'amap') {
       location = await getLocationByAmap()
-      // ip城市定位结果不精确 但总比定不到位好
-      if (!location) {
+      if (!location && isuseiplocarion) {
         location = await getCityLocationByAmap()
       }
-    } else if (mapService.type === 'tencent') {
+      if (!location && isuseiplocarion) {
+        location = await getIPLocationByIpaas()
+      }
+    } else if (mapService.type === 'tencent' && isuseiplocarion) {
       location = await getIPLocationByTMap()
     } else if (mapService.type === 'baidu') {
       location = await getLocationByBMap()
-      // ip城市定位结果不精确 但总比定不到位好
-      if (!location) {
+      if (!location && isuseiplocarion) {
         location = await getCityLocationByBMap()
       }
     }
-  }
-
-  if (!location) {
-    location = await getIPLocationByIpaas()
   }
 
   // 开发模式下为了方便测试提供虚拟定位
@@ -489,7 +487,8 @@ const getLocationPromise = async (): Promise<Location> => {
 
 // WGS84 GCJ-02 BD-09 坐标系
 // https://www.jianshu.com/p/559029832a67
-async function getLocation() {
+// 不能精确定位的情况下是否启用ip城市定位，ip定位用于不需要精确定位的场景
+async function getLocation(isuseiplocarion = false) {
   await mapService.init()
   // debugger
   // 缓存30秒
@@ -502,7 +501,7 @@ async function getLocation() {
   }
   // console.log('runing')
   runing = true
-  locationPromise = getLocationPromise()
+  locationPromise = getLocationPromise(isuseiplocarion)
   const locationRes = await locationPromise
   runing = false
   if (locationRes) {
@@ -518,13 +517,14 @@ const getAddress = async (position: Location): Promise<string> => {
 
   let address = ''
 
-  // 先统一用ipaas解析 因为需要储存一致的地址格式（各地图商逆地址查询的地址格式不统一）
-  // 如果不行再按照各地图商解析
-  address = await getAddressByIpaas(position)
-
   if (!address) {
     if (mapService.type === 'amap') {
       address = await getAddressByAmap(position)
+
+      if (!address) {
+        // 如果不设置安全秘钥的话 js-api的逆地址查询不成功 返回 INVALID_USER_SCODE 改成用ipaas服务查询
+        address = await getAddressByIpaas(position)
+      }
     } else if (mapService.type === 'tencent') {
       address = await getAddressByTMap(position)
     } else if (mapService.type === 'baidu') {

@@ -127,14 +127,13 @@ class MapService {
   }
 
   private async initAmap() {
-    // if (this.secretkey) {
-    //   window._AMapSecurityConfig = {
-    //     securityJsCode: this.secretkey
-    //   }
-    // }
+    if (this.secretkey) {
+      window._AMapSecurityConfig = {
+        securityJsCode: this.secretkey
+      }
+    }
 
-    const plugin = ['AMap.Geolocation']
-    // plugin.push('AMap.Geocoder') // 不开放地址查询 改用ipaas
+    const plugin = ['AMap.Geolocation', 'AMap.Geocoder']
 
     const AMap = await AMapLoader.load({
       key: this.key,

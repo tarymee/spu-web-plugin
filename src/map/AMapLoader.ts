@@ -22,9 +22,7 @@ const load = (options?: {
     }
   }
 
-  // 不开放地址查询 改用ipaas
-  const plugin = ['AMap.Geolocation']
-  // plugin.push('AMap.Geocoder') // 不开放地址查询 改用ipaas
+  const plugin = ['AMap.Geolocation', 'AMap.Geocoder']
 
   return AMapLoader.load({
     key: AMapKey.key,
