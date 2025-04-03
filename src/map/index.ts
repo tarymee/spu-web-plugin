@@ -30,9 +30,9 @@ const getLocationByNative = async (): Promise<Location> => {
       }
     }, 30000)
     window.Native.getLocation((res: any, error: any, status: any) => {
-      // console.log('getLocation res', res)
-      // console.log('getLocation error', error)
-      // console.log('getLocation status', status)
+      // console.log('window.Native.getLocation res', res)
+      // console.log('window.Native.getLocation error', error)
+      // console.log('window.Native.getLocation status', status)
       isload = true
       if (res && res?.longitude && res?.latitude) {
         const result = {
@@ -520,7 +520,6 @@ const getAddress = async (position: Location): Promise<string> => {
   if (!address) {
     if (mapService.type === 'amap') {
       address = await getAddressByAmap(position)
-
       if (!address) {
         // 如果不设置安全秘钥的话 js-api的逆地址查询不成功 返回 INVALID_USER_SCODE 改成用ipaas服务查询
         address = await getAddressByIpaas(position)
