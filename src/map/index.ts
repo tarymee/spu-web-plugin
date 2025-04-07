@@ -241,12 +241,12 @@ const getCityLocationByAMap = async (): Promise<Location> => {
 const getAddressByAMap = async (position: Location): Promise<string> => {
   console.log('getAddressByAMap start...')
   return new Promise((resolve, reject) => {
+    if (!window?.AMap) {
+      console.error('getAddressByAMap fail: AMap is undefinded')
+      resolve('')
+      return
+    }
     if (position) {
-      if (!window?.AMap) {
-        console.error('getAddressByAMap fail: AMap is undefinded')
-        resolve('')
-        return
-      }
       new window.AMap.Geocoder({
         city: '',
         radius: 500
@@ -271,6 +271,12 @@ const getAddressByAMap = async (position: Location): Promise<string> => {
 const getIPLocationByTMap = async (ip?: string): Promise<Location> => {
   console.log('getIPLocationByTMap start...')
   return new Promise((resolve, reject) => {
+    if (!window?.TMap) {
+      console.error('getIPLocationByTMap fail: TMap is undefinded')
+      resolve(null)
+      return
+    }
+
     const params = ip ? { ip } : {}
     new window.TMap.service.IPLocation()
       .locate({ ...params, servicesk: mapService.secretkey })
@@ -294,6 +300,12 @@ const getIPLocationByTMap = async (ip?: string): Promise<Location> => {
 const getAddressByTMap = async (position: Location): Promise<string> => {
   console.log('getAddressByTMap start...')
   return new Promise((resolve, reject) => {
+    if (!window?.TMap) {
+      console.error('getAddressByTMap fail: TMap is undefinded')
+      resolve('')
+      return
+    }
+
     if (position) {
       // debugger
       new window.TMap.service.Geocoder()
@@ -322,6 +334,11 @@ const getAddressByTMap = async (position: Location): Promise<string> => {
 const getLocationByBMap = async (): Promise<Location> => {
   console.log('getLocationByBMap start...')
   return new Promise((resolve, reject) => {
+    if (!window?.BMap) {
+      console.error('getLocationByBMap fail: BMap is undefinded')
+      resolve(null)
+      return
+    }
     new window.BMap.Geolocation().getCurrentPosition(
       async (res: any) => {
         // console.log(res)
@@ -384,6 +401,11 @@ const getLocationByBMap = async (): Promise<Location> => {
 const getCityLocationByBMap = async (): Promise<Location> => {
   console.log('getCityLocationByBMap start...')
   return new Promise((resolve, reject) => {
+    if (!window?.BMap) {
+      console.error('getCityLocationByBMap fail: BMap is undefinded')
+      resolve(null)
+      return
+    }
     new window.BMap.LocalCity().get(async (res: any) => {
       // console.log(res)
       // debugger
@@ -417,7 +439,12 @@ const getCityLocationByBMap = async (): Promise<Location> => {
 const getAddressByBmap = async (position: Location): Promise<string> => {
   console.log('getAddressByBmap start...')
   return new Promise(async (resolve, reject) => {
-    // resolve('')
+    if (!window?.BMap) {
+      console.error('getAddressByBmap fail: BMap is undefinded')
+      resolve('')
+      return
+    }
+
     if (!position) {
       console.error('getAddressByBmap fail')
       resolve('')

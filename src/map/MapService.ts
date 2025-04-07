@@ -101,11 +101,25 @@ class MapService {
 
   private async _init() {
     const type = this.type
+    const key = this.key
+    const secretkey = this.secretkey
     if (type === 'tencent') {
+      if (!key || !secretkey) {
+        console.error('请填写腾讯地图 Web App Key 和 Web Secret Key')
+        return
+      }
       await this.initTecent()
     } else if (type === 'amap') {
+      if (!key || !secretkey) {
+        console.error('请填写高德地图 Web App Key 和 Web Secret Key')
+        return
+      }
       await this.initAmap()
     } else if (type === 'baidu') {
+      if (!key) {
+        console.error('请填写百度地图 Web App Key')
+        return
+      }
       await this.initBaidu()
     }
     this.isInit = true
@@ -130,7 +144,7 @@ class MapService {
     return new Promise(async (resolve, reject) => {
       // 高德地图api初始化失败 没有返回reject 因此用超时机制检测
       const time = setTimeout(() => {
-        console.error('initAmap fail: 请检查 AMap key 是否正确配置')
+        console.error('initAmap fail: 请检查高德地图 Web App Key 和 Web Secret Key 是否正确配置')
         resolve(null)
       }, 3000)
 
