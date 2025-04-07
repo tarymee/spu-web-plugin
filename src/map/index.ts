@@ -3,6 +3,7 @@ import { cloneDeep } from 'lodash-es'
 import { mapService } from './MapService'
 import { getAMapKey } from './AMapKey'
 import { axios } from '../axios'
+import { delay } from '../utils'
 import { wgs84ToGcj02, BMapTransformBD09ToGCJ02Points } from './utils'
 
 type Location = {
@@ -174,15 +175,18 @@ const getAddressByIpaas = async (position: Location): Promise<string> => {
 }
 
 // 高德定位
-const getLocationByAmap = async (): Promise<Location> => {
-  console.log('getLocationByAmap start...')
+const getLocationByAMap = async (): Promise<Location> => {
+  console.log('getLocationByAMap start...')
   return new Promise((resolve, reject) => {
-    const geolocation = new window.AMap.Geolocation({
+    if (!window?.AMap) {
+      console.error('getLocationByAMap fail: AMap is undefinded')
+      resolve(null)
+      return
+    }
+    new window.AMap.Geolocation({
       enableHighAccuracy: true,
       timeout: 15000
-    })
-
-    geolocation.getCurrentPosition((status: string, res: any) => {
+    }).getCurrentPosition((status: string, res: any) => {
       // console.log(status, result)
       // debugger
       if (status === 'complete') {
@@ -191,10 +195,10 @@ const getLocationByAmap = async (): Promise<Location> => {
           longitude: lng.toString(),
           latitude: lat.toString()
         }
-        console.log(`getLocationByAmap success: ${JSON.stringify(result)}`)
+        console.log(`getLocationByAMap success: ${JSON.stringify(result)}`)
         resolve(result)
       } else {
-        console.error('getLocationByAmap fail')
+        console.error('getLocationByAMap fail')
         resolve(null)
       }
     })
@@ -202,14 +206,18 @@ const getLocationByAmap = async (): Promise<Location> => {
 }
 
 // 高德城市定位
-const getCityLocationByAmap = async (): Promise<Location> => {
-  console.log('getCityLocationByAmap start...')
+const getCityLocationByAMap = async (): Promise<Location> => {
+  console.log('getCityLocationByAMap start...')
   return new Promise((resolve, reject) => {
-    const geolocation = new window.AMap.Geolocation({
+    if (!window?.AMap) {
+      console.error('getCityLocationByAMap fail: AMap is undefinded')
+      resolve(null)
+      return
+    }
+    new window.AMap.Geolocation({
       enableHighAccuracy: true,
       timeout: 15000
-    })
-    geolocation.getCityInfo((status: string, res: any) => {
+    }).getCityInfo((status: string, res: any) => {
       // console.log(res)
       // debugger
       if (status === 'complete') {
@@ -219,10 +227,10 @@ const getCityLocationByAmap = async (): Promise<Location> => {
           longitude: lng.toString(),
           latitude: lat.toString()
         }
-        console.log(`getCityLocationByAmap success: ${JSON.stringify(result)}`)
+        console.log(`getCityLocationByAMap success: ${JSON.stringify(result)}`)
         resolve(result)
       } else {
-        console.error('getCityLocationByAmap fail')
+        console.error('getCityLocationByAMap fail')
         resolve(null)
       }
     })
@@ -230,10 +238,15 @@ const getCityLocationByAmap = async (): Promise<Location> => {
 }
 
 // 高德逆地址解析
-const getAddressByAmap = async (position: Location): Promise<string> => {
-  console.log('getAddressByAmap start...')
+const getAddressByAMap = async (position: Location): Promise<string> => {
+  console.log('getAddressByAMap start...')
   return new Promise((resolve, reject) => {
     if (position) {
+      if (!window?.AMap) {
+        console.error('getAddressByAMap fail: AMap is undefinded')
+        resolve('')
+        return
+      }
       new window.AMap.Geocoder({
         city: '',
         radius: 500
@@ -243,10 +256,10 @@ const getAddressByAmap = async (position: Location): Promise<string> => {
         // debugger
         if (status === 'complete' && result.info === 'OK' && result?.regeocode?.formattedAddress) {
           const address = result.regeocode.formattedAddress || ''
-          console.log(`getAddressByAmap success: ${address}`)
+          console.log(`getAddressByAMap success: ${address}`)
           resolve(address)
         } else {
-          console.error(`getAddressByAmap fail: status = ${status}, result = ${result}`)
+          console.error(`getAddressByAMap fail: status = ${status}, result = ${result}`)
           resolve('')
         }
       })
@@ -258,10 +271,9 @@ const getAddressByAmap = async (position: Location): Promise<string> => {
 const getIPLocationByTMap = async (ip?: string): Promise<Location> => {
   console.log('getIPLocationByTMap start...')
   return new Promise((resolve, reject) => {
-    const ipLocation = new window.TMap.service.IPLocation()
     const params = ip ? { ip } : {}
-    ipLocation
-      .locate(params)
+    new window.TMap.service.IPLocation()
+      .locate({ ...params, servicesk: mapService.secretkey })
       .then((res: any) => {
         const result = {
           longitude: res.result.location.lng.toString(),
@@ -283,14 +295,12 @@ const getAddressByTMap = async (position: Location): Promise<string> => {
   console.log('getAddressByTMap start...')
   return new Promise((resolve, reject) => {
     if (position) {
-      const location = new window.TMap.LatLng(position.latitude, position.longitude)
-      // console.log(position)
-      // console.log(location)
       // debugger
       new window.TMap.service.Geocoder()
         .getAddress({
-          location,
-          getPoi: false
+          location: new window.TMap.LatLng(position.latitude, position.longitude),
+          getPoi: false,
+          servicesk: mapService.secretkey
         })
         .then((res: any) => {
           // console.log(res)
@@ -432,6 +442,7 @@ const getAddressByBmap = async (position: Location): Promise<string> => {
         resolve(address)
       } else {
         console.error('getAddressByBmap fail')
+        // console.error(result)
         resolve('')
       }
     })
@@ -453,13 +464,14 @@ const getLocationPromise = async (isuseiplocarion = false): Promise<Location> =>
 
   if (!location) {
     if (mapService.type === 'amap') {
-      location = await getLocationByAmap()
+      location = await getLocationByAMap()
       if (!location && isuseiplocarion) {
-        location = await getCityLocationByAmap()
+        location = await getCityLocationByAMap()
       }
-      if (!location && isuseiplocarion) {
-        location = await getIPLocationByIpaas()
-      }
+      // 改成不使用ipaas了
+      // if (!location && isuseiplocarion) {
+      //   location = await getIPLocationByIpaas()
+      // }
     } else if (mapService.type === 'tencent' && isuseiplocarion) {
       location = await getIPLocationByTMap()
     } else if (mapService.type === 'baidu') {
@@ -477,6 +489,20 @@ const getLocationPromise = async (isuseiplocarion = false): Promise<Location> =>
       latitude: '39.908671'
     }
   }
+
+  // if (location) {
+  //   for (let i = 0, len = 5000; i < len; i++) {
+  //     // location.latitude = (Number(location.latitude) + 0.02).toString()
+  //     location.longitude = (Number(location.longitude) + 0.002).toString()
+  //     await getAddress(location)
+  //     .then((res: any) => {
+  //       console.log(res)
+  //     }).catch((err: any) => {
+  //       console.error(err)
+  //     })
+  //     await delay(100)
+  //   }
+  // }
 
   if (location && !location.address) {
     location.address = (await getAddress(location)) || '经纬度获取成功，但地址获取失败。'
@@ -519,11 +545,11 @@ const getAddress = async (position: Location): Promise<string> => {
 
   if (!address) {
     if (mapService.type === 'amap') {
-      address = await getAddressByAmap(position)
-      if (!address) {
-        // 如果不设置安全秘钥的话 js-api的逆地址查询不成功 返回 INVALID_USER_SCODE 改成用ipaas服务查询
-        address = await getAddressByIpaas(position)
-      }
+      address = await getAddressByAMap(position)
+      // if (!address) {
+      //   // 如果不设置安全秘钥的话 js-api的逆地址查询不成功 返回 INVALID_USER_SCODE 改成用ipaas服务查询
+      //   address = await getAddressByIpaas(position)
+      // }
     } else if (mapService.type === 'tencent') {
       address = await getAddressByTMap(position)
     } else if (mapService.type === 'baidu') {
