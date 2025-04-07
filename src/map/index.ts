@@ -500,7 +500,7 @@ const getLocationPromise = async (isuseiplocarion = false): Promise<Location> =>
   //     }).catch((err: any) => {
   //       console.error(err)
   //     })
-  //     await delay(100)
+  //     await delay(300)
   //   }
   // }
 
