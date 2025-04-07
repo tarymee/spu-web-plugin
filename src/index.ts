@@ -2,7 +2,7 @@ import { version } from '../package.json'
 import { merge } from 'lodash-es'
 import { v4 as getUuid } from 'uuid'
 import { installStorageProxy, lsProxy, ssProxy } from './storageProxy'
-import { getLocation, getDistance } from './map/index'
+import { getLocation, getDistance, getAddress } from './map/index'
 import { installAxios, spuAxios, axios } from './axios'
 import { installSpuConfig, spuConfig } from './spuConfig'
 import { globalConfig } from './globalConfig'
@@ -101,6 +101,7 @@ export {
   ssProxy,
   getLocation,
   getDistance,
+  getAddress,
   spuAxios,
   axios,
   axios as apaasAxios,
