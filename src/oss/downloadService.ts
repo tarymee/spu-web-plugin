@@ -1,7 +1,7 @@
 import { AliClient, ObsClient, S3Client } from './OSSClient'
 import dayjs from 'dayjs'
-import cloudServ from '../cloudServ'
-import { initServToken } from './servtoken'
+import cloudServ from './cloudServ'
+import { getServToken } from './servtoken'
 import { axios } from '../axios'
 import { getUser } from '../login'
 // import { get } from 'lodash-es'
@@ -130,7 +130,7 @@ const getUrl = async ({
 }: IDownload) => {
   const storageConfig = cloudServ.get(storagetype)
   if (!storageConfig) throw Error('无可用存储设置')
-  const servToken = await initServToken()
+  const servToken = await getServToken()
   if (!servToken) throw Error('无可用servToken')
 
   const tenantCode = getUser('tenantcode')
@@ -210,7 +210,8 @@ const getUrl = async ({
       // const expires = get(qs.parse(signedUrl), 'Expires') as string
       // if (expires) setCacheUrl(cacheKey, signedUrl, +expires)
 
-      return signedUrl
+      // 华为云通过 createSignedUrlSync 生产的签名链接默认带有 :80 或者 :443 端口 后端删除时需要去除
+      return signedUrl.replace(/:(80|443)/, '')
     } catch (e: any) {
       console.error(e)
       throw Error(e)

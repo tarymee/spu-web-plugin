@@ -1,4 +1,4 @@
-import { lsProxy } from './storageProxy'
+import { lsProxy } from '../storageProxy'
 
 class CloudServ {
   CLOUD_SERVE_KEY = 'cloudserv'
@@ -49,4 +49,11 @@ class CloudServ {
 
 const cloudServ = new CloudServ()
 
+
+const getCloudServ = cloudServ.get.bind(cloudServ)
+
 export default cloudServ
+
+export {
+  getCloudServ
+}

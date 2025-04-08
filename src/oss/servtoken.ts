@@ -18,7 +18,7 @@ let servtoken: ServToken | null = null
 let isGetting = false
 let xhr: Promise<ServToken> | null = null
 
-const getServToken = async () => {
+const requestServToken = async () => {
   try {
     const response: ServToken = await axios.get('/api/teapi/auth/servtoken').then((res: any) => res.data)
     // debugger
@@ -28,7 +28,7 @@ const getServToken = async () => {
   }
 }
 
-export const initServToken = () => {
+export const getServToken = () => {
   return new Promise<ServToken>((resolve, reject) => {
     // 在请求中,排队列
     if (isGetting && xhr) {
@@ -57,7 +57,7 @@ export const initServToken = () => {
       if (!last || last - Date.now() < 1000 * 60 * 5) {
         // 过期了 重新请求
         isGetting = true
-        xhr = getServToken()
+        xhr = requestServToken()
         xhr
           .then((res) => {
             servtoken = res

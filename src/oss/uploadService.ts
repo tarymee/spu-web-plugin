@@ -2,10 +2,9 @@ import { AliClient, ObsClient, S3Client } from './OSSClient'
 import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import co from 'co'
-
 import { getUser } from '../login'
-import cloudServ from '../cloudServ'
-import { initServToken } from './servtoken'
+import cloudServ from './cloudServ'
+import { getServToken } from './servtoken'
 import { obsMultiUpload } from './multiUpload'
 
 interface IUpload {
@@ -28,7 +27,7 @@ const upload = async ({
   if (!file) throw Error('请传入文件')
   const storageConfig = cloudServ.get(storagetype)
   if (!storageConfig) throw Error('无可用存储设置')
-  const servToken = await initServToken()
+  const servToken = await getServToken()
   if (!servToken) throw Error('无可用servToken')
 
   const provider = cloudServ.getProvider(storagetype)
@@ -66,9 +65,10 @@ const upload = async ({
             onprogress && onprogress(p, _checkpoint)
             if (p === 1) {
               resolve({
+                key: osskey,
                 source,
                 filename: file.name,
-                type: file.type,
+                type: type,
                 date: date,
                 datetime: datetime,
                 storage: storagetype,
@@ -105,9 +105,10 @@ const upload = async ({
         })
         if (uploadRes) {
           resolve({
+            key: osskey,
             source,
             filename: file.name,
-            type: file.type,
+            type: type,
             date: date,
             datetime: datetime,
             storage: storagetype,
@@ -161,7 +162,7 @@ const upload = async ({
             key: osskey,
             source,
             filename: file.name,
-            type: file.type,
+            type: type,
             date: date,
             datetime: datetime,
             storage: storagetype,
@@ -177,6 +178,128 @@ const upload = async ({
   return promise
 }
 
+
+const createTargetObj = (copykey: string, storagetype: StorageType = 'storage') => {
+  const uuid = uuidv4()
+  const datetime = Date.now().toString()
+  const date = dayjs(Number(datetime)).format('YYYYMMDD')
+  const arr = copykey.split('/')
+  arr[0] = uuid.slice(0, 3)
+  arr[2] = date
+  const arr2 = arr[arr.length - 1].split('.')
+  const ext = arr2[arr2.length - 1]
+  arr[arr.length - 1] = `${uuid}.${ext}`
+  return {
+    key: arr.join('/'),
+    source: arr[arr.length - 1],
+    datetime,
+    date,
+    type: arr[1],
+    storage: storagetype,
+  }
+}
+
+const copy = async ({
+  copykey = '',
+  storagetype = 'storage'
+}: any) => {
+  const storageConfig = cloudServ.get(storagetype)
+  if (!storageConfig) throw Error('无可用存储设置')
+  const servToken = await getServToken()
+  if (!servToken) throw Error('无可用servToken')
+
+  const provider = cloudServ.getProvider(storagetype)
+  const targetObj = createTargetObj(copykey, storagetype)
+
+  return new Promise(async (resolve, reject) => {
+    if (provider?.isAliyun) {
+      const ossClient = new AliClient({
+        // region: cloudServ.cloudserv_storage_storageendpoint,
+        endpoint: storageConfig.cloudserv_storage_storageendpoint,
+        accessKeyId: servToken.accesskeyid,
+        accessKeySecret: servToken.accesskeysecret,
+        stsToken: servToken.securitytoken,
+        bucket: storageConfig.cloudserv_storage_storagebucket,
+        secure: true
+        // sldEnable: true // 二级域名,ip地址
+      })
+      co(ossClient.copy(targetObj.key, copykey))
+        .then((res: any) => {
+          // console.log(res)
+          // debugger
+          // resolve(targetObj)
+          if (res?.res?.status === 200 && res?.data?.etag) {
+            resolve(targetObj)
+          } else {
+            console.error(res)
+            reject(res)
+          }
+        })
+        .catch((e: any) => {
+          console.error(e)
+          // debugger
+          reject(e)
+        })
+    } else if (provider?.isHuawei) {
+      const obs = new ObsClient({
+        access_key_id: servToken.accesskeyid,
+        secret_access_key: servToken.accesskeysecret,
+        server: storageConfig.cloudserv_storage_storageendpoint,
+        security_token: servToken.securitytoken
+      })
+      obs.copyObject({
+        Bucket: storageConfig.cloudserv_storage_storagebucket,
+        Key: targetObj.key,
+        CopySource: `${storageConfig.cloudserv_storage_storagebucket}/${copykey}`
+      })
+      .then((res: any) => {
+        if (res?.CommonMsg?.Status === 200 && res?.InterfaceResult) {
+          resolve(targetObj)
+        } else {
+          console.error(res)
+          reject(res)
+        }
+      })
+      .catch((e: any) => {
+        console.error(e)
+        reject(e)
+      })
+    } else if (provider?.isMinio || provider?.isAwss3) {
+      // debugger
+      // debugger
+      const s3 = new S3Client({
+        accessKeyId: servToken.accesskeyid,
+        secretAccessKey: servToken.accesskeysecret,
+        sessionToken: servToken.securitytoken,
+        region: storageConfig.cloudserv_storage_region,
+        endpoint: storageConfig.cloudserv_storage_storageendpoint,
+        signatureVersion: 'v4',
+        s3ForcePathStyle: provider?.isMinio ? true : undefined
+      })
+      // console.log(s3)
+      // debugger
+      s3.copyObject({
+        Bucket: storageConfig.cloudserv_storage_storagebucket,
+        CopySource: `${storageConfig.cloudserv_storage_storagebucket}/${copykey}`,
+        Key: targetObj.key
+      }, (err: any, data: any) => {
+        if (err) {
+          console.error(err)
+          reject(err)
+        } else {
+          // console.log(data)
+          resolve(targetObj)
+        }
+      })
+    } else {
+      throw Error(`暂不支持${provider?.name}存储类型`)
+    }
+  })
+}
+
+
+
 export default {
-  upload
+  upload,
+  copy
 }

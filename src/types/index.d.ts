@@ -66,8 +66,14 @@ interface IUpload {
   onprogress?: (p: number, _checkpoint?: any) => void
 }
 
+interface ICopy {
+  copykey: string
+  storagetype?: StorageType
+}
+
 interface IUploadService {
   upload: (options: IUpload) => Promise<any>
+  copy: (options: ICopy) => Promise<any>
 }
 
 // interface ISPUWebPluginOptions {
@@ -111,6 +117,13 @@ export const spuConfig: any
 export const globalConfig: any
 export const downloadService: IDownloadService
 export const uploadService: IUploadService
+export const getServToken: () => Promise<{
+  accesskeyid: string
+  accesskeysecret: string
+  securitytoken: string
+  expiration: string
+}>
+export const getCloudServ: (type?: StorageType) => any
 export const getUniqueid: () => string
 export const getUuid: () => string
 export const functionCheck: (functioncode?: string) => boolean

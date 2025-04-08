@@ -7,6 +7,8 @@ import { installAxios, spuAxios, axios } from './axios'
 import { installSpuConfig, spuConfig } from './spuConfig'
 import { globalConfig } from './globalConfig'
 import { downloadService, uploadService } from './oss'
+import { getServToken } from './oss/servtoken'
+import { getCloudServ } from './oss/cloudServ'
 import { getUniqueid, functionCheck, setTitle, isInApp, isdebugger, isvirtuallocation } from './utils'
 import { installUrlquery } from './urlquery'
 import { mapService } from './map/MapService'
@@ -109,6 +111,8 @@ export {
   globalConfig,
   downloadService,
   uploadService,
+  getServToken,
+  getCloudServ,
   getUniqueid,
   getUuid,
   functionCheck,

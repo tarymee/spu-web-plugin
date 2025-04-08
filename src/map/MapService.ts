@@ -108,18 +108,27 @@ class MapService {
         console.error('请填写腾讯地图 Web App Key 和 Web Secret Key')
         return
       }
+      console.log('当前使用腾讯地图')
+      console.log(`Web App Key: ${key}`)
+      console.log(`Web Secret Key: ${secretkey}`)
       await this.initTecent()
     } else if (type === 'amap') {
       if (!key || !secretkey) {
         console.error('请填写高德地图 Web App Key 和 Web Secret Key')
         return
       }
+      console.log('当前使用高德地图')
+      console.log(`Web App Key: ${key}`)
+      console.log(`Web Secret Key: ${secretkey}`)
       await this.initAmap()
     } else if (type === 'baidu') {
       if (!key) {
         console.error('请填写百度地图 Web App Key')
         return
       }
+      console.log('当前使用百度地图')
+      console.log(`Web App Key: ${key}`)
+      console.log(`Web Secret Key: ${secretkey}`)
       await this.initBaidu()
     }
     this.isInit = true
