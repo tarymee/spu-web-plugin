@@ -95,20 +95,19 @@ const getLocationByNavigator = async (): Promise<Location> => {
 }
 
 // ipaas ip 定位
-const getIPLocationByIpaas = async (
-  ip?: string
-): Promise<Location> => {
+const getIPLocationByIpaas = async (ip?: string): Promise<Location> => {
   console.log('getIPLocationByIpaas start...')
   return new Promise((resolve, reject) => {
     const AMapKey = getAMapKey()
 
-    axios.post(
-      'https://silkroad.wxchina.com/api/openapi/publishEvent?topic=xw-listener&subtopic=xw-listener&apicaseid=6684389338001815271',
-      {
-        key: AMapKey.key, // 好像不传也没问题 因为key是在ipaas那边设置的
-        ip: ip || ''
-      }
-    )
+    axios
+      .post(
+        'https://silkroad.wxchina.com/api/openapi/publishEvent?topic=xw-listener&subtopic=xw-listener&apicaseid=6684389338001815271',
+        {
+          key: AMapKey.key, // 好像不传也没问题 因为key是在ipaas那边设置的
+          ip: ip || ''
+        }
+      )
       .then((res: any) => {
         // console.log(res)
         // debugger
@@ -134,7 +133,8 @@ const getIPLocationByIpaas = async (
           console.error('getIPLocationByIpaas fail')
           resolve(null)
         }
-      }).catch((err: any) => {
+      })
+      .catch((err: any) => {
         console.error(err)
         console.error('getIPLocationByIpaas fail')
         resolve(null)
@@ -150,12 +150,15 @@ const getAddressByIpaas = async (position: Location): Promise<string> => {
     if (position) {
       try {
         const AMapKey = getAMapKey()
-        const result = await axios.post('https://silkroad.wxchina.com/api/openapi/publishEvent?topic=xw-listener&subtopic=xw-listener&apicaseid=6684389338001809906', {
-          longitude: position.longitude,
-          latitude: position.latitude,
-          key: AMapKey.key
-          // extensions: 'all'
-        })
+        const result = await axios.post(
+          'https://silkroad.wxchina.com/api/openapi/publishEvent?topic=xw-listener&subtopic=xw-listener&apicaseid=6684389338001809906',
+          {
+            longitude: position.longitude,
+            latitude: position.latitude,
+            key: AMapKey.key
+            // extensions: 'all'
+          }
+        )
         // console.log(result)
         const address = result?.data?.formatted_address
         if (address) {
@@ -485,11 +488,6 @@ const getLocationPromise = async (isuseiplocarion = false): Promise<Location> =>
   }
 
   if (!location) {
-    location = await getLocationByNavigator()
-  }
-  // location = null
-
-  if (!location) {
     if (mapService.type === 'amap') {
       location = await getLocationByAMap()
       if (!location && isuseiplocarion) {
@@ -508,6 +506,11 @@ const getLocationPromise = async (isuseiplocarion = false): Promise<Location> =>
       }
     }
   }
+
+  if (!location) {
+    location = await getLocationByNavigator()
+  }
+  // location = null
 
   // 开发模式下为了方便测试提供虚拟定位
   if (!location && urlquery.isvirtuallocation) {
