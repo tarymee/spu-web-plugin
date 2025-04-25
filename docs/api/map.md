@@ -164,12 +164,20 @@ onBeforeUnmount(() => {
 - 类型：
 
 ```js
-function getLocation (): Promise<{
+function getLocation (isuseiplocarion: boolean): Promise<{
   longitude: string
   latitude: string
   address: string
 } | null>
 ```
+
+- 参数信息：
+
+`isuseiplocarion` 是否在精确定位失败时再启用 ip 定位，默认为否。
+
+当获取定位时，都是先获取精确定位，当获取不到精确定位时，
+如果 `isuseiplocarion` 为 `false` 时则不再获取 ip 定位，返回 null。
+如果 `isuseiplocarion` 为 `true` 时则再获取 ip 定位，ip 定位获取不到才则返回 null。
 
 - 示例：
 
@@ -178,6 +186,28 @@ import { getLocation } from '@smart100/spu-web-plugin'
 
 const location = await getLocation()
 console.log(location)
+```
+
+## getAddress() 逆地理查询
+
+传入经纬度，获取改经纬度对应的地址。
+
+- 类型：
+
+```js
+function getAddress (location: { longitude: string; latitude: string; [propName: string]: any }): Promise<string>
+```
+
+- 示例：
+
+```js
+import { getAddress } from '@smart100/spu-web-plugin'
+
+const address = await getAddress({
+  longitude: '113.285637',
+  latitude: '23.125178'
+})
+console.log(address)
 ```
 
 ## getDistance() 计算距离

@@ -1,7 +1,53 @@
-## uploadService.upload()
-上传文件服务。
+## getServToken()
 
-+ 类型：
+获取对象存储云服务 accesskeyid accesskeysecret securitytoken expiration 等信息。
+
+- 类型：
+
+```js
+const getServToken: () => Promise<{
+  accesskeyid: string
+  accesskeysecret: string
+  securitytoken: string
+  expiration: string
+}>
+```
+
+- 示例：
+
+```js
+import { getServToken } from '@smart100/spu-web-plugin'
+
+const servToken = await getServToken()
+console.log(servToken)
+```
+
+## getCloudServ()
+
+获取对象存储云服务配置信息。
+
+- 类型：
+
+```js
+type StorageType = 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y'
+
+const getCloudServ: (type?: StorageType) => any
+```
+
+- 示例：
+
+```js
+import { getCloudServ } from '@smart100/spu-web-plugin'
+
+const cloudServ = getCloudServ()
+console.log(cloudServ)
+```
+
+## uploadService.upload()
+
+上传文件。
+
+- 类型：
 
 ```js
 // 存储方式
@@ -36,9 +82,7 @@ function upload ({
 }>
 ```
 
-
-
-+ 示例：
+- 示例：
 
 ```js
 import { uploadService } from '@smart100/spu-web-plugin'
@@ -48,17 +92,55 @@ const imgOss = await uploadService.upload({
   file: File, // input 所选择的图片文件
   source: 'xxxx-xxxx-xxxx-xxxx.png',
   datetime: '1700495139977',
-  storagetype: 'storage',
+  storagetype: 'storage'
 })
 console.log(imgOss)
 ```
 
+## uploadService.copy()
 
+复制文件。
+
+- 类型：
+
+```js
+type StorageType = 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y'
+
+interface ICopyOption {
+  copykey: string, // 要上传的文件key
+  storagetype?: StorageType, // 存储方式
+}
+
+function copy ({
+  copykey = '',
+  storagetype = 'storage',
+}: ICopyOption): Promise<{
+  key: string,
+  source: string,
+  datetime: string, // 时间戳
+  date: string, // '20240425'
+  type: 'img' | 'att',
+  storage: StorageType,
+}>
+```
+
+- 示例：
+
+```js
+import { uploadService } from '@smart100/spu-web-plugin'
+
+const newFileData = await uploadService.copy({
+  copykey: 'ca1/img/20250408/1688936/ca1b200a-8c99-47a6-9dd3-10a978da0132.jpg',
+  storagetype: 'storage'
+})
+console.log(newFileData)
+```
 
 ## downloadService.getUrl()
-获取文件URL。
 
-+ 类型：
+获取文件 URL。
+
+- 类型：
 
 ```js
 type StorageType = 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y'
@@ -82,9 +164,7 @@ function getUrl ({
 }: IDownload): Promise<any>
 ```
 
-
-
-+ 示例：
+- 示例：
 
 ```js
 import { downloadService } from '@smart100/spu-web-plugin'

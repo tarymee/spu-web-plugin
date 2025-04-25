@@ -97,7 +97,7 @@ export default SPUWebPlugin
 export const globalOptions: any
 export const lsProxy: any
 export const ssProxy: any
-export const getLocation: () => Promise<{
+export const getLocation: (isuseiplocarion?: boolean) => Promise<{
   longitude: string
   latitude: string
   address: string
