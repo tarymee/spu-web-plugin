@@ -23,42 +23,42 @@ class MapService {
   private initPromise: any = null
 
   get lbssetting(): ILbsSettingData | undefined {
-    return tenantSetting.get('lbssetting')
-    // const lbssetting: any = {
-    //   enable: '1',
-    //   setting: {
-    //     type: '',
-    //     key: {
-    //       web: '',
-    //       android: '',
-    //       ios: '',
-    //       harmony: ''
-    //     },
-    //     secretkey: {
-    //       web: '',
-    //       android: '',
-    //       ios: '',
-    //       harmony: ''
-    //     }
-    //   }
-    // }
-    // // // 高德地图公司key
-    // // lbssetting.setting.type = 'amap'
-    // // lbssetting.setting.key.web = '1993ac213d2f4675ac1bffb1b03ef1f0'
-    // // lbssetting.setting.secretkey.web = '816fe46b7b7bce145940b93c1e4818fa'
-    // // 高德地图个人key
+    // return tenantSetting.get('lbssetting')
+    const lbssetting: any = {
+      enable: '1',
+      setting: {
+        type: '',
+        key: {
+          web: '',
+          android: '',
+          ios: '',
+          harmony: ''
+        },
+        secretkey: {
+          web: '',
+          android: '',
+          ios: '',
+          harmony: ''
+        }
+      }
+    }
+    // // 高德地图公司key
     // lbssetting.setting.type = 'amap'
-    // lbssetting.setting.key.web = 'e4d25fe4661a34198c4e6f79abe9afac'
-    // lbssetting.setting.secretkey.web = 'a6b674affd9a3278c68602cf7ba02fcb'
-    // // // 腾讯地图
-    // // lbssetting.setting.type = 'tencent'
-    // // lbssetting.setting.key.web = 'NHBBZ-K5LCQ-LF35M-2CTDP-E4OO7-AIBFT'
-    // // lbssetting.setting.secretkey.web = 'zowvV5I2pSxqgGb2Sgr1x62HGXbqdxT0'
-    // // // 百度地图
-    // // lbssetting.setting.type = 'baidu'
-    // // lbssetting.setting.key.web = '7r3bsPeQqJ74vsxf3EOXg7C1AM4lOWA1'
-    // // lbssetting.setting.secretkey.web = ''
-    // return lbssetting
+    // lbssetting.setting.key.web = '1993ac213d2f4675ac1bffb1b03ef1f0'
+    // lbssetting.setting.secretkey.web = '816fe46b7b7bce145940b93c1e4818fa'
+    // 高德地图个人key
+    lbssetting.setting.type = 'amap'
+    lbssetting.setting.key.web = 'e4d25fe4661a34198c4e6f79abe9afac'
+    lbssetting.setting.secretkey.web = 'a6b674affd9a3278c68602cf7ba02fcb'
+    // // 腾讯地图
+    // lbssetting.setting.type = 'tencent'
+    // lbssetting.setting.key.web = 'NHBBZ-K5LCQ-LF35M-2CTDP-E4OO7-AIBFT'
+    // lbssetting.setting.secretkey.web = 'zowvV5I2pSxqgGb2Sgr1x62HGXbqdxT0'
+    // // 百度地图
+    // lbssetting.setting.type = 'baidu'
+    // lbssetting.setting.key.web = '7r3bsPeQqJ74vsxf3EOXg7C1AM4lOWA1'
+    // lbssetting.setting.secretkey.web = ''
+    return lbssetting
   }
 
   get isLbssettingEnable() {
@@ -96,7 +96,6 @@ class MapService {
   AMap: any = null
   TMap: any = null
   BMap: any = null
-  MapCore: any = null
 
   async init() {
     if (this.isInit) return
@@ -157,7 +156,6 @@ class MapService {
       'TMap'
     )
     this.TMap = window.TMap
-    this.MapCore = window.TMap
     await delay(300)
   }
 
@@ -195,7 +193,6 @@ class MapService {
 
       window.AMap = AMap
       this.AMap = window.AMap
-      this.MapCore = window.AMap
       // console.log(window)
       // console.log(window.AMap)
       // console.log(window.AMapUI)
@@ -213,7 +210,6 @@ class MapService {
         // console.log(e)
         // debugger
         this.BMap = window.BMap
-        this.MapCore = window.BMap
         // debugger
         // 启用google标准坐标体系
         // coordsType 指定输入输出的坐标类型，BMAP_COORD_GCJ02为gcj02坐标，BMAP_COORD_BD09为bd0ll坐标，默认为BMAP_COORD_BD09。

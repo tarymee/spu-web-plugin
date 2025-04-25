@@ -31,12 +31,11 @@ interface IAMapLoader {
 }
 
 interface IMapService {
-  init: () => Promise<any>
+  init: () => Promise<void>
   type: 'amap' | 'tencent' | 'baidu'
   AMap: any
   BMap: any
   TMap: any
-  MapCore: any
 }
 
 type StorageType = 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y'
@@ -105,11 +104,7 @@ export const getLocation: () => Promise<{
   [propName: string]: any
 } | null>
 export const getDistance: (p1: [number, number], p2: [number, number]) => Promise<any>
-export const getAddress: (location: {
-  longitude: string
-  latitude: string
-  [propName: string]: any
-}) => Promise<string>
+export const getAddress: (location: { longitude: string; latitude: string; [propName: string]: any }) => Promise<string>
 export const spuAxios: any
 export const apaasAxios: any
 export const axios: any
