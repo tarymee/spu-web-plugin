@@ -23,42 +23,42 @@ class MapService {
   private initPromise: any = null
 
   get lbssetting(): ILbsSettingData | undefined {
-    // return tenantSetting.get('lbssetting')
-    const lbssetting: any = {
-      enable: '1',
-      setting: {
-        type: '',
-        key: {
-          web: '',
-          android: '',
-          ios: '',
-          harmony: ''
-        },
-        secretkey: {
-          web: '',
-          android: '',
-          ios: '',
-          harmony: ''
-        }
-      }
-    }
-    // // 高德地图公司key
+    return tenantSetting.get('lbssetting')
+    // const lbssetting: any = {
+    //   enable: '1',
+    //   setting: {
+    //     type: '',
+    //     key: {
+    //       web: '',
+    //       android: '',
+    //       ios: '',
+    //       harmony: ''
+    //     },
+    //     secretkey: {
+    //       web: '',
+    //       android: '',
+    //       ios: '',
+    //       harmony: ''
+    //     }
+    //   }
+    // }
+    // // // 高德地图公司key
+    // // lbssetting.setting.type = 'amap'
+    // // lbssetting.setting.key.web = '1993ac213d2f4675ac1bffb1b03ef1f0'
+    // // lbssetting.setting.secretkey.web = '816fe46b7b7bce145940b93c1e4818fa'
+    // // 高德地图个人key
     // lbssetting.setting.type = 'amap'
-    // lbssetting.setting.key.web = '1993ac213d2f4675ac1bffb1b03ef1f0'
-    // lbssetting.setting.secretkey.web = '816fe46b7b7bce145940b93c1e4818fa'
-    // 高德地图个人key
-    lbssetting.setting.type = 'amap'
-    lbssetting.setting.key.web = 'e4d25fe4661a34198c4e6f79abe9afac'
-    lbssetting.setting.secretkey.web = 'a6b674affd9a3278c68602cf7ba02fcb'
-    // // 腾讯地图
-    // lbssetting.setting.type = 'tencent'
-    // lbssetting.setting.key.web = 'NHBBZ-K5LCQ-LF35M-2CTDP-E4OO7-AIBFT'
-    // lbssetting.setting.secretkey.web = 'zowvV5I2pSxqgGb2Sgr1x62HGXbqdxT0'
-    // // 百度地图
-    // lbssetting.setting.type = 'baidu'
-    // lbssetting.setting.key.web = '7r3bsPeQqJ74vsxf3EOXg7C1AM4lOWA1'
-    // lbssetting.setting.secretkey.web = ''
-    return lbssetting
+    // lbssetting.setting.key.web = 'e4d25fe4661a34198c4e6f79abe9afac'
+    // lbssetting.setting.secretkey.web = 'a6b674affd9a3278c68602cf7ba02fcb'
+    // // // 腾讯地图
+    // // lbssetting.setting.type = 'tencent'
+    // // lbssetting.setting.key.web = 'NHBBZ-K5LCQ-LF35M-2CTDP-E4OO7-AIBFT'
+    // // lbssetting.setting.secretkey.web = 'zowvV5I2pSxqgGb2Sgr1x62HGXbqdxT0'
+    // // // 百度地图
+    // // lbssetting.setting.type = 'baidu'
+    // // lbssetting.setting.key.web = '7r3bsPeQqJ74vsxf3EOXg7C1AM4lOWA1'
+    // // lbssetting.setting.secretkey.web = ''
+    // return lbssetting
   }
 
   get isLbssettingEnable() {
