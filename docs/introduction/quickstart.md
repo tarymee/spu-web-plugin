@@ -15,6 +15,7 @@ npm install @smart100/spu-web-plugin
 当你使用 vue-cli 或 vite 初始化一个前端项目之后，在入口文件中安装该插件即可使用：
 
 ### vue3
+
 ```js
 // main.js
 import { createApp } from 'vue'
@@ -22,7 +23,7 @@ import App from './App.vue'
 import router from './router'
 import SPUWebPlugin from '@smart100/spu-web-plugin'
 
-function getModuleData () {
+function getModuleData() {
   // 基于部署路径查出 modulekey moduleversion
   const arr = location.pathname.split('/')
   return {
@@ -36,15 +37,20 @@ const app = createApp(App)
 
 app.use(SPUWebPlugin, {
   ...getModuleData(),
-  router // 需要传入 router 实例以便做单点登录
+  // 需要传入 router 实例以便做单点登录
+  router,
+  // 单点登录完成回调
+  singleLoginCallback(res) {
+    console.log(res)
+  }
 })
 
 app.use(router)
 app.mount('#app')
 ```
 
-
 ### vue2
+
 ```js
 // main.js
 import Vue from 'vue'
@@ -52,7 +58,7 @@ import App from './App.vue'
 import VueRouter from 'vue-router'
 import router from './router'
 
-function getModuleData () {
+function getModuleData() {
   // 基于部署路径查出 modulekey moduleversion
   const arr = location.pathname.split('/')
   return {
@@ -65,11 +71,16 @@ function getModuleData () {
 Vue.use(VueRouter)
 Vue.use(SPUWebPlugin, {
   ...getModuleData(),
-  router // 需要传入 router 实例以便做单点登录
+  // 需要传入 router 实例以便做单点登录
+  router,
+  // 单点登录完成回调
+  singleLoginCallback(res) {
+    console.log(res)
+  }
 })
 
 new Vue({
   router,
-  render: h => h(App)
+  render: (h) => h(App)
 }).$mount('#app')
 ```

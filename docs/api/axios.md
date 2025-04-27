@@ -1,13 +1,14 @@
 ## spuAxios
+
 插件对 `axios` 实例做了一层封装，专门用于请求 `SPU` 接口。
 
-+ 类型：
+- 类型：
 
 ```js
 const spuAxios: AxiosInstance
 ```
 
-+ 示例：
+- 示例：
 
 ```js
 import { spuAxios } from '@smart100/spu-web-plugin'
@@ -25,7 +26,6 @@ spuAxios
   .then((res: any) => {
     console.log(res)
   })
-
 
 // 支持传递额外配置项，可不传，不传采用默认值
 // modulekey: 请求别的 SPU 接口，发起请求时会自动在 url 上拼接前缀：/api/modulekey/moduleversion
@@ -51,18 +51,17 @@ spuAxios
   })
 ```
 
-
-
 ## axios
+
 插件对 `axios` 实例做了一层封装，专门用于请求 `低码flycode` 或 `旧格式（比如平台接口）` 接口。
 
-+ 类型：
+- 类型：
 
 ```js
 const axios: AxiosInstance
 ```
 
-+ 示例：
+- 示例：
 
 ```js
 import { axios } from '@smart100/spu-web-plugin'
@@ -88,6 +87,5 @@ axios
     console.log(customerInfo)
   })
 ```
-
 
 ## 额外扩展

@@ -1,20 +1,18 @@
-
-
 # Storage 代理
 
 代理 `localStorage` 和 `sessionStorage`，使用该 API 会在取值赋值时自动添加 `modulekey` 前缀，以便与其他前端项目区分。
 
-
 ## lsProxy
+
 代理 `localStorage`。
 
-+ 类型：
+- 类型：
 
 ```js
 const lsProxy: Storage
 ```
 
-+ 示例：
+- 示例：
 
 ```js
 import { lsProxy } from '@smart100/spu-web-plugin'
@@ -22,24 +20,23 @@ lsProxy.setItem('data', 'xxx') // 会在 localStorage 中设置 demospu-data = '
 lsProxy.getItem('data', 'xxx') // 会从 localStorage 中取 key 为 demospu-data 的值
 ```
 
-
 ## ssProxy
+
 代理 `sessionStorage`。
 
-+ 类型：
+- 类型：
 
 ```js
 const ssProxy: Storage
 ```
 
-+ 示例：
+- 示例：
 
 ```js
 import { ssProxy } from '@smart100/spu-web-plugin'
 ssProxy.setItem('data', 'xxx') // 会在 sessionStorage 中设置 demospu-data = 'xxx'
 ssProxy.getItem('data', 'xxx') // 会从 sessionStorage 中取 key 为 demospu-data 的值
 ```
-
 
 ## 其他
 

@@ -1,16 +1,18 @@
 ## spuConfig
+
 `SPU` 模块配置信息相关服务。
 
 ### spuConfig.get()
+
 获取当前 `SPU` 模块的配置信息，如果有传 `dataid` 值则返回对应 `dataid` 的信息，如果没传则返回所有。
 
-+ 类型：
+- 类型：
 
 ```js
 function get (dataid?: string | string[]): Promise<object | object[] | null>
 ```
 
-+ 示例：
+- 示例：
 
 ```js
 import { spuConfig } from '@smart100/spu-web-plugin'
@@ -28,22 +30,21 @@ const mulConfig = await spuConfig.get(['customervisit.purpose'])
 console.log(mulConfig)
 ```
 
-
-
-
 ## globalConfig
+
 当前租户全局配置。
 
 ### globalConfig.get()
+
 获取当前租户的全局配置信息，如果有传 `key` 值则返回对应 `key` 的信息，如果没传则返回所有。
 
-+ 类型：
+- 类型：
 
 ```js
 function get (key?: string | string[]): Promise<object | object[] | null>
 ```
 
-+ 示例：
+- 示例：
 
 ```js
 import { globalConfig } from '@smart100/spu-web-plugin'

@@ -2,7 +2,7 @@
 
 执行该方法，即可弹出一个 `导出弹窗`，对接数据导出服务。
 
-+ 类型：
+- 类型：
 
 ```js
 interface IOptions {
@@ -15,7 +15,7 @@ interface IOptions {
 function expandexp (options: IOptions): void
 ```
 
-+ 示例：
+- 示例：
 
 ```js
 import { expandexp } from '@smart100/spu-web-plugin'
