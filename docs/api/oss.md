@@ -50,19 +50,12 @@ console.log(cloudServ)
 - 类型：
 
 ```js
-// 存储方式
-// storage: 永久储存
-// storage-1d: 存一天
-// storage-3m: 存三月
-// storage-1y: 存一年
-type StorageType = 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y'
-
 interface IUpload {
   type?: 'att' | 'img', // 要上传的文件类型
   file: File, // 所要上传的文件
   source?: string, // 文件名 如果不传则由插件默认生成
   datetime?: string | number, // 文件时间戳 如果不传则由插件默认生成
-  storagetype?: StorageType, // 存储方式
+  storagetype?: 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y', // 存储方式
   onprogress?: (p: number, _checkpoint?: any) => void // 上传进度回调
 }
 
@@ -104,11 +97,9 @@ console.log(imgOss)
 - 类型：
 
 ```js
-type StorageType = 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y'
-
 interface ICopyOption {
   copykey: string, // 要上传的文件key
-  storagetype?: StorageType, // 存储方式
+  storagetype?: 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y', // 存储方式
 }
 
 function copy ({
@@ -120,7 +111,7 @@ function copy ({
   datetime: string, // 时间戳
   date: string, // '20240425'
   type: 'img' | 'att',
-  storage: StorageType,
+  storage: 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y',
 }>
 ```
 
@@ -143,15 +134,13 @@ console.log(newFileData)
 - 类型：
 
 ```js
-type StorageType = 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y'
-
 type Cope = { width?: number, height?: number } | string | boolean
 
 interface IDownload {
   type?: 'att' | 'img', // 文件类型
   source: string, // 文件名
   datetime: string | number, // 文件时间戳
-  storagetype?: StorageType, // 存储方式
+  storagetype?: 'storage' | 'storage-1d' | 'storage-3m' | 'storage-1y', // 存储方式
   cope?: Cope // 如果要下载的文件是图片 可定义图片压缩方式
 }
 
