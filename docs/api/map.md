@@ -164,7 +164,7 @@ onBeforeUnmount(() => {
 - 类型：
 
 ```js
-function getLocation (isuseiplocarion: boolean): Promise<{
+function getLocation (isuseiplocation: boolean): Promise<{
   longitude: string
   latitude: string
   address: string
@@ -173,11 +173,11 @@ function getLocation (isuseiplocarion: boolean): Promise<{
 
 - 参数信息：
 
-`isuseiplocarion` 是否在精确定位失败时再启用 ip 定位，默认为否。
+`isuseiplocation` 是否在精确定位失败时再启用 ip 定位，默认为否。
 
 当获取定位时，都是先获取精确定位，当获取不到精确定位时，
-如果 `isuseiplocarion` 为 `false` 时则不再获取 ip 定位，返回 null。
-如果 `isuseiplocarion` 为 `true` 时则再获取 ip 定位，ip 定位获取不到才则返回 null。
+如果 `isuseiplocation` 为 `false` 时则不再获取 ip 定位，返回 null。
+如果 `isuseiplocation` 为 `true` 时则再获取 ip 定位，ip 定位获取不到才则返回 null。
 
 - 示例：
 

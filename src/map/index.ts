@@ -479,7 +479,7 @@ const getAddressByBmap = async (position: Location): Promise<string> => {
   })
 }
 
-const getLocationPromise = async (isuseiplocarion = false): Promise<Location> => {
+const getLocationPromise = async (isuseiplocation = false): Promise<Location> => {
   let location: Location = null
 
   // 在 SPU 容器里使用 Native-API 的定位
@@ -490,18 +490,18 @@ const getLocationPromise = async (isuseiplocarion = false): Promise<Location> =>
   if (!location) {
     if (mapService.type === 'amap') {
       location = await getLocationByAMap()
-      if (!location && isuseiplocarion) {
+      if (!location && isuseiplocation) {
         location = await getCityLocationByAMap()
       }
       // 改成不使用ipaas了
-      // if (!location && isuseiplocarion) {
+      // if (!location && isuseiplocation) {
       //   location = await getIPLocationByIpaas()
       // }
-    } else if (mapService.type === 'tencent' && isuseiplocarion) {
+    } else if (mapService.type === 'tencent' && isuseiplocation) {
       location = await getIPLocationByTMap()
     } else if (mapService.type === 'baidu') {
       location = await getLocationByBMap()
-      if (!location && isuseiplocarion) {
+      if (!location && isuseiplocation) {
         location = await getCityLocationByBMap()
       }
     }
@@ -544,7 +544,7 @@ const getLocationPromise = async (isuseiplocarion = false): Promise<Location> =>
 // WGS84 GCJ-02 BD-09 坐标系
 // https://www.jianshu.com/p/559029832a67
 // 不能精确定位的情况下是否启用ip城市定位，ip定位用于不需要精确定位的场景
-async function getLocation(isuseiplocarion = false) {
+async function getLocation(isuseiplocation = false) {
   await mapService.init()
   // debugger
   // 缓存30秒
@@ -557,7 +557,7 @@ async function getLocation(isuseiplocarion = false) {
   }
   // console.log('runing')
   runing = true
-  locationPromise = getLocationPromise(isuseiplocarion)
+  locationPromise = getLocationPromise(isuseiplocation)
   const locationRes = await locationPromise
   runing = false
   if (locationRes) {
