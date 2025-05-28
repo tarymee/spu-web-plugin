@@ -122,6 +122,7 @@ export const getCloudServ: (type?: StorageType) => any
 export const getUniqueid: () => string
 export const getUuid: () => string
 export const functionCheck: (functioncode?: string) => boolean
+export const getServerTime: () => Promise<string>
 export const setTitle: (pagetitle?: string) => void
 export const isInApp: () => boolean
 export const AMapLoader: IAMapLoader

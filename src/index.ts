@@ -9,7 +9,7 @@ import { globalConfig } from './globalConfig'
 import { downloadService, uploadService } from './oss'
 import { getServToken } from './oss/servtoken'
 import { getCloudServ } from './oss/cloudServ'
-import { getUniqueid, functionCheck, setTitle, isInApp, isdebugger, isvirtuallocation } from './utils'
+import { getUniqueid, functionCheck, setTitle, isInApp, isdebugger, isvirtuallocation, getServerTime } from './utils'
 import { installUrlquery } from './urlquery'
 import { mapService } from './map/MapService'
 import AMapLoader from './map/AMapLoader'
@@ -116,6 +116,7 @@ export {
   getUniqueid,
   getUuid,
   functionCheck,
+  getServerTime,
   setTitle,
   isInApp,
   AMapLoader,

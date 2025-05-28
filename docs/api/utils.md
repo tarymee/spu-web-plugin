@@ -96,3 +96,24 @@ import { getUniqueid } from '@smart100/spu-web-plugin'
 const id = getUniqueid()
 console.log(id)
 ```
+
+## getServerTime()
+
+获取服务器当前时间，返回时间戳字符串类型。
+
+这个方法整合了 App 端 `Native-APi` 的 `Native.getServerTime()` 方法，如果 SPU 页面在 App 端且存在 `Native.getServerTime()` 方法，则使用 `Native.getServerTime()`，如果不存在会直接调用 `'/api/teapi/offline/servertime'` 接口获取服务器时间。
+
+- 类型：
+
+```js
+function getServerTime (): Promise<string>
+```
+
+- 示例：
+
+```js
+import { getServerTime } from '@smart100/spu-web-plugin'
+
+const timestamp = await getServerTime()
+console.log(timestamp) // '1748412815918'
+```

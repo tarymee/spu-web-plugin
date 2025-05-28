@@ -598,7 +598,7 @@ function installAuth(options: any) {
     })
   } else {
     console.warn(
-      '@smart100/spu-web-plugin 需要传入一个 vue-router 实例以便执行单点登录逻辑，如果您没传 vue-router 实例则需要自行在合适的位置执行单点登录代码。'
+      '@smart100/spu-web-plugin 需要传入一个 vue-router 实例以便执行单点登录逻辑，如果您没传 vue-router 实例则需要自行在合适的位置执行单点登录代码，如果您已自行实现，请忽略该提示。'
     )
   }
 

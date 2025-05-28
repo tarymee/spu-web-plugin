@@ -1,6 +1,7 @@
 import { getUser } from './login'
 import { urlquery } from './urlquery'
 import { get } from 'lodash-es'
+import { axios } from './axios'
 
 function isIOS() {
   const ua = navigator.userAgent
@@ -128,6 +129,40 @@ const delay = (timeout = 1000) => {
   })
 }
 
+const getServerTime = () => {
+  return new Promise((resolve, reject) => {
+    if (window?.Native?.getServerTime) {
+      window.Native.getServerTime((res: any) => {
+        if (res) {
+          resolve(res.toString())
+        } else {
+          resolve(Date.now().toString())
+        }
+      })
+    } else {
+      axios
+        .get(
+          '/api/teapi/offline/servertime',
+          {},
+          {
+            isShowLoading: false
+          }
+        )
+        .then((res: any) => {
+          if (res.data) {
+            resolve(res.data.toString())
+          } else {
+            resolve(Date.now().toString())
+          }
+        })
+        .catch((err: any) => {
+          resolve(Date.now().toString())
+        })
+    }
+  })
+}
+
+
 export {
   isIOS,
   isMobile,
@@ -139,5 +174,6 @@ export {
   isvirtuallocation,
   toggleHttpOrHttps,
   importJS,
-  delay
+  delay,
+  getServerTime
 }

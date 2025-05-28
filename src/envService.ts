@@ -22,7 +22,7 @@ async function getEnvname(): Promise<string> {
     envname = queryEnvname
   } else if (window?.aPaaS?.getWebInitParams && window?.Native?.setNavigationBarReturnButton) {
     // 手机端 查 envname
-    // 只有手机端有 setNavigationBarReturnButton 方法
+    // 只有手机端有 setNavigationBarReturnButton 和 getWebInitParams 方法
     envname = await new Promise((resolve, reject) => {
       window.aPaaS.getWebInitParams((params: any) => {
         resolve(params?.envname || '')
