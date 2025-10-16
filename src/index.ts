@@ -9,7 +9,15 @@ import { globalConfig } from './globalConfig'
 import { downloadService, uploadService } from './oss'
 import { getServToken } from './oss/servtoken'
 import { getCloudServ } from './oss/cloudServ'
-import { getUniqueid, functionCheck, setTitle, isInApp, isdebugger, isvirtuallocation, getServerTime } from './utils'
+import {
+  getUniqueid,
+  functionCheck,
+  setTitle,
+  isInApp,
+  isdebugger,
+  isvirtuallocation,
+  getServerTime
+} from './utils'
 import { installUrlquery } from './urlquery'
 import { mapService } from './map/MapService'
 import AMapLoader from './map/AMapLoader'
@@ -73,7 +81,7 @@ const install = (app: any, options: any) => {
   console.log(globalOptions)
 
   // setTimeout(() => {
-  //   console.error('5416546544')
+  //   console.error('9999')
   // }, 1000)
 
   // if (install.installed) return
