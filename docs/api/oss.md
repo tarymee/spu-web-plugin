@@ -1,6 +1,6 @@
 ## getServToken()
 
-获取对象存储云服务 accesskeyid accesskeysecret securitytoken expiration 等信息。
+获取对象存储云服务 accesskeyid/accesskeysecret/securitytoken/expiration 等信息。
 
 - 类型：
 
@@ -92,7 +92,7 @@ console.log(imgOss)
 
 ## uploadService.copy()
 
-复制文件。
+复制文件，返回复制的新文件的信息。
 
 - 类型：
 
