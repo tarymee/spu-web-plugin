@@ -17,6 +17,7 @@ import {
   removeTecode
 } from './envService'
 import { tenantSetting } from './tenantSetting'
+import { globalOptions } from './index'
 
 type JwtResult = {
   LoginUser: IAny
@@ -457,13 +458,9 @@ const getSPUContainerToken = (): Promise<any> => {
     if (window.aPaaS?.getToken) {
       window.aPaaS.getToken((res: any) => {
         console.log('window.aPaaS.getToken success', res)
-        // 安卓返回 token tokenExpires refreshToken
-        // ios返回 token tokenexpires refreshtoken
-        // 改好按安卓
-
         const token = res?.token
-        const tokenexpires = res?.tokenExpires || res?.tokenexpires
-        const refreshtoken = res?.refreshToken || res?.refreshtoken
+        const tokenexpires = res?.tokenExpires
+        const refreshtoken = res?.refreshToken
 
         if (token && tokenexpires && refreshtoken) {
           resolve({
@@ -508,7 +505,7 @@ const fixLoginQuery = async (query: IAny) => {
 // 修复 App 切到后台时间过长导致 token 过期
 // 监听 App 切换到前台 判断token是否过期 如果过期就调用获取tokne方法更新token
 const fixAppTokenExpired = () => {
-  if (window.Native?.onHostEnterForceground) {
+  if (globalOptions.isfixapptokenexpired && window.Native?.onHostEnterForceground) {
     console.log('listen App enter forceground')
     window.Native.onHostEnterForceground(async () => {
       console.log('App enter forceground')
@@ -533,7 +530,10 @@ const fixAppTokenExpired = () => {
 
 // 单点登录
 async function singleLogin(query: IAny) {
-  query = await fixLoginQuery(query)
+  query = cloneDeep(query)
+  if (globalOptions.isfixapptokenexpired) {
+    query = await fixLoginQuery(query)
+  }
 
   let flag = false // 是否登录成功
   const token = query.token
@@ -658,7 +658,9 @@ async function singleLogin(query: IAny) {
 
 function installAuth(options: any) {
   startRefreshtoken()
+
   fixAppTokenExpired()
+
   if (options.router) {
     options.router.beforeEach(async (to: any, from: any, next: any) => {
       // console.log(from)

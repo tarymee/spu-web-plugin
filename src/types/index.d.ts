@@ -80,6 +80,7 @@ interface IUploadService {
 //   modulename: string
 //   moduleversion: string
 //   storageproxyprefix?: string
+//   isfixapptokenexpired?: boolean
 //   router?: any
 // }
 
@@ -104,7 +105,11 @@ export const getLocation: (isuseiplocation?: boolean) => Promise<{
   [propName: string]: any
 } | null>
 export const getDistance: (p1: [number, number], p2: [number, number]) => Promise<any>
-export const getAddress: (location: { longitude: string; latitude: string; [propName: string]: any }) => Promise<string>
+export const getAddress: (location: {
+  longitude: string
+  latitude: string
+  [propName: string]: any
+}) => Promise<string>
 export const spuAxios: any
 export const apaasAxios: any
 export const axios: any

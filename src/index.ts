@@ -53,6 +53,7 @@ const getDefaultGlobalOptions = () => {
     modulekey: arr[1] || '',
     moduleversion: arr[2] || '',
     storageproxyprefix: '',
+    isfixapptokenexpired: false, // 是否修复apptoken过期问题 目前版本暂时不默认修复 等门户引擎验证通过之后 再改成默认修复
     singleLoginCallback: null,
     router: null
   }
