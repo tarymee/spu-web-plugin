@@ -3,7 +3,7 @@ import jwtDecode from 'jwt-decode'
 import { lsProxy } from './storageProxy'
 import { axios } from './axios'
 import cloudServ from './oss/cloudServ'
-import core from './core'
+import core, { Module } from './core'
 import { urlquery } from './urlquery'
 import { getData, setData, removeData } from './storageCache'
 import {
@@ -24,11 +24,14 @@ type JwtResult = {
 } | null
 
 function getToken() {
-  return getData('token')
-  // return lsProxy.getItem('token') as string
+  const token = getData('token')
+  // const token = lsProxy.getItem('token') as string
+  return token
 }
 
 function setToken(value: string) {
+  // console.log('setToken', value)
+  // debugger
   setData('token', value)
 }
 
@@ -110,6 +113,7 @@ function removeUser() {
 }
 
 function parseToken(token?: string) {
+  // debugger
   if (!token) {
     console.error('token为空 jwt解析token出错')
     return null
@@ -328,9 +332,11 @@ function formatTenant(tenant: ITenantInfo) {
 
 async function getAndSetTenant(tenantcode?: string) {
   try {
-    const tenantsRes: null | ITenantInfo[] = await axios.get('/api/auth/tenantlist', {}).then((res: any) => {
-      return res?.data?.tenants
-    })
+    const tenantsRes: null | ITenantInfo[] = await axios
+      .get('/api/auth/tenantlist', {})
+      .then((res: any) => {
+        return res?.data?.tenants
+      })
 
     let tenant: ITenantInfo | null = null
     if (tenantsRes?.length) {
@@ -445,9 +451,89 @@ function startRefreshtoken() {
   }, time)
 }
 
+// 获取 spu 容器 token
+const getSPUContainerToken = (): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    if (window.aPaaS?.getToken) {
+      window.aPaaS.getToken((res: any) => {
+        console.log('window.aPaaS.getToken success', res)
+        // 安卓返回 token tokenExpires refreshToken
+        // ios返回 token tokenexpires refreshtoken
+        // 改好按安卓
+
+        const token = res?.token
+        const tokenexpires = res?.tokenExpires || res?.tokenexpires
+        const refreshtoken = res?.refreshToken || res?.refreshtoken
+
+        if (token && tokenexpires && refreshtoken) {
+          resolve({
+            token,
+            tokenexpires,
+            refreshtoken
+          })
+        } else {
+          console.error('window.aPaaS.getToken fail')
+          resolve(null)
+        }
+      })
+    } else {
+      console.warn('window.aPaaS.getToken fail: not in SPU container')
+      resolve(null)
+    }
+  })
+}
+
+// 如果APP端在SPU页面切到后台 然后又切回前台 有可能发生
+// 1、切后台时间过长导致 token 过期
+// 2、切后台后打开太多别的应用 导致切回前台时内存不足 从而导致 SPU 的 webview reload
+// 如果 1 2 同时发生 那么当前SPU页面重走单点登录流程 而url上的token已经过期 会导致单点登录失败
+// 因此 在APP端 单点登录不使用url上的token 而是直接拿App端的 App端能保证拿到的token一直不过期
+const fixLoginQuery = async (query: IAny) => {
+  const newQuery = cloneDeep(query)
+  const type = await Module.getSpuContainerType()
+  if (type === 'app' && window.aPaaS?.getToken) {
+    console.log('SPU is in App, singleLogin use App token.')
+    const tokenData = await getSPUContainerToken()
+    if (tokenData) {
+      newQuery.token = tokenData.token
+      newQuery.tokenexpires = tokenData.tokenexpires
+      newQuery.refreshtoken = tokenData.refreshtoken
+    }
+  } else {
+    console.log('SPU is not in App, singleLogin use query token.')
+  }
+  return newQuery
+}
+
+// 修复 App 切到后台时间过长导致 token 过期
+// 监听 App 切换到前台 判断token是否过期 如果过期就调用获取tokne方法更新token
+const fixAppTokenExpired = () => {
+  if (window.Native?.onHostEnterForceground) {
+    console.log('listen App enter forceground')
+    window.Native.onHostEnterForceground(async () => {
+      console.log('App enter forceground')
+      const loginState = getLoginState()
+      if (!loginState.islogin && loginState.type === 2 && loginState.role !== 'center') {
+        const tokenData = await getSPUContainerToken()
+        if (tokenData) {
+          setToken(tokenData.token)
+          setRefreshToken(tokenData.refreshtoken)
+          setTokenExpires(tokenData.tokenexpires)
+        } else {
+          try {
+            await updateToken()
+          } catch (err) {
+            console.error(err)
+          }
+        }
+      }
+    })
+  }
+}
+
 // 单点登录
 async function singleLogin(query: IAny) {
-  query = cloneDeep(query)
+  query = await fixLoginQuery(query)
 
   let flag = false // 是否登录成功
   const token = query.token
@@ -572,6 +658,7 @@ async function singleLogin(query: IAny) {
 
 function installAuth(options: any) {
   startRefreshtoken()
+  fixAppTokenExpired()
   if (options.router) {
     options.router.beforeEach(async (to: any, from: any, next: any) => {
       // console.log(from)
@@ -583,6 +670,7 @@ function installAuth(options: any) {
       if (to.query.token) {
         const singleLoginRes = await singleLogin(to.query)
         if (singleLoginRes.flag) {
+          // next()
           next({
             path: to.path,
             params: to.params,

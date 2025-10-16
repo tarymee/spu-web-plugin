@@ -3,6 +3,8 @@
 ## v1.0.18
 
 - feature: 新增 getServerTime 方法
+- feature: 在 App 端单点登录时使用 App 的 token【fixLoginQuery】
+- feature: 在 App 端切到后台重新切回前台时检测并刷新 token【fixAppTokenExpired】
 
 ## v1.0.17
 
