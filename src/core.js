@@ -40,7 +40,11 @@ class Core {
     const nowEnvname = await getEnvname()
     const nowTenantCode = getUser('tenantcode') || ''
     // console.log(tenantCode)
-    if (this.cache.envName === nowEnvname && this.cache.tenantCode === nowTenantCode && this.loadStatus === 2) {
+    if (
+      this.cache.envName === nowEnvname &&
+      this.cache.tenantCode === nowTenantCode &&
+      this.loadStatus === 2
+    ) {
       return this.cache
     }
 
@@ -332,7 +336,9 @@ class Core {
       if (!indextag) {
         errorMsg = '缺少 indextag，请检查。'
       } else {
-        indextagData = (moduleData.data.protocol.indexs || []).find((item) => item.indextag === indextag)
+        indextagData = (moduleData.data.protocol.indexs || []).find(
+          (item) => item.indextag === indextag
+        )
         if (indextagData) {
           const queryUrl = this.getQueryUrl(indextagData.query || [], queryvalue)
           const context = await this.getContext(modulekey)
@@ -348,9 +354,13 @@ class Core {
           }
 
           if (url.indexOf('?') === -1) {
-            url += `?${queryUrl}indextag=${indextag}&context=${encodeURIComponent(JSON.stringify(context))}`
+            url += `?${queryUrl}indextag=${indextag}&context=${encodeURIComponent(
+              JSON.stringify(context)
+            )}`
           } else {
-            url += `&${queryUrl}indextag=${indextag}&context=${encodeURIComponent(JSON.stringify(context))}`
+            url += `&${queryUrl}indextag=${indextag}&context=${encodeURIComponent(
+              JSON.stringify(context)
+            )}`
           }
         } else {
           errorMsg = `找不到 indextag = ${indextag} 的页面信息。`
@@ -404,6 +414,10 @@ class Core {
     } else {
       return ''
     }
+  }
+
+  checkInAppSpuWebview() {
+    return !!window?.aPaaS?.getPhoto
   }
 }
 

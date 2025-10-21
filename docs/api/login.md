@@ -26,6 +26,25 @@ const token = getToken()
 console.log(token)
 ```
 
+## setToken()
+
+设置当前 `token`。
+
+- 类型：
+
+```js
+function setToken (value: string): void
+```
+
+- 示例：
+
+```js
+import { setToken } from '@smart100/spu-web-plugin'
+setToken(
+  'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NjA0MDk0OTgsIkxvZ2luVXNlciI6eyJhY2NvdW50SW5mb0NvZGUiOiIxOTYzODM4MzI3ODI4NjU2MTI4IiwiYWNjb3VudENvZGUiOiIxOTYzODM4MzI4MTM0ODQwMzIwIiwidGVuYW50Q29kZSI6IjEwMDA5MzEiLCJwcm9kdWN0Q29kZSI6IjEwMDAwMDAwMDAwMDAwMDAwMCIsInByb2R1Y3RWZXJzaW9uQ29kZSI6IjEwMDAwMDAwMDAwMDAwMDkzMSIsImNsaWVudFR5cGVDb2RlIjoxLCJ0b2tlbklkIjoiYTZjYWFiYWUtYjY3My00MDUzLThlY2UtOTM4ODYzYTRkNTdiIiwib3JnQ29kZSI6IjEiLCJ1c2VySW5mb0lkIjoiMTk2MzgzODMyODMzNjE2NjkxMiIsInVzZXJJbmZvTmFtZSI6IueuoeeQhuWRmCIsInBvc2l0aW9uQ29kZSI6IjE5NjM4NTUyMzAwNzIzOTM3MjgiLCJwb3NpdGlvbk5hbWUiOiLns7vnu5_nrqHnkIblkZgt5Yu_5YigIiwibWVtYmVyQ29kZSI6IjE5NjM4NTUyNzQ4NjMzNjYxNDQiLCJyZWZQb3NpdGlvbkNvZGUiOiIxMzAwNzI4NjE0NTM0Mzg1NjY0IiwiY2F0ZWdvcnlDb2RlIjoiIiwib3JnU3RydWN0VHlwZUlkIjoiMSIsInVzZXJOYW1lIjoiMTAwMDkzMSIsInVzZXJOYW1lMSI6IjEwMDA5MzEiLCJ1c2VyTmFtZTIiOm51bGwsInVzZXJOYW1lMyI6bnVsbCwidGVuYW50TmFtZSI6IuaZuuaFpzEwMFY5LjMuMS1iYXNl5Lqn5ZOB56ef5oi3IiwiYXBwQ29kZSI6InNhbGVzIiwiYXBwQ29kZXMiOlsicHJvbW90aW9uIiwiZGlzdHJpYnV0aW9uIiwic2FsZXMiXSwic3ViUGRDb2RlcyI6WyJzZmEiLCJkbXMiLCJwbW0iLCJ0cG0iLCJhaSJdLCJjb2RlcGF0aCI6IjEuIiwiaXNsZWFmb3JnIjoiZmFsc2UiLCJtZXRhbW9kZWx0eXBlIjoxLCJpc1Ntc0xvZ2luIjpmYWxzZX19.F-W23_LA8CthxH3NIjta5pS_gDNB4IKh-bHpgf0sjeM'
+)
+```
+
 ## getTokenExpires()
 
 获取当前 `tokenexpires`。
@@ -44,6 +63,23 @@ const tokenexpires = getTokenExpires()
 console.log(tokenexpires)
 ```
 
+## setTokenExpires()
+
+设置当前 `tokenexpires`。
+
+- 类型：
+
+```js
+function setTokenExpires (value: string): void
+```
+
+- 示例：
+
+```js
+import { setTokenExpires } from '@smart100/spu-web-plugin'
+setTokenExpires('1760409498580')
+```
+
 ## getRefreshToken()
 
 获取当前 `refreshtoken`。
@@ -60,6 +96,25 @@ function getRefreshToken (): string
 import { getRefreshToken } from '@smart100/spu-web-plugin'
 const refreshtoken = getRefreshToken()
 console.log(refreshtoken)
+```
+
+## setRefreshToken()
+
+设置当前 `refreshtoken`。
+
+- 类型：
+
+```js
+function setRefreshToken (value: string): void
+```
+
+- 示例：
+
+```js
+import { setRefreshToken } from '@smart100/spu-web-plugin'
+setRefreshToken(
+  'eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3NjA0MDk1OTgsIkxvZ2luVXNlciI6eyJhY2NvdW50SW5mb0NvZGUiOiIxOTYzODM4MzI3ODI4NjU2MTI4IiwiYWNjb3VudENvZGUiOiIxOTYzODM4MzI4MTM0ODQwMzIwIiwidGVuYW50Q29kZSI6IjEwMDA5MzEiLCJwcm9kdWN0Q29kZSI6IjEwMDAwMDAwMDAwMDAwMDAwMCIsInByb2R1Y3RWZXJzaW9uQ29kZSI6IjEwMDAwMDAwMDAwMDAwMDkzMSIsImNsaWVudFR5cGVDb2RlIjoxLCJ0b2tlbklkIjoiYTZjYWFiYWUtYjY3My00MDUzLThlY2UtOTM4ODYzYTRkNTdiIiwib3JnQ29kZSI6IjEiLCJ1c2VySW5mb0lkIjoiMTk2MzgzODMyODMzNjE2NjkxMiIsInVzZXJJbmZvTmFtZSI6IueuoeeQhuWRmCIsInBvc2l0aW9uQ29kZSI6IjE5NjM4NTUyMzAwNzIzOTM3MjgiLCJwb3NpdGlvbk5hbWUiOiLns7vnu5_nrqHnkIblkZgt5Yu_5YigIiwibWVtYmVyQ29kZSI6IjE5NjM4NTUyNzQ4NjMzNjYxNDQiLCJyZWZQb3NpdGlvbkNvZGUiOiIxMzAwNzI4NjE0NTM0Mzg1NjY0IiwiY2F0ZWdvcnlDb2RlIjoiIiwib3JnU3RydWN0VHlwZUlkIjoiMSIsInVzZXJOYW1lIjoiMTAwMDkzMSIsInVzZXJOYW1lMSI6IjEwMDA5MzEiLCJ1c2VyTmFtZTIiOm51bGwsInVzZXJOYW1lMyI6bnVsbCwidGVuYW50TmFtZSI6IuaZuuaFpzEwMFY5LjMuMS1iYXNl5Lqn5ZOB56ef5oi3IiwiYXBwQ29kZSI6InNhbGVzIiwiYXBwQ29kZXMiOlsicHJvbW90aW9uIiwiZGlzdHJpYnV0aW9uIiwic2FsZXMiXSwic3ViUGRDb2RlcyI6WyJzZmEiLCJkbXMiLCJwbW0iLCJ0cG0iLCJhaSJdLCJjb2RlcGF0aCI6IjEuIiwiaXNsZWFmb3JnIjoiZmFsc2UiLCJtZXRhbW9kZWx0eXBlIjoxLCJpc1Ntc0xvZ2luIjpmYWxzZX19.lttA6Lu6n2TW7rqZo4C-gtqbVSxXTwvfSQM3e5Lor60'
+)
 ```
 
 ## checkLogin()

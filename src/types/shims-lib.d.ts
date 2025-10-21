@@ -35,6 +35,8 @@ interface Window {
   __baiduMapInitial: any
   // 腾讯地图
   TMap: any
+  // InteractiveWebView 中 getToken 回调函数
+  getTokenComplete: any
   // wx: IAny;
   // AMapUI: IAny;
   // lsProxy: any;

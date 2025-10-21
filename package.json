@@ -1,6 +1,6 @@
 {
   "name": "@smart100/spu-web-plugin",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "description": "",
   "scripts": {
     "dev": "npm run build:types && rollup -c -w",

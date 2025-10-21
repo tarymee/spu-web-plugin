@@ -455,7 +455,9 @@ function startRefreshtoken() {
 // 获取 spu 容器 token
 const getSPUContainerToken = (): Promise<any> => {
   return new Promise((resolve, reject) => {
-    if (window.aPaaS?.getToken) {
+    // 在spuwebview中
+    if (core.checkInAppSpuWebview() && window.aPaaS?.getToken) {
+      console.log('in App spuwebview')
       window.aPaaS.getToken((res: any) => {
         console.log('window.aPaaS.getToken success', res)
         const token = res?.token
@@ -473,6 +475,50 @@ const getSPUContainerToken = (): Promise<any> => {
           resolve(null)
         }
       })
+    } else if (window.aPaaS?.getToken && globalOptions.modulekey === 'portalEngine') {
+      console.log('in App interactivewebview')
+      // 兼容门户引擎在 interactivewebview 的情况
+      const u = navigator.userAgent
+      const isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1
+      if (isAndroid) {
+        console.log('in Android, use window.aPaaS.getToken and window.getTokenComplete')
+        window.getTokenComplete = (res: any) => {
+          console.log('window.getTokenComplete success', res)
+          const token = res?.token
+          const tokenexpires = res?.tokenExpires
+          const refreshtoken = res?.refreshToken
+          if (token && tokenexpires && refreshtoken) {
+            resolve({
+              token,
+              tokenexpires,
+              refreshtoken
+            })
+          } else {
+            console.error('window.getTokenComplete fail')
+            resolve(null)
+          }
+        }
+        window.aPaaS.getToken(window.getTokenComplete)
+      } else {
+        console.log('in IOS, use window.aPaaS.getToken')
+        window.aPaaS.getToken((res: any) => {
+          console.log('window.aPaaS.getToken success', res)
+          const token = res?.token
+          const tokenexpires = res?.tokenExpires
+          const refreshtoken = res?.refreshToken
+
+          if (token && tokenexpires && refreshtoken) {
+            resolve({
+              token,
+              tokenexpires,
+              refreshtoken
+            })
+          } else {
+            console.error('window.aPaaS.getToken fail')
+            resolve(null)
+          }
+        })
+      }
     } else {
       console.warn('window.aPaaS.getToken fail: not in SPU container')
       resolve(null)
@@ -487,44 +533,70 @@ const getSPUContainerToken = (): Promise<any> => {
 // 因此 在APP端 单点登录不使用url上的token 而是直接拿App端的 App端能保证拿到的token一直不过期
 const fixLoginQuery = async (query: IAny) => {
   const newQuery = cloneDeep(query)
-  const type = await Module.getSpuContainerType()
-  if (type === 'app' && window.aPaaS?.getToken) {
-    console.log('SPU is in App, singleLogin use App token.')
+  if (!window.aPaaS?.getToken) {
+    console.log('SPU is not in App, singleLogin use query token.')
+  } else {
+    if (core.checkInAppSpuWebview()) {
+      console.log('SPU is in App spuwebview, singleLogin use App token.')
+    } else if (globalOptions.modulekey === 'portalEngine') {
+      // 兼容门户引擎在 interactivewebview 的情况
+      console.log('SPU is in App interactivewebview, singleLogin use App token.')
+    }
     const tokenData = await getSPUContainerToken()
     if (tokenData) {
       newQuery.token = tokenData.token
       newQuery.tokenexpires = tokenData.tokenexpires
       newQuery.refreshtoken = tokenData.refreshtoken
     }
-  } else {
-    console.log('SPU is not in App, singleLogin use query token.')
   }
+
   return newQuery
+}
+
+const checkTokenExpiredAndUpdate = async () => {
+  const loginState = getLoginState()
+  if (!loginState.islogin && loginState.type === 2 && loginState.role !== 'center') {
+    const tokenData = await getSPUContainerToken()
+    if (tokenData) {
+      setToken(tokenData.token)
+      setRefreshToken(tokenData.refreshtoken)
+      setTokenExpires(tokenData.tokenexpires)
+    } else {
+      try {
+        await updateToken()
+      } catch (err) {
+        console.error(err)
+      }
+    }
+  }
 }
 
 // 修复 App 切到后台时间过长导致 token 过期
 // 监听 App 切换到前台 判断token是否过期 如果过期就调用获取tokne方法更新token
-const fixAppTokenExpired = () => {
-  if (globalOptions.isfixapptokenexpired && window.Native?.onHostEnterForceground) {
-    console.log('listen App enter forceground')
-    window.Native.onHostEnterForceground(async () => {
+const fixAppTokenExpired = async () => {
+  if (
+    globalOptions.isfixapptokenexpired &&
+    core.checkInAppSpuWebview() &&
+    window.Native?.onHostEnterForceground
+  ) {
+    console.log('SPU is in App spuwebview, listen App enter forceground.')
+    window.Native.onHostEnterForceground(() => {
       console.log('App enter forceground')
-      const loginState = getLoginState()
-      if (!loginState.islogin && loginState.type === 2 && loginState.role !== 'center') {
-        const tokenData = await getSPUContainerToken()
-        if (tokenData) {
-          setToken(tokenData.token)
-          setRefreshToken(tokenData.refreshtoken)
-          setTokenExpires(tokenData.tokenexpires)
-        } else {
-          try {
-            await updateToken()
-          } catch (err) {
-            console.error(err)
-          }
-        }
-      }
+      checkTokenExpiredAndUpdate()
     })
+  } else if (
+    globalOptions.isfixapptokenexpired &&
+    globalOptions.modulekey === 'portalEngine' &&
+    window.aPaaS?.getToken
+  ) {
+    console.log('SPU is in App interactivewebview, listen App enter forceground.')
+    setTimeout(() => {
+      window.Native = window.Native || {}
+      window.Native.onHostEnterForceground = () => {
+        console.log('App enter forceground')
+        checkTokenExpiredAndUpdate()
+      }
+    }, 1000)
   }
 }
 
@@ -700,13 +772,13 @@ function installAuth(options: any) {
 export {
   installAuth,
   getToken,
-  // setToken,
+  setToken,
   // removeToken,
   getTokenExpires,
-  // setTokenExpires,
+  setTokenExpires,
   // removeTokenExpires,
   getRefreshToken,
-  // setRefreshToken,
+  setRefreshToken,
   // removeRefreshToken,
   updateToken,
   // startRefreshtoken,

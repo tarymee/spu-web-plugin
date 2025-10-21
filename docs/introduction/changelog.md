@@ -1,5 +1,9 @@
 # 更新日志
 
+## v1.0.20
+
+- feature: 兼容修复门户引擎 SPU 在 interactivewebview 的刷新 token 问题
+
 ## v1.0.19
 
 - feature: 新增 isfixapptokenexpired 配置项 是否修复 apptoken 过期问题 目前版本暂时不默认修复 等门户引擎验证通过之后 再改成默认修复

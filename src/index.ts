@@ -23,10 +23,13 @@ import { mapService } from './map/MapService'
 import AMapLoader from './map/AMapLoader'
 import {
   getToken,
+  setToken,
+  getRefreshToken,
+  setRefreshToken,
+  getTokenExpires,
+  setTokenExpires,
   checkLogin,
   getUser,
-  getRefreshToken,
-  getTokenExpires,
   updateToken,
   singleLogin,
   installAuth
@@ -135,6 +138,9 @@ export {
   getToken,
   getTokenExpires,
   getRefreshToken,
+  setToken,
+  setTokenExpires,
+  setRefreshToken,
   getUser,
   checkLogin,
   Module,

@@ -137,6 +137,9 @@ export const updateToken: () => Promise<void>
 export const getToken: () => string
 export const getTokenExpires: () => string
 export const getRefreshToken: () => string
+export const setToken: (value: string) => void
+export const setTokenExpires: (value: string) => void
+export const setRefreshToken: (value: string) => void
 export const getUser: (key?: string) => any
 export const checkLogin: () => boolean
 export const Module: any
