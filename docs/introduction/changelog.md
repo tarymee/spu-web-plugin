@@ -1,5 +1,9 @@
 # 更新日志
 
+## v1.0.21
+
+- feature: 安全漏洞问题处理--接口返回内容加密
+
 ## v1.0.20
 
 - feature: 兼容修复门户引擎 SPU 在 interactivewebview 的刷新 token 问题

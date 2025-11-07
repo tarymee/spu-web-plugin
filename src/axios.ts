@@ -6,12 +6,41 @@ import { getToken, updateToken, getLoginState } from './login'
 import core from './core'
 import { urlquery } from './urlquery'
 import { getTecode } from './envService'
+import { decrypt } from './crypt'
 
 interface Response {
   code: number | string
   data: any
   msg: string
   message: string
+}
+
+// _encrydata
+const normalizeEncryData = (response: any) => {
+  if (response.data && response.data._encrydata && typeof response.data._encrydata === 'string') {
+    let res = decrypt(response.data._encrydata)
+    try {
+      let resJson = JSON.parse(res)
+      response.data = {
+        ...resJson
+      }
+    } catch (e) {
+      response.data = res
+    }
+  }
+  if (response.body && response.body._encrydata && typeof response.body._encrydata === 'string') {
+    let res = decrypt(response.body._encrydata)
+    try {
+      let resJson = JSON.parse(res)
+      response.body = {
+        ...resJson
+      }
+    } catch (e) {
+      response.body = res
+    }
+  }
+
+  return response
 }
 
 const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
@@ -97,6 +126,7 @@ const createAxiosInstance = (type: 'spu' | 'normal' = 'spu', options: any) => {
       // debugger
       const isShowLoading = get(res, 'config.isShowLoading', true)
       isShowLoading && loadding.close()
+      normalizeEncryData(res)
 
       let realRes: Response = {
         code: 404,
