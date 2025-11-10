@@ -113,6 +113,7 @@ export const getAddress: (location: {
 export const spuAxios: any
 export const apaasAxios: any
 export const axios: any
+export const decryptAxiosResponseData: any
 export const spuConfig: any
 export const globalConfig: any
 export const downloadService: IDownloadService
@@ -128,6 +129,8 @@ export const getUniqueid: () => string
 export const getUuid: () => string
 export const functionCheck: (functioncode?: string) => boolean
 export const getServerTime: () => Promise<string>
+export const encrypt: (str: string) => string
+export const decrypt: (str: string) => string
 export const setTitle: (pagetitle?: string) => void
 export const isInApp: () => boolean
 export const AMapLoader: IAMapLoader

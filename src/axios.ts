@@ -16,7 +16,7 @@ interface Response {
 }
 
 // _encrydata
-const normalizeEncryData = (response: any) => {
+export const normalizeEncryData = (response: any) => {
   if (response.data && response.data._encrydata && typeof response.data._encrydata === 'string') {
     let res = decrypt(response.data._encrydata)
     try {
@@ -236,4 +236,4 @@ function installAxios(options: any) {
   normalAxios = createAxiosInstance('normal', options)
 }
 
-export { installAxios, spuAxios, normalAxios as axios }
+export { installAxios, spuAxios, normalAxios as axios, normalizeEncryData as decryptAxiosResponseData }

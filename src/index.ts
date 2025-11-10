@@ -3,7 +3,7 @@ import { merge } from 'lodash-es'
 import { v4 as getUuid } from 'uuid'
 import { installStorageProxy, lsProxy, ssProxy } from './storageProxy'
 import { getLocation, getDistance, getAddress } from './map/index'
-import { installAxios, spuAxios, axios } from './axios'
+import { installAxios, spuAxios, axios, decryptAxiosResponseData } from './axios'
 import { installSpuConfig, spuConfig } from './spuConfig'
 import { globalConfig } from './globalConfig'
 import { downloadService, uploadService } from './oss'
@@ -18,6 +18,7 @@ import {
   isvirtuallocation,
   getServerTime
 } from './utils'
+import { encrypt, decrypt } from './crypt'
 import { installUrlquery } from './urlquery'
 import { mapService } from './map/MapService'
 import AMapLoader from './map/AMapLoader'
@@ -119,6 +120,7 @@ export {
   spuAxios,
   axios,
   axios as apaasAxios,
+  decryptAxiosResponseData,
   spuConfig,
   globalConfig,
   downloadService,
@@ -129,6 +131,8 @@ export {
   getUuid,
   functionCheck,
   getServerTime,
+  encrypt,
+  decrypt,
   setTitle,
   isInApp,
   AMapLoader,
