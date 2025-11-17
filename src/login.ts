@@ -622,7 +622,11 @@ async function singleLogin(query: IAny) {
     envname ? setQueryEnvname(envname) : removeQueryEnvname()
     // context 上下文字段 产品运营中心安装 卸载 配置 和 产品配置中心业务配置 页面需要用到
     // web 端有传 app没传 需要做兼容
-    context && lsProxy.setItem('context', decodeURIComponent(context))
+    if (context) {
+      lsProxy.setItem('context', decodeURIComponent(context))
+    } else {
+      lsProxy.removeItem('context')
+    }
   }
 
   if (checkLoginByToken(token)) {
