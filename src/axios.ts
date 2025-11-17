@@ -18,9 +18,9 @@ interface Response {
 // _encrydata
 export const normalizeEncryData = (response: any) => {
   if (response.data && response.data._encrydata && typeof response.data._encrydata === 'string') {
-    let res = decrypt(response.data._encrydata)
+    const res = decrypt(response.data._encrydata)
     try {
-      let resJson = JSON.parse(res)
+      const resJson = JSON.parse(res)
       response.data = {
         ...resJson
       }
@@ -29,9 +29,9 @@ export const normalizeEncryData = (response: any) => {
     }
   }
   if (response.body && response.body._encrydata && typeof response.body._encrydata === 'string') {
-    let res = decrypt(response.body._encrydata)
+    const res = decrypt(response.body._encrydata)
     try {
-      let resJson = JSON.parse(res)
+      const resJson = JSON.parse(res)
       response.body = {
         ...resJson
       }
