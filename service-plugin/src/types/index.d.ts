@@ -49,3 +49,4 @@ export default ServicePlugin
 export const globalOptions: any
 export const downloadService: IDownloadService
 export const uploadService: IUploadService
+export const decryptAxiosResponseData: (response: any) => any

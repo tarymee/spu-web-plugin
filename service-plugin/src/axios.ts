@@ -2,6 +2,7 @@ import axios from 'axios'
 import { AxiosInstance, AxiosResponse } from 'axios'
 import { get } from 'lodash-es'
 import * as service from './index'
+import { decrypt } from './crypt'
 import login from './login'
 
 interface Response {
@@ -9,6 +10,34 @@ interface Response {
   data: any
   msg: string
   message: string
+}
+
+// _encrydata
+export const normalizeEncryData = (response: any) => {
+  if (response.data && response.data._encrydata && typeof response.data._encrydata === 'string') {
+    let res = decrypt(response.data._encrydata)
+    try {
+      let resJson = JSON.parse(res)
+      response.data = {
+        ...resJson
+      }
+    } catch (e) {
+      response.data = res
+    }
+  }
+  if (response.body && response.body._encrydata && typeof response.body._encrydata === 'string') {
+    let res = decrypt(response.body._encrydata)
+    try {
+      let resJson = JSON.parse(res)
+      response.body = {
+        ...resJson
+      }
+    } catch (e) {
+      response.body = res
+    }
+  }
+
+  return response
 }
 
 const createAxiosInstance = () => {
@@ -50,6 +79,7 @@ const createAxiosInstance = () => {
         msg: '',
         message: ''
       }
+      normalizeEncryData(res)
 
       realRes = {
         code: res.status || 200,
@@ -100,4 +130,4 @@ const createAxiosInstance = () => {
 
 let normalAxios: any = createAxiosInstance()
 
-export { normalAxios as axios }
+export { normalAxios as axios, normalizeEncryData as decryptAxiosResponseData }

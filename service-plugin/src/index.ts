@@ -2,6 +2,7 @@ import { version } from '../package.json'
 import { merge } from 'lodash-es'
 import downloadService from './oss/downloadService'
 import uploadService from './oss/uploadService'
+import { decryptAxiosResponseData } from './axios'
 
 const globalOptions: any = {
   getTenantcode: null,
@@ -36,4 +37,4 @@ const ServicePlugin = {
   version
 }
 
-export { ServicePlugin as default, globalOptions, downloadService, uploadService }
+export { ServicePlugin as default, globalOptions, downloadService, uploadService, decryptAxiosResponseData }
