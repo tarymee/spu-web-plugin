@@ -31,20 +31,14 @@ class Urlquery {
     return flag
   }
 
-  // 单点登录后 获取 web 开发者模式 如果是则设置 isdebugger
-  public dealWebDebugger() {
-    if (!this.isdebugger && !isMobile() && this.getWebDevmodel()) {
-      ssProxy.setItem('isdebugger', '1')
-    }
-  }
-
   public init() {
     if (this.isinit) return false
 
     this.isinit = true
 
     // 调试
-    if (location.href.indexOf('isdebugger=1') >= 0 || ssProxy.getItem('isdebugger') === '1') {
+    // 如果开启了 web 开发者模式 也算
+    if (location.href.indexOf('isdebugger=1') >= 0 || ssProxy.getItem('isdebugger') === '1' || (!isMobile() && this.getWebDevmodel())) {
       ssProxy.setItem('isdebugger', '1')
       if (isMobile()) {
         new VConsole({ theme: 'dark' }) /* eslint-disable-line no-new */

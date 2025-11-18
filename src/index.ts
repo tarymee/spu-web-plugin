@@ -86,7 +86,7 @@ const install = (app: any, options: any) => {
   console.log(globalOptions)
 
   // setTimeout(() => {
-  //   console.error('9999')
+  //   console.error('888')
   // }, 1000)
 
   // if (install.installed) return

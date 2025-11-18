@@ -414,13 +414,18 @@ function startRefreshtoken() {
     return false
   }
 
+  if (!loginState.islogin) {
+    console.warn('当前未登录/token过期，不支持自动刷新token。')
+    return false
+  }
+
   // stopRefreshtoken()
   clearTimeout(refreshtokenTimer as number)
   refreshtokenTimer = null
 
-  // 如果有登录 但 refreshtoken 不是完整 token 则10秒后【需要等单点登录走完后才刷新不然会被覆盖】刷新一次取到完整 token
-  // 如果有登录 且 refreshtoken 是完整 token 如果剩余时间大于10分钟 则每隔10分钟刷一次 否则过期前15秒更新 token
-  // 如果没登录 每隔10秒走token更新逻辑(如果刚开始没登录 后面才登录【不需要再在登陆后写刷新token逻辑】)
+  // 如果有登录
+  // 1、refreshtoken 不是完整 token 则10秒后【需要等单点登录走完后才刷新不然会被覆盖】刷新一次取到完整 token
+  // 2、refreshtoken 是完整 token 如果剩余时间大于10分钟 则每隔10分钟刷一次 否则过期前15秒更新 token
   let time = 0
   if (loginState.islogin) {
     const user = getUserByToken(getRefreshToken())
@@ -434,13 +439,6 @@ function startRefreshtoken() {
       }
     } else {
       time = 10000
-    }
-  } else {
-    if (loginState.type === 2) {
-      time = 0
-    } else {
-      // console.error('未登录，10秒后尝试更新token')
-      time = 30000
     }
   }
   // time = 5000
@@ -638,7 +636,6 @@ async function singleLogin(query: IAny) {
       // 之所以不强制校验 refreshtoken tokenexpires 是因为安装卸载配置页面有可能放在产品运营中心 没有这两字段
       if (checkLogin() && token === getToken()) {
         isneedlogin = false
-        flag = true
       }
     } else {
       // 如果本地已经登录 且 query 登录参数与本地一致 说明是刚登录没多久【token也没刷新过】 视为已经登录 不需再走单点登录流程
@@ -649,7 +646,6 @@ async function singleLogin(query: IAny) {
         tokenexpires === getTokenExpires()
       ) {
         isneedlogin = false
-        flag = true
       }
     }
     // isneedlogin = true
@@ -659,11 +655,11 @@ async function singleLogin(query: IAny) {
       setBaseInfo()
 
       // 单点登录写入 token 之后
-      // 1、如果 refreshtoken 不完整 则换取完整的 refreshtoken
       try {
         if (checkLogin()) {
           const refreshTokenUser = getUserByToken(getRefreshToken())
           const tokenUser = getUserByToken(getToken())
+          // 如果 refreshtoken 不完整【由于web端登录时 如果有选择租户或选择职位的情况 得到的 refreshtoken 是不完整】 则通过完整的 token 换取完整的 refreshtoken 如果不换的话 通过刷新 token 接口得到的 token 也变成不完整的了
           if (!refreshTokenUser?.tokenId && tokenUser?.tokenId) {
             await updateToken()
           }
@@ -671,8 +667,6 @@ async function singleLogin(query: IAny) {
       } catch (err) {
         console.error(err)
       }
-      // 2、重新计算刷新 token 时间 因为刚开始进入就 startRefreshtoken 检测到没有 token 会过10秒才执行刷新 token 操作
-      startRefreshtoken()
 
       // 获取环境信息和租户配置信息
       const nowEnvname = await getEnvname()
@@ -701,9 +695,8 @@ async function singleLogin(query: IAny) {
       await getAndSetTenant()
       await getAndSetUserInfo()
 
-      // 单点登录后 获取 web 开发者模式 如果是则设置 isdebugger
-      urlquery.dealWebDebugger()
-
+      flag = true
+    } else {
       flag = true
     }
   } else {
@@ -712,13 +705,15 @@ async function singleLogin(query: IAny) {
     console.error('单点登录失败，请检查链接所传 token/refreshtoken/tokenexpires 是否非法或过期。')
   }
 
-  // 登录成功之后 获取spu信息
+  // 单点登录成功
   if (flag) {
-    await core.initGetData()
-  }
+    // 启动刷新token机制
+    startRefreshtoken()
 
-  if (flag) {
-    // 单点登录成功 需要删除 query 中相关参数
+    // 获取spu 信息
+    await core.initGetData()
+
+    // 删除 query 中相关参数
     token && delete query.token
     refreshtoken && delete query.refreshtoken
     tokenexpires && delete query.tokenexpires
@@ -733,7 +728,13 @@ async function singleLogin(query: IAny) {
 }
 
 function installAuth(options: any) {
-  startRefreshtoken()
+  // 如果链接中没有带token 可能两种情况
+  // 1、已经是单点登陆过了 只是用户刷新页面
+  // 2、没登录过 用户直接访问链接
+  // 以上情况需要判断用户登陆过 才启动刷新token机制
+  if (location.href.indexOf('token=') === -1) {
+    startRefreshtoken()
+  }
 
   fixAppTokenExpired()
 
