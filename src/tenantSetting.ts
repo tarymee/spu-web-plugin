@@ -1,11 +1,11 @@
-import { axios } from './axios'
+import { apaasAxios } from './axios'
 import { decrypt } from './crypt'
 import { lsProxy } from './storageProxy'
 
 class TenantSetting {
   async requestAndSetTenantSetting(tenantcode?: string) {
     try {
-      const res = await axios.post(
+      const res = await apaasAxios.post(
         '/api/auth/tenantsettings',
         {
           tenantcode: tenantcode || ''

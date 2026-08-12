@@ -1,3 +1,5 @@
+import { globalOptions } from './index'
+
 let STORAGENAMESPACE = ''
 
 class StorageProxy {
@@ -36,8 +38,8 @@ class StorageProxy {
 let lsProxy!: StorageProxy
 let ssProxy!: StorageProxy
 
-function installStorageProxy(options: any) {
-  STORAGENAMESPACE = options.storageproxyprefix || options.modulekey
+function installStorageProxy() {
+  STORAGENAMESPACE = globalOptions.storageproxyprefix || globalOptions.modulekey
   lsProxy = new StorageProxy('local')
   ssProxy = new StorageProxy('session')
 }

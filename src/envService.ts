@@ -1,9 +1,9 @@
 import { get, cloneDeep } from 'lodash-es'
 import { lsProxy } from './storageProxy'
-import { axios } from './axios'
-import { decrypt } from './crypt'
+import { apaasAxios } from './axios'
 import { toggleHttpOrHttps } from './utils'
 import { getData, setData, removeData } from './storageCache'
+import { getCenterHost } from './centerHost'
 
 async function getEnvname(): Promise<string> {
   let envname = ''
@@ -53,8 +53,9 @@ async function requestEnvdata(envName: string): Promise<IAny | null> {
       document.location.protocol === 'https:'
         ? 'https://mconfig.xuantongkeji.com'
         : 'http://mconfig.xuantongkeji.com:8015'
+    const centerHost = getCenterHost()
     try {
-      const res = await axios.get(`${hostsRoot}/multiplatconfig/env/${envName}`, {
+      const res = await apaasAxios.get(`${centerHost || hostsRoot}/multiplatconfig/env/${envName}`, {
         isShowLoading: false,
         isSendToken: false
       })

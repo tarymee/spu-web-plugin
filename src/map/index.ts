@@ -1,10 +1,10 @@
 import { urlquery } from '../urlquery'
-import { cloneDeep } from 'lodash-es'
+import { cloneDeep, isObject } from 'lodash-es'
 import { mapService } from './MapService'
 import { getAMapKey } from './AMapKey'
-import { axios } from '../axios'
+import { apaasAxios } from '../axios'
 import { delay } from '../utils'
-import { wgs84ToGcj02, BMapTransformBD09ToGCJ02Points } from './utils'
+import { wgs84ToGcj02, BMapTransformBD09ToGCJ02Points, getPoiPhoneNumber } from './utils'
 
 type Location = {
   longitude: string
@@ -39,7 +39,23 @@ const getLocationByNative = async (): Promise<Location> => {
         const result = {
           longitude: res.longitude.toString(),
           latitude: res.latitude.toString(),
-          address: res.address || ''
+          address: res.address || '',
+          // poiname: res.poiname || '',
+          regionid: res.regionid || '',
+          country: res.country || '',
+          province: res.province || '',
+          city: res.city || '',
+          district: res.district || '',
+          street: res.street || '',
+          number: res.number || '',
+          detailaddr: res.detailaddr || '',
+          citycode: res.citycode || '',
+          // poiid: res.poiid || '',
+          // poitypename: res.poitypename || '',
+          // poitypecode: res.poitypecode || '',
+          // phonenumber: res.phonenumber || '',
+          // signboard: res.signboard || '',
+          // maptype: res.maptype || '',
         }
         console.log(`getLocationByNative success: ${JSON.stringify(result)}`)
         resolve(result)
@@ -74,6 +90,7 @@ const getLocationByNavigator = async (): Promise<Location> => {
               latitude: Gcj02.lat.toString(),
               longitude: Gcj02.lng.toString()
             }
+
             console.log(`getLocationByNavigator success: ${JSON.stringify(result)}`)
             resolve(result)
           } else {
@@ -100,7 +117,7 @@ const getIPLocationByIpaas = async (ip?: string): Promise<Location> => {
   return new Promise((resolve, reject) => {
     const AMapKey = getAMapKey()
 
-    axios
+    apaasAxios
       .post(
         'https://silkroad.wxchina.com/api/openapi/publishEvent?topic=xw-listener&subtopic=xw-listener&apicaseid=6684389338001815271',
         {
@@ -150,7 +167,7 @@ const getAddressByIpaas = async (position: Location): Promise<string> => {
     if (position) {
       try {
         const AMapKey = getAMapKey()
-        const result = await axios.post(
+        const result = await apaasAxios.post(
           'https://silkroad.wxchina.com/api/openapi/publishEvent?topic=xw-listener&subtopic=xw-listener&apicaseid=6684389338001809906',
           {
             longitude: position.longitude,
@@ -196,10 +213,56 @@ const getLocationByAMap = async (): Promise<Location> => {
         const { lng, lat } = res.position
         const result = {
           longitude: lng.toString(),
-          latitude: lat.toString()
+          latitude: lat.toString(),
+          address: '',
+          // poiname: '',
+          regionid: '',
+          citycode: '',
+          country: '',
+          province: '',
+          city: '',
+          district: '',
+          street: '',
+          number: '',
+          detailaddr: '',
+          // poiid: '',   // 图商的id
+          // poitypename: '', // 图商的poi类型名称
+          // poitypecode: '', // 图商的poi类型code
+          // phonenumber: '',
+          // signboard: '',
+          // maptype: "amap"
         }
-        console.log(`getLocationByAMap success: ${JSON.stringify(result)}`)
-        resolve(result)
+        // 通过经纬度获取详细地址信息
+        getAddressDetailByAMap({
+          longitude: lng.toString(),
+          latitude: lat.toString()
+        }).then((addrssDetail: IAddressDetail | null) => {
+          if (addrssDetail) {
+            result.address = addrssDetail.addressDetail.address
+            // result.poiname = addrssDetail.addressDetail.poiname
+            result.regionid = addrssDetail.addressDetail.regionid || ''
+            result.citycode = addrssDetail.addressDetail.citycode || ''
+            result.country = addrssDetail.addressDetail.country || ''
+            result.province = addrssDetail.addressDetail.province || ''
+            result.city = addrssDetail.addressDetail.city || ''
+            result.district = addrssDetail.addressDetail.district || ''
+            result.street = addrssDetail.addressDetail.street || ''
+            result.number = addrssDetail.addressDetail.number
+            result.detailaddr = addrssDetail.addressDetail.detailaddr
+            // result.poiid = addrssDetail.addressDetail.poiid
+            // result.poitypename = addrssDetail.addressDetail.poitypename
+            // result.poitypecode = addrssDetail.addressDetail.poitypecode
+            // result.phonenumber = addrssDetail.addressDetail.phonenumber
+            // result.signboard = addrssDetail.addressDetail.signboard
+          }
+          console.log(`getLocationByAMap success: ${JSON.stringify(result)}`)
+          resolve(result)
+        }).catch((err: any) => {
+          console.error(err)
+          console.error('getLocationByAMap fail')
+          resolve(null)
+        })
+
       } else {
         console.error('getLocationByAMap fail')
         resolve(null)
@@ -228,10 +291,57 @@ const getCityLocationByAMap = async (): Promise<Location> => {
         const lat = res.position[1].toString()
         const result = {
           longitude: lng.toString(),
-          latitude: lat.toString()
+          latitude: lat.toString(),
+          address: '',
+          // poiname: '',
+          regionid: '',
+          citycode: '',
+          country: '',
+          province: '',
+          city: '',
+          district: '',
+          street: '',
+          number: '',
+          detailaddr: '',
+          // poiid: '',   // 图商的id
+          // poitypename: '', // 图商的poi类型名称
+          // poitypecode: '', // 图商的poi类型code
+          // phonenumber: '',
+          // signboard: '',
+          // maptype: "amap"
         }
         console.log(`getCityLocationByAMap success: ${JSON.stringify(result)}`)
-        resolve(result)
+
+        // 通过经纬度获取详细地址信息
+        getAddressDetailByAMap({
+          longitude: lng.toString(),
+          latitude: lat.toString()
+        }).then((addrssDetail: IAddressDetail | null) => {
+          if (addrssDetail) {
+            result.address = addrssDetail.addressDetail.address
+            // result.poiname = addrssDetail.addressDetail.poiname
+            result.regionid = addrssDetail.addressDetail.regionid || ''
+            result.citycode = addrssDetail.addressDetail.citycode || ''
+            result.country = addrssDetail.addressDetail.country || ''
+            result.province = addrssDetail.addressDetail.province || ''
+            result.city = addrssDetail.addressDetail.city || ''
+            result.district = addrssDetail.addressDetail.district || ''
+            result.street = addrssDetail.addressDetail.street || ''
+            result.number = addrssDetail.addressDetail.number
+            result.detailaddr = addrssDetail.addressDetail.detailaddr
+            // result.poiid = addrssDetail.addressDetail.poiid
+            // result.poitypename = addrssDetail.addressDetail.poitypename
+            // result.poitypecode = addrssDetail.addressDetail.poitypecode
+            // result.phonenumber = addrssDetail.addressDetail.phonenumber
+            // result.signboard = addrssDetail.addressDetail.signboard
+          }
+          console.log(`getLocationByAMap success: ${JSON.stringify(result)}`)
+          resolve(result)
+        }).catch((err: any) => {
+          console.error(err)
+          console.error('getLocationByAMap fail')
+          resolve(null)
+        })
       } else {
         console.error('getCityLocationByAMap fail')
         resolve(null)
@@ -264,6 +374,129 @@ const getAddressByAMap = async (position: Location): Promise<string> => {
         } else {
           console.error(`getAddressByAMap fail: status = ${status}, result = ${result}`)
           resolve('')
+        }
+      })
+    }
+  })
+}
+
+interface IAddressDetail {
+  regeocode: IAny
+  addressDetail: {
+    longitude: string
+    latitude: string
+    address: string
+    // poiname: string
+    regionid: string
+    citycode: string
+    country: string
+    province: string
+    city: string
+    district: string
+    street: string
+    number: string
+    detailaddr: string
+    // poiid: string
+    // poitypename: string
+    // poitypecode: string
+    // phonenumber: string
+    // signboard: string
+    // maptype: string
+  }
+}
+// 高德逆地址解析详细数据
+const getAddressDetailByAMap = async (position: Location): Promise<IAddressDetail | null> => {
+  console.log('getAddressDetailByAMap start...')
+  return new Promise((resolve, reject) => {
+    if (!window?.AMap) {
+      console.error('getAddressDetailByAMap fail: AMap is undefinded')
+      resolve(null)
+      return
+    }
+    if (position) {
+      new window.AMap.Geocoder({
+        radius: 500,
+        extensions: 'all'
+      }).getAddress([position.longitude, position.latitude], (status: string, result: any) => {
+        // console.log(status)
+        // console.log(result)
+        if (status === 'complete' && result.info === 'OK' && result?.regeocode) {
+          console.log(`getAddressByAMap success:`, result.regeocode)
+
+          const addressComponent = result.regeocode.addressComponent || {}
+
+          // 确保 country 字段被正确获取
+          // 直接从高德地图 API 返回的数据中获取 country 字段
+          const country = addressComponent.country || ''
+
+          let aois = result.regeocode.aois || []
+          let pois = result.regeocode.pois || []
+          if (Array.isArray(addressComponent.city)) {
+            addressComponent.city = addressComponent.city.join(',')
+          }
+          let street = addressComponent.street || (addressComponent.streetNumber && isObject(addressComponent.streetNumber) ? addressComponent.streetNumber.street : '')
+          let number = addressComponent.streetNumber && isObject(addressComponent.streetNumber) ? addressComponent.streetNumber.number : (addressComponent.streetNumber || '')
+          if (Array.isArray(street)) {
+            street = street.join(',')
+          }
+          if (Array.isArray(number)) {
+            number = number.join(',')
+          }
+          let poiname = (aois && aois[0] && aois[0].name) || ''
+
+          let detailAddr =
+            street + number + poiname || ''
+
+          let address =
+            (addressComponent.province || '') +
+            (addressComponent.city || '') +
+            (addressComponent.district || '') +
+            (detailAddr || '')
+          let tmpFullDistrinct =
+            (addressComponent.province || '') +
+            (addressComponent.city || '') +
+            (addressComponent.district || '')
+          if (!address.endsWith(poiname)) {
+            address = address + poiname
+          }
+          let selectedDetailAddr = detailAddr || ''
+          // 去除前面的行政区域
+          if (selectedDetailAddr.startsWith(tmpFullDistrinct)) {
+            selectedDetailAddr = selectedDetailAddr.slice(tmpFullDistrinct.length)
+          }
+          let poiid = pois && pois[0] && pois[0].id
+          let poitypename = pois && pois[0] && pois[0].type
+
+          const addressDetail: IAddressDetail = {
+            regeocode: result.regeocode,
+            addressDetail: {
+              longitude: position.longitude,
+              latitude: position.latitude,
+              address: address || '',
+              // poiname: poiname || '',
+              regionid: addressComponent.adcode || '',
+              citycode: addressComponent.citycode || '',
+              country: country || '',
+              province: addressComponent.province || '',
+              city: addressComponent.city || '',
+              district: addressComponent.district ||
+                addressComponent.township ||
+                '',
+              street: street || '',
+              number: number || '',
+              detailaddr: selectedDetailAddr || '',
+              // poiid: poiid || '',
+              // poitypename: poitypename || '',
+              // poitypecode: '',
+              // phonenumber: getPoiPhoneNumber(pois && pois[0] && pois[0].tel),
+              // signboard: '',
+              // maptype: 'amap',
+            }
+          }
+          resolve(addressDetail)
+        } else {
+          console.error(`getAddressByAMap fail: status = ${status}, result = ${result}`)
+          resolve(null)
         }
       })
     }

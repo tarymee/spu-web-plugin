@@ -1,6 +1,6 @@
 {
   "name": "@smart100/service-plugin",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "",
   "scripts": {
     "dev": "npm run build:types && rollup -c -w",

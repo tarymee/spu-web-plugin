@@ -4,6 +4,8 @@ import OSS from '../package/ali-oss/aliyun-oss-sdk.apaas.min.js'
 import ObsClient from '../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js'
 // const ObsClient = require('../package/huaweicloud-obs/esdk-obs-browserjs.3.22.3.min.js')
 
+import Cos from '../package/cos-js-sdk-v5/cos-js-sdk-v5.min.js'
+
 // import '../package/aws-sdk/aws-sdk.min.js'
 import 'aws-sdk/dist/aws-sdk.min.js'
 // var S3 = require('aws-sdk/clients/s3')
@@ -18,3 +20,6 @@ const AliClient = OSS
 const S3Client = window?.AWS?.S3
 
 export { AliClient, ObsClient, S3Client }
+
+// @ts-ignore
+export const CosClient: any = (Cos as any)

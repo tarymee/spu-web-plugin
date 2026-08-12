@@ -1,5 +1,6 @@
 import { globalOptions } from './index'
-import { axios } from './axios'
+import { apaasAxios } from './axios'
+import { axiosCache } from './axiosCache'
 import { get, cloneDeep } from 'lodash-es'
 import { urlquery } from './urlquery'
 import { getToken, getUser, getRefreshToken, getTokenExpires } from './login'
@@ -83,16 +84,38 @@ class Core {
       // debugger
       let res
       try {
-        res = await axios.post(
-          `${smartcenter}/api/smartcenter/biz/getTenantWebAndApiDefined`,
+        // res = await apaasAxios.post(
+        //   `${smartcenter}/api/smartcenter/biz/getTenantWebAndApiDefined`,
+        //   {
+        //     envid: envId,
+        //     tenantcode: tenantCode
+        //   },
+        //   {
+        //     isShowLoading: false
+        //   }
+        // )
+        res = await axiosCache(
           {
-            envid: envId,
-            tenantcode: tenantCode
+            strategy: 'default',
+            async checkcachesave(res) {
+              // console.log(res)
+              // debugger
+              return Array.isArray(res?.data?.list)
+            }
           },
+          apaasAxios,
           {
-            isShowLoading: false
+            url: `${smartcenter}/api/smartcenter/biz/getTenantWebAndApiDefined`,
+            method: 'post',
+            isShowLoading: false,
+            data: {
+              envid: envId,
+              tenantcode: tenantCode
+            }
           }
         )
+        // console.log(res)
+        // debugger
       } catch (err) {
         console.error(err)
       }
@@ -414,10 +437,6 @@ class Core {
     } else {
       return ''
     }
-  }
-
-  checkInAppSpuWebview() {
-    return !!window?.aPaaS?.getPhoto
   }
 }
 

@@ -1,11 +1,19 @@
 import { get, cloneDeep } from 'lodash-es'
 import jwtDecode from 'jwt-decode'
 import { lsProxy } from './storageProxy'
-import { axios } from './axios'
+import { apaasAxios } from './axios'
 import cloudServ from './oss/cloudServ'
-import core, { Module } from './core'
-import { urlquery } from './urlquery'
+import core from './core'
 import { getData, setData, removeData } from './storageCache'
+import {
+  isMobile,
+  isIOS,
+  isAndroid,
+  isHarmony,
+  isInAppSpuWebview,
+  isInInteractive,
+  isInAppSpuOrInteractive
+} from './utils'
 import {
   setQueryEnvname,
   removeQueryEnvname,
@@ -283,7 +291,7 @@ function getLoginState() {
 // 有可能是中心角色请求失败 兼容不报错
 async function getAndSetUserInfo() {
   try {
-    const accountinfo = await axios
+    const accountinfo = await apaasAxios
       .post('/api/teapi/rolepermission/account/getaccountinfo', {
         positionid: getUser('positioncode') || '',
         deviceinfo: '',
@@ -333,7 +341,7 @@ function formatTenant(tenant: ITenantInfo) {
 
 async function getAndSetTenant(tenantcode?: string) {
   try {
-    const tenantsRes: null | ITenantInfo[] = await axios
+    const tenantsRes: null | ITenantInfo[] = await apaasAxios
       .get('/api/auth/tenantlist', {})
       .then((res: any) => {
         return res?.data?.tenants
@@ -380,7 +388,7 @@ function updateToken() {
   const token = getToken()
   const refreshtoken = getRefreshToken()
   const sendToken = checkLoginByToken(token) ? token : refreshtoken
-  return axios
+  return apaasAxios
     .get('/api/auth/refreshtoken', {
       params: {
         refreshtoken: sendToken
@@ -450,75 +458,57 @@ function startRefreshtoken() {
   }, time)
 }
 
-// 获取 spu 容器 token
-const getSPUContainerToken = (): Promise<any> => {
+// 获取处于 App 的 token
+const getAppToken = (): Promise<{
+  token: string
+  tokenexpires: string
+  refreshtoken: string
+} | null> => {
   return new Promise((resolve, reject) => {
-    // 在spuwebview中
-    if (core.checkInAppSpuWebview() && window.aPaaS?.getToken) {
-      console.log('in App spuwebview')
+    const handleTokenResult = (res: any) => {
+      const token = res?.token
+      const tokenexpires = res?.tokenExpires
+      const refreshtoken = res?.refreshToken
+      if (token && tokenexpires && refreshtoken) {
+        console.log('handleTokenResult success')
+        resolve({
+          token,
+          tokenexpires,
+          refreshtoken
+        })
+      } else {
+        console.error('handleTokenResult fail')
+        resolve(null)
+      }
+    }
+
+    if (isInAppSpuWebview()) {
+      // 在spuwebview中
+      console.log('getAppToken in App spuwebview')
       window.aPaaS.getToken((res: any) => {
         console.log('window.aPaaS.getToken success', res)
-        const token = res?.token
-        const tokenexpires = res?.tokenExpires
-        const refreshtoken = res?.refreshToken
-
-        if (token && tokenexpires && refreshtoken) {
-          resolve({
-            token,
-            tokenexpires,
-            refreshtoken
-          })
-        } else {
-          console.error('window.aPaaS.getToken fail')
-          resolve(null)
-        }
+        handleTokenResult(res)
       })
-    } else if (window.aPaaS?.getToken && globalOptions.modulekey === 'portalEngine') {
-      console.log('in App interactivewebview')
+    } else if (isInInteractive()) {
       // 兼容门户引擎在 interactivewebview 的情况
-      const u = navigator.userAgent
-      const isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1
-      if (isAndroid) {
-        console.log('in Android, use window.aPaaS.getToken and window.getTokenComplete')
+      console.log('getAppToken in App interactivewebview')
+
+      if (isAndroid() || isHarmony()) {
+        console.log('in Android/Harmony, use window.getTokenComplete')
         window.getTokenComplete = (res: any) => {
           console.log('window.getTokenComplete success', res)
-          const token = res?.token
-          const tokenexpires = res?.tokenExpires
-          const refreshtoken = res?.refreshToken
-          if (token && tokenexpires && refreshtoken) {
-            resolve({
-              token,
-              tokenexpires,
-              refreshtoken
-            })
-          } else {
-            console.error('window.getTokenComplete fail')
-            resolve(null)
-          }
+          handleTokenResult(res)
         }
         window.aPaaS.getToken(window.getTokenComplete)
       } else {
         console.log('in IOS, use window.aPaaS.getToken')
         window.aPaaS.getToken((res: any) => {
           console.log('window.aPaaS.getToken success', res)
-          const token = res?.token
-          const tokenexpires = res?.tokenExpires
-          const refreshtoken = res?.refreshToken
-
-          if (token && tokenexpires && refreshtoken) {
-            resolve({
-              token,
-              tokenexpires,
-              refreshtoken
-            })
-          } else {
-            console.error('window.aPaaS.getToken fail')
-            resolve(null)
-          }
+          handleTokenResult(res)
         })
       }
     } else {
-      console.warn('window.aPaaS.getToken fail: not in SPU container')
+      console.warn('getAppToken fail: not in App spuwebview or interactivewebview')
       resolve(null)
     }
   })
@@ -531,30 +521,23 @@ const getSPUContainerToken = (): Promise<any> => {
 // 因此 在APP端 单点登录不使用url上的token 而是直接拿App端的 App端能保证拿到的token一直不过期
 const fixLoginQuery = async (query: IAny) => {
   const newQuery = cloneDeep(query)
-  if (!window.aPaaS?.getToken) {
-    console.log('SPU is not in App, singleLogin use query token.')
-  } else {
-    if (core.checkInAppSpuWebview()) {
-      console.log('SPU is in App spuwebview, singleLogin use App token.')
-    } else if (globalOptions.modulekey === 'portalEngine') {
-      // 兼容门户引擎在 interactivewebview 的情况
-      console.log('SPU is in App interactivewebview, singleLogin use App token.')
-    }
-    const tokenData = await getSPUContainerToken()
+  if (isInAppSpuOrInteractive()) {
+    const tokenData = await getAppToken()
     if (tokenData) {
       newQuery.token = tokenData.token
       newQuery.tokenexpires = tokenData.tokenexpires
       newQuery.refreshtoken = tokenData.refreshtoken
     }
+  } else {
+    console.log('SPU is not in App, singleLogin use query token.')
   }
-
   return newQuery
 }
 
 const checkTokenExpiredAndUpdate = async () => {
   const loginState = getLoginState()
   if (!loginState.islogin && loginState.type === 2 && loginState.role !== 'center') {
-    const tokenData = await getSPUContainerToken()
+    const tokenData = await getAppToken()
     if (tokenData) {
       setToken(tokenData.token)
       setRefreshToken(tokenData.refreshtoken)
@@ -572,21 +555,13 @@ const checkTokenExpiredAndUpdate = async () => {
 // 修复 App 切到后台时间过长导致 token 过期
 // 监听 App 切换到前台 判断token是否过期 如果过期就调用获取tokne方法更新token
 const fixAppTokenExpired = async () => {
-  if (
-    globalOptions.isfixapptokenexpired &&
-    core.checkInAppSpuWebview() &&
-    window.Native?.onHostEnterForceground
-  ) {
+  if (isInAppSpuWebview() && window.Native?.onHostEnterForceground) {
     console.log('SPU is in App spuwebview, listen App enter forceground.')
     window.Native.onHostEnterForceground(() => {
       console.log('App enter forceground')
       checkTokenExpiredAndUpdate()
     })
-  } else if (
-    globalOptions.isfixapptokenexpired &&
-    globalOptions.modulekey === 'portalEngine' &&
-    window.aPaaS?.getToken
-  ) {
+  } else if (isInInteractive()) {
     console.log('SPU is in App interactivewebview, listen App enter forceground.')
     setTimeout(() => {
       window.Native = window.Native || {}
@@ -601,7 +576,9 @@ const fixAppTokenExpired = async () => {
 // 单点登录
 async function singleLogin(query: IAny) {
   query = cloneDeep(query)
-  if (globalOptions.isfixapptokenexpired) {
+  // App SPUWebview 内用 Native-Api 获取token 而不是从 url 上取
+  // 暂时只在 门户引擎 中启用 等门户引擎验证通过之后 再改成所有 SPU 默认
+  if (globalOptions.isfixapptokenexpired && isInAppSpuOrInteractive()) {
     query = await fixLoginQuery(query)
   }
 
@@ -630,24 +607,51 @@ async function singleLogin(query: IAny) {
   if (checkLoginByToken(token)) {
     let isneedlogin = true // 是否需要走单点登录流程
     const loginRole = getRoleByToken(token)
+    const curUser = getUserByToken(token)
+    const cacheUser = getUserByToken(getToken())
 
-    if (loginRole === 'center') {
-      // 如果本地已经登录 且 query 登录参数与本地一致 说明是刚登录没多久【token也没刷新过】 视为已经登录 不需再走单点登录流程
-      // 之所以不强制校验 refreshtoken tokenexpires 是因为安装卸载配置页面有可能放在产品运营中心 没有这两字段
-      if (checkLogin() && token === getToken()) {
-        isneedlogin = false
-      }
-    } else {
-      // 如果本地已经登录 且 query 登录参数与本地一致 说明是刚登录没多久【token也没刷新过】 视为已经登录 不需再走单点登录流程
-      if (
-        checkLogin() &&
-        token === getToken() &&
-        refreshtoken === getRefreshToken() &&
-        tokenexpires === getTokenExpires()
-      ) {
-        isneedlogin = false
+    // 如果本地已经登录
+    if (checkLogin()) {
+      // 产品运营中心单点登录只有 token
+      if (loginRole === 'center') {
+        // 产品运营中心每次都需要走单点登录逻辑
+        // if (
+        //   curUser?.userCode === cacheUser?.userCode &&
+        //   curUser?.appId === cacheUser?.appId &&
+        //   curUser?.tenantCode === cacheUser?.tenantCode &&
+        //   curUser?.tokenId === cacheUser?.tokenId &&
+        //   curUser?.envid === cacheUser?.envid &&
+        //   curUser?.productCode === cacheUser?.productCode
+        // ) {
+        //   isneedlogin = false
+        // }
+      } else {
+        // 不重复走单点登录的逻辑
+        // 旧：判断当前单点登录的 token/refreshtoken/tokenexpires 是否与本地缓存的一致
+        // 新：解析当前单点登录 token 中的 mbcode、tenantcode，如果与缓存的一致，说明本次登录与上次登录是同个人同个租户
+        // 新逻辑暂时只用于超表
+        // 新逻辑有问题，暂时不启用了
+        // 1、如果web端退出登录，该token失效，但如果spu还沿用该token的话请求接口会报错
+        // 2、如果该用户改了基本信息，不重走登录流程也无法拿到最新用户信息
+        if (globalOptions.modulekey === 'litheformspu' && false) {
+          if (
+            curUser?.memberCode === cacheUser?.memberCode &&
+            curUser?.tenantCode === cacheUser?.tenantCode
+          ) {
+            isneedlogin = false
+          }
+        } else {
+          if (
+            token === getToken() &&
+            refreshtoken === getRefreshToken() &&
+            tokenexpires === getTokenExpires()
+          ) {
+            isneedlogin = false
+          }
+        }
       }
     }
+
     // isneedlogin = true
     // debugger
 
@@ -711,7 +715,9 @@ async function singleLogin(query: IAny) {
     startRefreshtoken()
 
     // 获取spu 信息
-    await core.initGetData()
+    if (globalOptions.isspu) {
+      await core.initGetData()
+    }
 
     // 删除 query 中相关参数
     token && delete query.token
@@ -727,19 +733,21 @@ async function singleLogin(query: IAny) {
   }
 }
 
-function installAuth(options: any) {
+function installAuth() {
   // 如果链接中没有带token 可能两种情况
-  // 1、已经是单点登陆过了 只是用户刷新页面
+  // 1、已经是单点登陆过了 只是用户刷新或访问页面
   // 2、没登录过 用户直接访问链接
   // 以上情况需要判断用户登陆过 才启动刷新token机制
   if (location.href.indexOf('token=') === -1) {
     startRefreshtoken()
   }
 
-  fixAppTokenExpired()
+  if (globalOptions.isfixapptokenexpired && isInAppSpuOrInteractive()) {
+    fixAppTokenExpired()
+  }
 
-  if (options.router) {
-    options.router.beforeEach(async (to: any, from: any, next: any) => {
+  if (globalOptions.router) {
+    globalOptions.router.beforeEach(async (to: any, from: any, next: any) => {
       // console.log(from)
       // console.log(to)
       // const isInitVisit = from.path === '/' && from.name === undefined // 路由初始化访问
@@ -758,7 +766,7 @@ function installAuth(options: any) {
         } else {
           next()
         }
-        options.singleLoginCallback && options.singleLoginCallback(singleLoginRes)
+        globalOptions.singleLoginCallback && globalOptions.singleLoginCallback(singleLoginRes)
       } else {
         next()
       }
@@ -769,7 +777,7 @@ function installAuth(options: any) {
     )
   }
 
-  if (checkLogin()) {
+  if (checkLogin() && globalOptions.isspu) {
     core.initGetData()
   }
 }
@@ -778,23 +786,14 @@ export {
   installAuth,
   getToken,
   setToken,
-  // removeToken,
   getTokenExpires,
   setTokenExpires,
-  // removeTokenExpires,
   getRefreshToken,
   setRefreshToken,
-  // removeRefreshToken,
   updateToken,
-  // startRefreshtoken,
   getUser,
-  // setUser,
   getRole,
-  // removeUser,
-  // getUserByToken,
-  // setUserByToken,
   checkLogin,
   getLoginState,
-  // checkLoginByToken,
   singleLogin
 }

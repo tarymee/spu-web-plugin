@@ -25,7 +25,8 @@ class CloudServ {
       isAzure: name === 'azure',
       isAwss3: name === 'awss3',
       isHuawei: name === 'huawei',
-      isMinio: name === 'minio'
+      isMinio: name === 'minio',
+      isCos: name === 'tencent'
     }
   }
 }

@@ -1,6 +1,6 @@
 import { Module } from '../../core'
 import { wxworkSuite } from '../../wxworksuitePlugin'
-import { spuAxios, axios } from '../../axios'
+import { spuAxios, apaasAxios } from '../../axios'
 import { getUser } from '../../login'
 import { cloneDeep, merge } from 'lodash-es'
 import { downloadService } from '../../oss'
@@ -425,7 +425,7 @@ export default class SpuExpandexp extends HTMLElement {
         event: 'exportopenmodal'
       })
     } else {
-      axios
+      apaasAxios
         .post(
           '/api/expandexp/global/searchExpGloConfig',
           {
@@ -468,7 +468,7 @@ export default class SpuExpandexp extends HTMLElement {
             this.data.iscompress = '1'
 
             // 获取文件水印开关
-            axios
+            apaasAxios
               .post('/api/expandexp/global/searchWatermarkConfig', '', {
                 isShowLoading: false
               })
@@ -539,7 +539,7 @@ export default class SpuExpandexp extends HTMLElement {
       }
     }
     const finallyPost = mergedata ? merge(mergedata, post) : post
-    axios
+    apaasAxios
       .post(this.props.exportapi, finallyPost)
       .then((res: any) => {
         // console.log(res)
@@ -662,7 +662,7 @@ export default class SpuExpandexp extends HTMLElement {
     // console.log(this.data)
     // console.log(this.data.exportDataItem)
 
-    axios
+    apaasAxios
       .post('/api/teapi/queue/impexp/cancel', {
         dynamicid: this.data.exportId
       })
@@ -708,7 +708,7 @@ export default class SpuExpandexp extends HTMLElement {
   }
 
   async updateStatus() {
-    axios
+    apaasAxios
       .post(
         `/api/teapi/queue/impexp/expStatus?dynamicid=${this.data.exportId}`,
         {},

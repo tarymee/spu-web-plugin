@@ -1,20 +1,59 @@
 import { spuAxios } from './axios'
+import { axiosCache } from './axiosCache'
 import { cloneDeep } from 'lodash-es'
+import { globalOptions } from './index'
 
 let modulekey = ''
+let customerid = ''
+let customertype = ''
 
 class SpuConfig {
   private isload = false
 
   cache: any[] = []
 
-  public async getFun(): Promise<any> {
+  private async getFun(): Promise<any> {
     if (!this.isload) {
       try {
-        const res = await spuAxios.post('/lifecycle/getconfigdata', {
-          // modulekey: 'litheformspu'
-          modulekey: modulekey
-        })
+        // const res = await spuAxios.post('/lifecycle/getconfigdata', {
+        //   // modulekey: 'litheformspu'
+        //   modulekey: modulekey,
+        //   customerid: customerid,
+        //   customertype: customertype
+        // })
+
+        const res = await axiosCache(
+          {
+            strategy: 'default',
+            async checkcachesave(res: any) {
+              return !!(res.code === 200 && res?.data?.configs)
+            }
+          },
+          spuAxios,
+          {
+            url: '/lifecycle/getconfigdata',
+            method: 'post',
+            data: {
+              // modulekey: 'litheformspu'
+              modulekey: modulekey,
+              customerid: customerid,
+              customertype: customertype
+            }
+          }
+        )
+
+        // TODO 9.3.3后 res.data中增加extend字段记录额外的数据，也需要返回，这里需要做一个兼容的数据格式
+        if (!res?.data?.configs) {
+          res.data.configs = []
+        }
+        if (res?.data?.extend) {
+          res.data.configs.push({
+            descr: 'getconfigdata接口的extend字段信息',
+            dataid: '__system_getconfigdata_extend',
+            type: 'json',
+            context: JSON.stringify(res?.data?.extend || {})
+          })
+        }
         // console.log(res)
         // debugger
         if (res.code === 200) {
@@ -40,7 +79,9 @@ class SpuConfig {
 
     if (dataid) {
       if (Array.isArray(dataid)) {
-        return cloneDeep(this.cache.filter((item: any) => dataid.some((item2) => item2 === item.dataid)))
+        return cloneDeep(
+          this.cache.filter((item: any) => dataid.some((item2) => item2 === item.dataid))
+        )
       } else {
         return cloneDeep(this.cache.find((item: any) => item.dataid === dataid))
       }
@@ -97,10 +138,13 @@ class SpuConfig {
   // }
 }
 
-function installSpuConfig(options: any) {
-  modulekey = options.modulekey
-}
+let spuConfig: any = null
 
-const spuConfig = new SpuConfig()
+function installSpuConfig() {
+  modulekey = globalOptions.modulekey
+  customerid = globalOptions.customerid
+  customertype = globalOptions.customertype
+  spuConfig = globalOptions.isspu ? new SpuConfig() : null
+}
 
 export { installSpuConfig, spuConfig }

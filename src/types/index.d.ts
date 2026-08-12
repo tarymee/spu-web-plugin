@@ -52,7 +52,10 @@ interface IDownload {
 }
 
 interface IDownloadService {
-  getUrl: (options: IDownload) => Promise<any>
+  getUrl: (options: IDownload) => Promise<string>
+  getBlob: (options: IDownload) => Promise<Blob | null>
+  getFile: (options: IDownload) => Promise<File | null>
+  getObjectURL: (options: IDownload) => Promise<string>
   downloadFile: (options: IDownload) => Promise<any>
 }
 
@@ -75,14 +78,16 @@ interface IUploadService {
   copy: (options: ICopy) => Promise<any>
 }
 
-// interface ISPUWebPluginOptions {
-//   modulekey: string
-//   modulename: string
-//   moduleversion: string
-//   storageproxyprefix?: string
-//   isfixapptokenexpired?: boolean
-//   router?: any
-// }
+export interface IAxiosCacheConfig {
+  // 缓存策略 cachestrategy：
+  // network-only: 不缓存：仅使用联网数据
+  // network-first: 网络优先，缓存数据后，下次请求优先使用联网数据，离线才使用缓存数据
+  // cache-first: 缓存优先，缓存数据后，下次请求优先使用缓存数据，使用缓存后如果有联网则依然请求最新数据替换旧缓存【比如剑哥需求文档中的表单协议缓存，则属于此策略】【这个策略下需第二次请求接口才能拿到最新数据】
+  // d.如果是 b c，支持配置缓存过期时间
+  strategy: 'network-only' | 'cache-first' | 'network-first' | 'default'
+  checkcachesave?: any
+  cachetime?: number
+}
 
 interface ISPUWebPlugin {
   // install (app: App, option: ISPUWebPluginOptions): void
@@ -110,12 +115,15 @@ export const getAddress: (location: {
   latitude: string
   [propName: string]: any
 }) => Promise<string>
+export const normalAxios: any
 export const spuAxios: any
 export const apaasAxios: any
 export const axios: any
 export const decryptAxiosResponseData: any
 export const spuConfig: any
+export const axiosCache: any
 export const globalConfig: any
+export const ossCache: any
 export const downloadService: IDownloadService
 export const uploadService: IUploadService
 export const getServToken: () => Promise<{
@@ -129,6 +137,7 @@ export const getUniqueid: () => string
 export const getUuid: () => string
 export const functionCheck: (functioncode?: string) => boolean
 export const getServerTime: () => Promise<string>
+export const isOnline: (pingUrl?: string) => Promise<boolean>
 export const encrypt: (str: string) => string
 export const decrypt: (str: string) => string
 export const setTitle: (pagetitle?: string) => void

@@ -1,5 +1,5 @@
 import { StorageType } from '../types/types'
-import { AliClient, ObsClient, S3Client } from './OSSClient'
+import { AliClient, ObsClient, S3Client, CosClient } from './OSSClient'
 import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import co from 'co'
@@ -162,6 +162,54 @@ const upload = async ({ type = 'img', file, source = '', datetime = '', storaget
             datetime: datetime,
             storage: storagetype,
             file
+          })
+        }
+      })
+    } else if (provider.isCos) {
+      const cos = new CosClient({
+        SecretId: servToken.accesskeyid,
+        SecretKey: servToken.accesskeysecret,
+        SecurityToken: servToken.securitytoken
+      })
+      const params = {
+        Bucket: storageConfig.cloudserv_storage_storagebucket,
+        Region: storageConfig.cloudserv_storage_region,
+        Key: osskey,
+        Body: file,
+        // SliceSize: 1024 * 1024 * 5, // 大于5mb才进行分块上传
+        onProgress(progressData: any) {
+          // loaded: 0
+          // percent: 0
+          // speed: 0
+          // total: 12268
+          // loaded: 12268
+          // percent: 1
+          // speed: 201.96
+          // total: 12268
+          onprogress && onprogress(progressData.percent)
+          if (progressData.percent === 1) {
+            resolve({
+              source,
+              filename: file.name,
+              type: file.type,
+              date: date,
+              datetime: datetime,
+              storage: storagetype,
+              file
+            })
+          }
+        }
+      }
+      cos.uploadFile(params, (err: any, data: any) => {
+        if (err) {
+          // console.error(err)
+          // reject(err)
+          // 兼容做法单片上传
+          cos.putObject(params, (err: any, data: any) => {
+            if (err) {
+              console.error(err)
+              reject(err)
+            }
           })
         }
       })

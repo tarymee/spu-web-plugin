@@ -1,19 +1,12 @@
-import { AliClient, ObsClient, S3Client } from './OSSClient'
+import { AliClient, ObsClient, S3Client, CosClient } from './OSSClient'
 import dayjs from 'dayjs'
 import cloudServ from './cloudServ'
 import { getServToken } from './servtoken'
-import { axios } from '../axios'
+import { normalAxios } from '../axios'
 import { getUser } from '../login'
-// import { get } from 'lodash-es'
-// import qs from 'qs'
-
-// function getUrlPaths(url: string): string[] {
-//   let path = url.split('?')[0]
-//   if (!path) return []
-//   path = path.replace('http://', '')
-//   path = path.replace('https://', '')
-//   return path.split('/')
-// }
+import { isOnline } from '../utils'
+import { globalOptions } from '../index'
+import ossCache from './ossCache'
 
 const getContentType = (suffix: string) => {
   const map: IAny = {
@@ -83,6 +76,23 @@ const getAliyunCope = (cope?: Cope) => {
   return str
 }
 
+const getCosCope = (cope?: Cope) => {
+  // imageMogr2/thumbnail/!
+  let str = ''
+  if (cope) {
+    if (cope === true) {
+      str = 'imageMogr2/thumbnail/100x/'
+    } else if (typeof cope === 'string') {
+      str = cope
+    } else if (cope.width || cope.height) {
+      str = `imageMogr2/thumbnail/!${String(cope.width || '').replace('px', '')}x${String(
+        cope.height || ''
+      ).replace('px', '')}r`
+    }
+  }
+  return str
+}
+
 const getCope = (cope?: Cope) => {
   let str = ''
   if (cope) {
@@ -140,11 +150,20 @@ const getUrl = async ({
     filename = source
   }
   const isAbsoluteUrl =
-    !!source.match(/\/att\//) || !!source.match(/\/img\//) || !!source.match(/att\//) || !!source.match(/img\//)
+    !!source.match(/\/att\//) ||
+    !!source.match(/\/img\//) ||
+    !!source.match(/att\//) ||
+    !!source.match(/img\//)
   const suffix = filename.slice(filename.lastIndexOf('.'))
   const date = dayjs(+datetime).format('YYYYMMDD')
-  let objectKey = isAbsoluteUrl ? source : `${source.slice(0, 3)}/${type}/${date}/${tenantCode}/${source}`
-  const copeStr = provider?.isAliyun ? getAliyunCope(cope) : getCope(cope)
+  let objectKey = isAbsoluteUrl
+    ? source
+    : `${source.slice(0, 3)}/${type}/${date}/${tenantCode}/${source}`
+  const copeStr = provider?.isAliyun
+    ? getAliyunCope(cope)
+    : provider?.isCos
+    ? getCosCope(cope)
+    : getCope(cope)
   const contentType = getContentType(suffix)
 
   if (provider?.isAliyun) {
@@ -163,9 +182,10 @@ const getUrl = async ({
       // 'content-type': contentType || undefined,
       'content-disposition': 'attachment; filename=' + (filename && encodeURIComponent(filename)) // 阿里云提供的下载名字
     }
-    if (contentType) {
-      responseHeader['content-type'] = contentType
-    }
+    // TODO 阿里云不在提供，会报错
+    // if (contentType) {
+    //   responseHeader['content-type'] = contentType
+    // }
 
     const ossUrl = ossClient.signatureUrl(objectKey, {
       response: responseHeader,
@@ -259,6 +279,26 @@ const getUrl = async ({
     const signedUrl = await getSignedUrlPro()
     // console.log(signedUrl)
     return signedUrl
+  } else if (provider?.isCos) {
+    const cosClient = new CosClient({
+      SecretId: servToken.accesskeyid,
+      SecretKey: servToken.accesskeysecret,
+      SecurityToken: servToken.securitytoken
+    })
+
+    let url = await cosClient.getObjectUrl({
+      /* 填入您自己的存储桶，必须字段 */
+      Bucket: storageConfig.cloudserv_storage_storagebucket,
+      /* 存储桶所在地域，例如ap-beijing，必须字段 */
+      Region: storageConfig.cloudserv_storage_region,
+      /* 存储在桶里的对象键（例如1.jpg，a/b/test.txt），必须字段 */
+      Key: objectKey,
+      /* 获取带签名的对象URL */
+      // Sign: true,
+      QueryString: copeStr
+    })
+    console.log('cos url', url)
+    return url
   } else {
     throw Error(`暂不支持${provider?.name}存储类型`)
   }
@@ -318,24 +358,12 @@ const downloadFile = async ({
     filename: realFilename,
     cope
   })
-  // axios.get(url, {
-  //   responseType: 'blob',
-  //   isSendToken: false,
-  //   isShowErrorMessage: false
-  // }).then((response: any) => {
-  //   // console.log(response)
-  //   // debugger
-  //   downloadFileByBlob(response.data, filename)
-  // }).catch((e) => {
-  //   console.log(e)
-  //   throw Error(e)
-  // })
 
   const provider = cloudServ.getProvider(storagetype)
   if (provider?.isAliyun) {
     downloadFileByUrl(url, filename)
   } else {
-    axios
+    await normalAxios
       .get(url, {
         responseType: 'blob',
         isSendToken: false,
@@ -344,7 +372,9 @@ const downloadFile = async ({
       .then((response: any) => {
         // console.log(response)
         // debugger
-        downloadFileByBlob(response.data, filename)
+        if (Object.prototype.toString.call(response.data) === '[object Blob]') {
+          downloadFileByBlob(response.data, filename)
+        }
       })
       .catch((e: any) => {
         console.log(e)
@@ -353,7 +383,134 @@ const downloadFile = async ({
   }
 }
 
+// 根据文件信息生成blob
+const getBlob = async ({
+  type = 'img',
+  source = '',
+  filename = '',
+  datetime = '',
+  storagetype = 'storage',
+  cope = ''
+}: IDownload): Promise<Blob | null> => {
+  const cacheobj = ossCache.generateCacheobj({
+    type,
+    source,
+    datetime,
+    storagetype,
+    cope
+  })
+  const online = await isOnline()
+  const requestBlob = async (issetcache = false): Promise<any> => {
+    let blob: any = null
+    if (online) {
+      try {
+        const url = await getUrl({
+          type,
+          source,
+          datetime,
+          storagetype,
+          filename,
+          cope
+        })
+        const response = await normalAxios.get(url, {
+          responseType: 'blob',
+          isSendToken: false,
+          isShowErrorMessage: false,
+          isShowLoading: false
+        })
+        // console.log(response)
+        if (Object.prototype.toString.call(response.data) === '[object Blob]') {
+          blob = response.data
+          if (issetcache) {
+            ossCache.setCache(cacheobj, {
+              cachetime: ossCache.defaultCachetime,
+              expiretime: Date.now() + ossCache.defaultCachetime,
+              blob
+            })
+          }
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    return blob
+  }
+
+  // 暂时只作用于图片
+  if (!!globalOptions?.osscache?.flag && type === 'img') {
+    // 缓存策略：
+    // 1. 离线时，使用缓存，缓存不存在时，使用任一同key下的资源，再没有才返回null
+    // 2. 在线时，优先使用缓存，并请求最新数据存入，缓存不存在时，使用网络请求
+    if (online) {
+      const cache = await ossCache.getCache(cacheobj)
+      if (cache) {
+        // requestBlob(true)
+        return cache.blob
+      } else {
+        return await requestBlob(true)
+      }
+    } else {
+      const cache = await ossCache.getCache(cacheobj, true)
+      return cache?.blob || null
+    }
+  } else {
+    return await requestBlob(false)
+  }
+}
+
+const getFile = async ({
+  type = 'img',
+  source = '',
+  filename = '',
+  datetime = '',
+  storagetype = 'storage',
+  cope = ''
+}: IDownload): Promise<File | null> => {
+  const blob = await getBlob({
+    type,
+    source,
+    datetime,
+    storagetype,
+    filename,
+    cope
+  })
+
+  if (blob) {
+    const fileOptions = {
+      type: blob.type,
+      lastModified: Date.now()
+    }
+    return new File([blob], source, fileOptions)
+  } else {
+    return null
+  }
+}
+
+const getObjectURL = async ({
+  type = 'img',
+  source = '',
+  filename = '',
+  datetime = '',
+  storagetype = 'storage',
+  cope = ''
+}: IDownload): Promise<string> => {
+  const blob = await getBlob({
+    type,
+    source,
+    datetime,
+    storagetype,
+    filename,
+    cope
+  })
+  return blob ? URL.createObjectURL(blob) : ''
+}
+
 export default {
   getUrl,
+  getBlob,
+  getFile,
+  getObjectURL,
   downloadFile
 }
+
+export type { IDownload }

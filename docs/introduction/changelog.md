@@ -1,8 +1,30 @@
 # 更新日志
 
+## v1.0.33
+
+- other: 优化 App 切换后台获取 token 逻辑
+
+## v1.0.32
+
+- feature: 支持 isspu 传参，兼容非 spu 项目
+
+## v1.0.31
+
+- feature: 支持 axiosbaseurl 传参
+- feature: 景兴-已上传的附件点击下载提示资源不存在 处理oss的上传问题
+
+## v1.0.26
+
+- feature: 增加可以配置 centerhost 的功能，方便对接开发中心跟生产中心
+
+## v1.0.25
+
+- fix: 修复产品运营中心单点登录 token 复用逻辑
+
 ## v1.0.24
 
-- feature: 优化刷新token机制
+- feature: 优化刷新 token 机制
+- feature: 支持云存储本地离线缓存
 
 ## v1.0.23
 

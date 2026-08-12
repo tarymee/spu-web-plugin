@@ -1,4 +1,4 @@
-import { AliClient, ObsClient, S3Client } from './OSSClient'
+import { AliClient, ObsClient, S3Client, CosClient } from './OSSClient'
 import { v4 as uuidv4 } from 'uuid'
 import dayjs from 'dayjs'
 import co from 'co'
@@ -6,6 +6,8 @@ import { getUser } from '../login'
 import cloudServ from './cloudServ'
 import { getServToken } from './servtoken'
 import { obsMultiUpload } from './multiUpload'
+import { globalOptions } from '../index'
+import ossCache from './ossCache'
 
 interface IUpload {
   type?: 'att' | 'img'
@@ -34,7 +36,7 @@ const upload = async ({
   const tenantCode = getUser('tenantcode')
   const suffix = '.' + file.name.substring(file.name.lastIndexOf('.') + 1)
   source = source ? source : uuidv4() + suffix
-  datetime = datetime ? datetime : Date.now()
+  datetime = datetime ? `${datetime}` : `${Date.now()}`
   const date = dayjs(+datetime).format('YYYYMMDD')
   const osskey = `${source.slice(0, 3)}/${type}/${date}/${tenantCode}/${source}`
 
@@ -45,7 +47,30 @@ const upload = async ({
   // console.log(storageConfig)
   // debugger
   const promise = new Promise(async (resolve, reject) => {
+    const resolveV: any = {
+      key: osskey,
+      source,
+      filename: file.name,
+      type: type,
+      date: date,
+      datetime: datetime,
+      storage: storagetype,
+      file
+    }
+    // 上传成功之后缓存图片
+    const setCache = () => {
+      if (!!globalOptions?.osscache?.flag && type === 'img') {
+        ossCache.setCacheByFile({
+          type,
+          source,
+          datetime,
+          storagetype,
+          file
+        })
+      }
+    }
     if (provider?.isAliyun) {
+      let progress = 0
       const ossClient = new AliClient({
         // region: storageConfig.cloudserv_storage_storageendpoint,
         endpoint: storageConfig.cloudserv_storage_storageendpoint,
@@ -56,27 +81,27 @@ const upload = async ({
         secure: true
       })
       co(function* () {
-        yield ossClient.multipartUpload(osskey, file, {
+        // @ts-ignore
+        const uploadPart = yield ossClient.multipartUpload(osskey, file, {
           headers: {
-            'Content-Disposition': 'filename="' + (file.name && encodeURIComponent(file.name)) // 阿里云提供的下载名字
+            'Content-Disposition': 'filename="' + (file.name && encodeURIComponent(file.name)) + '"' // 阿里云提供的下载名字
           },
           progress: function* (p: number, _checkpoint: IAny): any {
             // console.log('httpUploadProgress', p)
-            onprogress && onprogress(p, _checkpoint)
+            progress = p
             if (p === 1) {
-              resolve({
-                key: osskey,
-                source,
-                filename: file.name,
-                type: type,
-                date: date,
-                datetime: datetime,
-                storage: storagetype,
-                file
-              })
+                p = 0.99
             }
+            onprogress && onprogress(p)
           }
         })
+        if (uploadPart.res.statusCode === 200 && progress === 1) {
+          onprogress && onprogress(1)
+          setCache()
+          resolve(resolveV)
+        } else {
+          reject(new Error('Upload failed'))
+        }
       }).catch((error: any) => {
         console.error(error)
         reject(error)
@@ -104,31 +129,13 @@ const upload = async ({
           }
         })
         if (uploadRes) {
-          resolve({
-            key: osskey,
-            source,
-            filename: file.name,
-            type: type,
-            date: date,
-            datetime: datetime,
-            storage: storagetype,
-            file
-          })
+          setCache()
+          resolve(resolveV)
         }
       } catch (e) {
         console.error(e)
         reject(e)
       }
-      // obs.putObject({
-      //   Bucket: cloudServ.cloudserv_storage_storagebucket,
-      //   Key: osskey,
-      //   SourceFile: file
-      // }, (err, result) => {
-      //   result.CommonMsg.Status
-      //   console.error(err)
-      //   console.log(result)
-      //   debugger
-      // })
     } else if (provider?.isMinio || provider?.isAwss3) {
       // debugger
       // debugger
@@ -144,7 +151,12 @@ const upload = async ({
       const params = {
         Bucket: storageConfig.cloudserv_storage_storagebucket,
         Key: osskey,
-        Body: file
+        Body: file,
+        ContentDisposition: 'filename="' +
+            (file.name &&
+                encodeURIComponent(
+                    file.name
+                )) + '"' // minIo提供的下载名字
       }
       const upload = s3.upload(params, {}).on('httpUploadProgress', (e: any) => {
         const precent: any = parseInt(e.loaded, 10) / parseInt(e.total, 10)
@@ -158,26 +170,59 @@ const upload = async ({
           console.error(err)
           reject(err)
         } else {
-          resolve({
-            key: osskey,
-            source,
-            filename: file.name,
-            type: type,
-            date: date,
-            datetime: datetime,
-            storage: storagetype,
-            file
+          setCache()
+          resolve(resolveV)
+        }
+      })
+    } else if (provider?.isCos) {
+      const cos = new CosClient({
+        SecretId: servToken.accesskeyid,
+        SecretKey: servToken.accesskeysecret,
+        SecurityToken: servToken.securitytoken
+      })
+      const params = {
+        Bucket: storageConfig.cloudserv_storage_storagebucket,
+        Region: storageConfig.cloudserv_storage_region,
+        Key: osskey,
+        Body: file,
+        // SliceSize: 1024 * 1024 * 5, // 大于5mb才进行分块上传
+        onProgress(progressData: any) {
+          // loaded: 0
+          // percent: 0
+          // speed: 0
+          // total: 12268
+          // loaded: 12268
+          // percent: 1
+          // speed: 201.96
+          // total: 12268
+          onprogress && onprogress(progressData.percent)
+          if (progressData.percent === 1) {
+            setCache()
+            resolve(resolveV)
+          }
+        }
+      }
+
+      cos.uploadFile(params, (err: any, data: any) => {
+        if (err) {
+          // console.error(err)
+          // reject(err)
+          // 兼容做法单片上传
+          cos.putObject(params, (err: any, data: any) => {
+            if (err) {
+              console.error(err)
+              reject(err)
+            }
           })
         }
       })
     } else {
-      throw Error(`暂不支持${provider?.name}存储类型`)
+      reject(new Error(`暂不支持${provider?.name}存储类型`))
     }
   })
 
   return promise
 }
-
 
 const createTargetObj = (copykey: string, storagetype: StorageType = 'storage') => {
   const uuid = uuidv4()
@@ -195,14 +240,11 @@ const createTargetObj = (copykey: string, storagetype: StorageType = 'storage') 
     datetime,
     date,
     type: arr[1],
-    storage: storagetype,
+    storage: storagetype
   }
 }
 
-const copy = async ({
-  copykey = '',
-  storagetype = 'storage'
-}: any) => {
+const copy = async ({ copykey = '', storagetype = 'storage' }: any) => {
   const storageConfig = cloudServ.get(storagetype)
   if (!storageConfig) throw Error('无可用存储设置')
   const servToken = await getServToken()
@@ -247,23 +289,24 @@ const copy = async ({
         server: storageConfig.cloudserv_storage_storageendpoint,
         security_token: servToken.securitytoken
       })
-      obs.copyObject({
-        Bucket: storageConfig.cloudserv_storage_storagebucket,
-        Key: targetObj.key,
-        CopySource: `${storageConfig.cloudserv_storage_storagebucket}/${copykey}`
-      })
-      .then((res: any) => {
-        if (res?.CommonMsg?.Status === 200 && res?.InterfaceResult) {
-          resolve(targetObj)
-        } else {
-          console.error(res)
-          reject(res)
-        }
-      })
-      .catch((e: any) => {
-        console.error(e)
-        reject(e)
-      })
+      obs
+        .copyObject({
+          Bucket: storageConfig.cloudserv_storage_storagebucket,
+          Key: targetObj.key,
+          CopySource: `${storageConfig.cloudserv_storage_storagebucket}/${copykey}`
+        })
+        .then((res: any) => {
+          if (res?.CommonMsg?.Status === 200 && res?.InterfaceResult) {
+            resolve(targetObj)
+          } else {
+            console.error(res)
+            reject(res)
+          }
+        })
+        .catch((e: any) => {
+          console.error(e)
+          reject(e)
+        })
     } else if (provider?.isMinio || provider?.isAwss3) {
       // debugger
       // debugger
@@ -278,28 +321,31 @@ const copy = async ({
       })
       // console.log(s3)
       // debugger
-      s3.copyObject({
-        Bucket: storageConfig.cloudserv_storage_storagebucket,
-        CopySource: `${storageConfig.cloudserv_storage_storagebucket}/${copykey}`,
-        Key: targetObj.key
-      }, (err: any, data: any) => {
-        if (err) {
-          console.error(err)
-          reject(err)
-        } else {
-          // console.log(data)
-          resolve(targetObj)
+      s3.copyObject(
+        {
+          Bucket: storageConfig.cloudserv_storage_storagebucket,
+          CopySource: `${storageConfig.cloudserv_storage_storagebucket}/${copykey}`,
+          Key: targetObj.key
+        },
+        (err: any, data: any) => {
+          if (err) {
+            console.error(err)
+            reject(err)
+          } else {
+            // console.log(data)
+            resolve(targetObj)
+          }
         }
-      })
+      )
     } else {
       throw Error(`暂不支持${provider?.name}存储类型`)
     }
   })
 }
 
-
-
 export default {
   upload,
   copy
 }
+
+export type { IUpload }

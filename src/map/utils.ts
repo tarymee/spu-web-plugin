@@ -1,4 +1,4 @@
-function transformLat (x: number, y: number) {
+function transformLat(x: number, y: number) {
   let ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x))
   ret += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0
   ret += (20.0 * Math.sin(y * Math.PI) + 40.0 * Math.sin(y / 3.0 * Math.PI)) * 2.0 / 3.0
@@ -6,7 +6,7 @@ function transformLat (x: number, y: number) {
   return ret
 }
 
-function transformLon (x: number, y: number) {
+function transformLon(x: number, y: number) {
   let ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x))
   ret += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0
   ret += (20.0 * Math.sin(x * Math.PI) + 40.0 * Math.sin(x / 3.0 * Math.PI)) * 2.0 / 3.0
@@ -14,11 +14,11 @@ function transformLon (x: number, y: number) {
   return ret
 }
 
-function outOfChina (lng: number, lat: number) {
+function outOfChina(lng: number, lat: number) {
   return (lng < 72.004 || lng > 137.8347) || (lat < 0.8293 || lat > 55.8271)
 }
 
-function delta (lng: number, lat: number) {
+function delta(lng: number, lat: number) {
   const a = 6378245.0 // 地球长半轴
   const ee = 0.00669342162296594323 // 扁率
   let dLat = transformLat(lng - 105.0, lat - 35.0)
@@ -35,7 +35,7 @@ function delta (lng: number, lat: number) {
   }
 }
 
-function wgs84ToGcj02 (lng: number, lat: number) {
+function wgs84ToGcj02(lng: number, lat: number) {
   if (outOfChina(lng, lat)) {
     return {
       lng: lng,
@@ -95,4 +95,20 @@ export {
   wgs84ToGcj02,
   BMapTransformBD09ToGCJ02Points,
   BMapTransformGCJ02ToBD09Points
+}
+
+
+export const getPoiPhoneNumber = (tel: string | string[]) => {
+  if (Array.isArray(tel)) {
+    tel = tel.filter((item) => item).join(';')
+  }
+  // tel里面:020-84060333;13570071479 需要优先去除手机号，否则用电话
+  if (tel) {
+    const phoneReg = /1[3456789]\d{9}/
+    const phone = tel.match(phoneReg)
+    if (phone) {
+      return phone[0]
+    }
+  }
+  return tel
 }

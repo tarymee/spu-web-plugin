@@ -1,4 +1,5 @@
-import { axios } from './axios'
+import { apaasAxios } from './axios'
+import { axiosCache } from './axiosCache'
 import { cloneDeep } from 'lodash-es'
 
 class GlobalConfig {
@@ -9,9 +10,28 @@ class GlobalConfig {
   public async getFun(): Promise<any> {
     if (!this.isload) {
       try {
-        const res = await axios.post('/api/pemission/rolepermission/globalconfig/getglobalconfigbytype', {
-          configtype: '1'
-        })
+        // const res = await apaasAxios.post(
+        //   '/api/pemission/rolepermission/globalconfig/getglobalconfigbytype',
+        //   {
+        //     configtype: '1'
+        //   }
+        // )
+        const res = await axiosCache(
+          {
+            strategy: 'default',
+            async checkcachesave(res: any) {
+              return !!(res.code === 200 && res.data)
+            }
+          },
+          apaasAxios,
+          {
+            url: '/api/pemission/rolepermission/globalconfig/getglobalconfigbytype',
+            method: 'post',
+            data: {
+              configtype: '1'
+            }
+          }
+        )
         // console.log(res)
         // debugger
         if (res.code === 200) {

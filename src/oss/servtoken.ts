@@ -1,4 +1,4 @@
-import { axios } from '../axios'
+import { apaasAxios } from '../axios'
 
 export type ServToken = {
   accesskeyid: string
@@ -20,7 +20,9 @@ let xhr: Promise<ServToken> | null = null
 
 const requestServToken = async () => {
   try {
-    const response: ServToken = await axios.get('/api/teapi/auth/servtoken').then((res: any) => res.data)
+    const response: ServToken = await apaasAxios
+      .get('/api/teapi/auth/servtoken')
+      .then((res: any) => res.data)
     // debugger
     return response
   } catch (e) {

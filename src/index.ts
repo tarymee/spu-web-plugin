@@ -3,10 +3,11 @@ import { merge } from 'lodash-es'
 import { v4 as getUuid } from 'uuid'
 import { installStorageProxy, lsProxy, ssProxy } from './storageProxy'
 import { getLocation, getDistance, getAddress } from './map/index'
-import { installAxios, spuAxios, axios, decryptAxiosResponseData } from './axios'
+import { installAxios, spuAxios, apaasAxios, normalAxios, decryptAxiosResponseData } from './axios'
+import { installAxiosCache, axiosCache } from './axiosCache'
 import { installSpuConfig, spuConfig } from './spuConfig'
 import { globalConfig } from './globalConfig'
-import { downloadService, uploadService } from './oss'
+import { downloadService, uploadService, installOssCache, ossCache } from './oss'
 import { getServToken } from './oss/servtoken'
 import { getCloudServ } from './oss/cloudServ'
 import {
@@ -16,7 +17,8 @@ import {
   isInApp,
   isdebugger,
   isvirtuallocation,
-  getServerTime
+  getServerTime,
+  isOnline
 } from './utils'
 import { encrypt, decrypt } from './crypt'
 import { installUrlquery } from './urlquery'
@@ -41,6 +43,7 @@ import { expandexp } from './components/expandexp'
 import { installApaasSpuTrack } from './apaasSpuTrack'
 import { installWxworksuitePlugin, wxworkSuite } from './wxworksuitePlugin'
 import { installTest } from './test'
+import { installCenterHost } from './centerHost'
 
 // class SPUWebPlugin {
 //   static install = install
@@ -49,44 +52,90 @@ import { installTest } from './test'
 // // SPUWebPlugin.install = install
 // // SPUWebPlugin.version = version
 
-const getDefaultGlobalOptions = () => {
-  // 基于部署路径查出 modulekey moduleversion
-  const arr = location.pathname.split('/')
-  return {
-    modulename: '',
-    modulekey: arr[1] || '',
-    moduleversion: arr[2] || '',
-    storageproxyprefix: '',
-    isfixapptokenexpired: false, // 是否修复apptoken过期问题 目前版本暂时不默认修复 等门户引擎验证通过之后 再改成默认修复
-    singleLoginCallback: null,
-    router: null
-  }
+const globalOptions: any = {
+  isspu: true,
+  customerid: '', // spuConfig 用到
+  customertype: '', // spuConfig 用到
+  axiosbaseurl: '',
+  modulename: '',
+  modulekey: '',
+  moduleversion: '',
+  storageproxyprefix: '',
+  isfixapptokenexpired: false, // 是否修复apptoken过期问题 目前版本暂时不默认修复 等门户引擎验证通过之后 再改成默认修复
+  osscache: {
+    flag: false,
+    cachetime: 60 * 1000 * 60 * 2 // 默认缓存2小时
+  },
+  singleLoginCallback: null,
+  centerHost: null,
+  router: null
 }
 
-const globalOptions: any = getDefaultGlobalOptions()
+const dealOptions = (options: any) => {
+  merge(globalOptions, options)
+
+  let flag = true
+  if (globalOptions.axiosbaseurl.endsWith('/')) {
+    console.error(`axiosbaseurl 不得以 “/” 结尾！`)
+    flag = false
+  }
+
+  if (globalOptions.isspu) {
+    if (!globalOptions.modulekey || !globalOptions.moduleversion) {
+      console.error(`spu 项目必须传入 modulekey | moduleversion！`)
+      flag = false
+      // console.error(`您当前没有传入，插件自动获取 url 链接上的 modulekey | moduleversion 作为参数。`)
+      // // 基于部署路径查出 modulekey moduleversion
+      // const arr = location.pathname.split('/')
+      // globalOptions.modulekey = arr[1] || ''
+      // globalOptions.moduleversion = arr[2] || ''
+    }
+  } else {
+    if (globalOptions.modulekey || globalOptions.moduleversion || globalOptions.modulename) {
+      console.error(`非 spu 项目不得传入 modulekey | moduleversion | modulename！`)
+      flag = false
+    }
+    if (!globalOptions.storageproxyprefix) {
+      console.error(`非 spu 项目必须传入 storageproxyprefix 以作为 localStorage 命名空间前缀！`)
+      flag = false
+    }
+  }
+
+  return flag
+}
+
+
 
 const install = (app: any, options: any) => {
   // console.log(app)
   // console.log(app.version)
-  merge(globalOptions, options)
 
-  installStorageProxy(globalOptions)
+  const flag = dealOptions(options)
+
+  if (!flag) {
+    console.error(`@smart100/spu-web-plugin@${version} not install!`)
+    return
+  }
+
+  installStorageProxy()
   installUrlquery()
-  installAxios(globalOptions)
-  installSpuConfig(globalOptions)
+  installCenterHost()
+  installAxios()
+  installAxiosCache()
+  globalOptions.isspu && installSpuConfig()
   installWxworksuitePlugin() // 安装企微第三方应用插件
-  installAuth(globalOptions)
-  installApaasSpuTrack()
+  installAuth()
+  installOssCache()
+  globalOptions.isspu && installApaasSpuTrack()
+
   installTest(globalOptions)
 
   console.log(`@smart100/spu-web-plugin@${version} install!`)
-  console.log(`@smart100/spu-web-plugin@${version} userOptions`)
-  console.log(options)
-  console.log(`@smart100/spu-web-plugin@${version} globalOptions`)
-  console.log(globalOptions)
+  console.log(`@smart100/spu-web-plugin@${version} userOptions`, options)
+  console.log(`@smart100/spu-web-plugin@${version} globalOptions`, globalOptions)
 
   // setTimeout(() => {
-  //   console.error('888')
+  //   console.error('8877778')
   // }, 1000)
 
   // if (install.installed) return
@@ -117,12 +166,15 @@ export {
   getLocation,
   getDistance,
   getAddress,
+  normalAxios,
   spuAxios,
-  axios,
-  axios as apaasAxios,
+  apaasAxios,
+  apaasAxios as axios, // 兼容之前导出
   decryptAxiosResponseData,
+  axiosCache,
   spuConfig,
   globalConfig,
+  ossCache,
   downloadService,
   uploadService,
   getServToken,
@@ -131,6 +183,7 @@ export {
   getUuid,
   functionCheck,
   getServerTime,
+  isOnline,
   encrypt,
   decrypt,
   setTitle,

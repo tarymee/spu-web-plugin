@@ -1,5 +1,5 @@
 import { StorageType } from '../types/types'
-import { AliClient, ObsClient, S3Client } from './OSSClient'
+import { AliClient, ObsClient, S3Client, CosClient } from './OSSClient'
 import dayjs from 'dayjs'
 import cloudServ from './cloudServ'
 import { initServToken } from './servtoken'
@@ -58,6 +58,21 @@ const getAliyunCope = (cope?: Cope) => {
   return str
 }
 
+const getCosCope = (cope?: Cope) => {
+  // imageMogr2/thumbnail/!
+  let str = ''
+  if (cope) {
+    if (cope === true) {
+      str = 'imageMogr2/thumbnail/100x/'
+    } else if (typeof cope === 'string') {
+      str = cope
+    } else if (cope.width || cope.height) {
+      str = `imageMogr2/thumbnail/!${String(cope.width || '').replace('px', '')}x${String(cope.height || '').replace('px', '')}r`
+    }
+  }
+  return str
+}
+
 const getCope = (cope?: Cope) => {
   let str = ''
   if (cope) {
@@ -96,6 +111,7 @@ interface IDownload {
 
 // 根据文件信息最后生成一个云文件服务可以用的链接http://xxxxx.xxx.jpg
 const getUrl = async ({ type = 'img', source = '', filename = '', datetime = '', storagetype = 'storage', cope = '' }: IDownload) => {
+  console.error('getUrl', { type, source, filename, datetime, storagetype, cope })
   const storageConfig = cloudServ.get(storagetype)
   if (!storageConfig) throw Error('无可用存储设置')
   const servToken = await initServToken()
@@ -111,7 +127,7 @@ const getUrl = async ({ type = 'img', source = '', filename = '', datetime = '',
   const suffix = filename.slice(filename.lastIndexOf('.'))
   const date = dayjs(+datetime).format('YYYYMMDD')
   let objectKey = isAbsoluteUrl ? source : `${source.slice(0, 3)}/${type}/${date}/${tenantCode}/${source}`
-  const copeStr = provider?.isAliyun ? getAliyunCope(cope) : getCope(cope)
+  const copeStr = provider?.isAliyun ? getAliyunCope(cope) : provider?.isCos ? getCosCope(cope) : getCope(cope)
   const contentType = getContentType(suffix)
 
   if (provider?.isAliyun) {
@@ -130,9 +146,10 @@ const getUrl = async ({ type = 'img', source = '', filename = '', datetime = '',
       // 'content-type': contentType || undefined,
       'content-disposition': 'attachment; filename=' + (filename && encodeURIComponent(filename)) // 阿里云提供的下载名字
     }
-    if (contentType) {
-      responseHeader['content-type'] = contentType
-    }
+    // TODO 阿里云不在提供，会报错
+    // if (contentType) {
+    //   responseHeader['content-type'] = contentType
+    // }
 
     const ossUrl = ossClient.signatureUrl(objectKey, {
       response: responseHeader,
@@ -225,6 +242,26 @@ const getUrl = async ({ type = 'img', source = '', filename = '', datetime = '',
     const signedUrl = await getSignedUrlPro()
     // console.log(signedUrl)
     return signedUrl
+  } else if (provider?.isCos) {
+     const cosClient = new CosClient({
+      SecretId: servToken.accesskeyid,
+      SecretKey: servToken.accesskeysecret,
+      SecurityToken: servToken.securitytoken
+    })
+    let url = await cosClient.getObjectUrl(
+      {
+        /* 填入您自己的存储桶，必须字段 */
+        Bucket: storageConfig.cloudserv_storage_storagebucket,
+        /* 存储桶所在地域，例如ap-beijing，必须字段 */
+        Region: storageConfig.cloudserv_storage_region,
+        /* 存储在桶里的对象键（例如1.jpg，a/b/test.txt），必须字段 */
+        Key: objectKey,
+        /* 获取带签名的对象URL */
+        // Sign: true,
+        QueryString: copeStr
+      }
+    )
+    return url
   } else {
     throw Error(`暂不支持${provider?.name}存储类型`)
   }
