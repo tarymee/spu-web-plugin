@@ -37,7 +37,8 @@ function mirrorDelete(destDir, srcDir, isTopLevel) {
 }
 
 function git(args, options = {}) {
-  return execFileSync('git', ['-C', DEST_ROOT, ...args], { encoding: 'utf8', ...options }).trim()
+  const out = execFileSync('git', ['-C', DEST_ROOT, ...args], { encoding: 'utf8', ...options })
+  return typeof out === 'string' ? out.trim() : ''
 }
 
 if (!existsSync(DEST_ROOT) || !existsSync(path.join(DEST_ROOT, '.git'))) {
