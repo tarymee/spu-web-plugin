@@ -5,7 +5,7 @@
 - 类型：
 
 ```js
-function getUser (key: string | null): any
+function getUser(key?: string): any
 ```
 
 - 示例：

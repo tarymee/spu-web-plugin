@@ -37,13 +37,17 @@ interface Window {
   TMap: any
   // InteractiveWebView 中 getToken 回调函数
   getTokenComplete: any
-  // wx: IAny;
+
+  // 处于小程序环境
+  wx: any
+  __wxjs_environment: string
+  WeixinJSBridge: any
+
   // AMapUI: IAny;
   // lsProxy: any;
   // ssProxy: any;
   // xtion: any;
   // // eslint-disable-next-line camelcase
-  // __wxjs_environment: string;
   // // eslint-disable-next-line camelcase
   // smart100_h5_set_isshowhead: IFunction;
   // // eslint-disable-next-line camelcase

@@ -2,6 +2,10 @@
 // import type { AxiosInstance } from 'axios'
 declare global {
   interface Window {
+    // Native Module aPaaS 为 G3 SPU 容器注入的 Native-API
+    Native: any
+    Module: any
+    aPaaS: any
     // 高德地图
     AMapLoader: any
     _AMapSecurityConfig: {
@@ -18,6 +22,10 @@ declare global {
     BMAP_INITIAL_CALLBACK: any
     // 腾讯地图
     TMap: any
+    // 处于小程序环境
+    wx: any
+    __wxjs_environment: string
+    WeixinJSBridge: any
   }
 }
 
@@ -155,8 +163,27 @@ export const setRefreshToken: (value: string) => void
 export const getUser: (key?: string) => any
 export const checkLogin: () => boolean
 export const Module: any
-export const components: any
 export const expandexp: (options: any) => void
 export const wxworkSuite: any
 export const isdebugger: () => boolean
 export const isvirtuallocation: () => boolean
+export const AI: any
+
+export type LitPreviewImageSource =
+  | string
+  | {
+      source: string
+      datetime: string
+      storage?: StorageType
+      watermark?: string
+      watermarkcomposite?: 'blended' | 'attached'
+      title?: string
+    }
+
+export interface LitPreviewImageOptions {
+  images: LitPreviewImageSource[]
+  index?: number
+  type?: 'mobile' | 'web'
+}
+
+export const litPreviewImage: (options: LitPreviewImageOptions) => void

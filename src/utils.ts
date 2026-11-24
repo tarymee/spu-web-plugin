@@ -1,7 +1,12 @@
-import { getUser } from './login'
+import { getUser } from './auth/login'
 import { urlquery } from './urlquery'
 import { get } from 'lodash-es'
 import { apaasAxios } from './axios'
+import { v4 as getUuid } from 'uuid'
+
+function isInMiniProgram() {
+  return window.__wxjs_environment === 'miniprogram'
+}
 
 function isMobile() {
   const ua = navigator.userAgent.toLowerCase()
@@ -233,7 +238,19 @@ const isOnline = async (pingUrl = './') => {
 //   console.log(a)
 // }, 2000)
 
+function getQueryByUrl(paramKey: string): string {
+  const hash = window.location.hash
+  const match = hash.match(new RegExp(`${paramKey}=([^&]+)`))
+  if (match) {
+    const id = match[1]
+    return id || ''
+  } else {
+    return ''
+  }
+}
+
 export {
+  isInMiniProgram,
   isMobile,
   isIOS,
   isAndroid,
@@ -243,6 +260,7 @@ export {
   isInInteractive,
   isInAppSpuOrInteractive,
   getUniqueid,
+  getUuid,
   functionCheck,
   setTitle,
   isdebugger,
@@ -251,5 +269,6 @@ export {
   importJS,
   delay,
   getServerTime,
-  isOnline
+  isOnline,
+  getQueryByUrl
 }

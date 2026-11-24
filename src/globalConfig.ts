@@ -1,5 +1,5 @@
 import { apaasAxios } from './axios'
-import { axiosCache } from './axiosCache'
+import { axiosCache } from './axios/axiosCache'
 import { cloneDeep } from 'lodash-es'
 
 class GlobalConfig {

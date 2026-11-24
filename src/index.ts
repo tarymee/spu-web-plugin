@@ -1,27 +1,16 @@
 import { version } from '../package.json'
 import { merge } from 'lodash-es'
-import { v4 as getUuid } from 'uuid'
 import { installStorageProxy, lsProxy, ssProxy } from './storageProxy'
-import { getLocation, getDistance, getAddress } from './map/index'
+import { installCenterHost } from './centerHost'
+import { installUrlquery } from './urlquery'
 import { installAxios, spuAxios, apaasAxios, normalAxios, decryptAxiosResponseData } from './axios'
-import { installAxiosCache, axiosCache } from './axiosCache'
-import { installSpuConfig, spuConfig } from './spuConfig'
-import { globalConfig } from './globalConfig'
+import { installAxiosCache, axiosCache } from './axios/axiosCache'
 import { downloadService, uploadService, installOssCache, ossCache } from './oss'
+import { globalConfig } from './globalConfig'
 import { getServToken } from './oss/servtoken'
 import { getCloudServ } from './oss/cloudServ'
-import {
-  getUniqueid,
-  functionCheck,
-  setTitle,
-  isInApp,
-  isdebugger,
-  isvirtuallocation,
-  getServerTime,
-  isOnline
-} from './utils'
-import { encrypt, decrypt } from './crypt'
-import { installUrlquery } from './urlquery'
+import { getLocation, getDistance, getAddress } from './map/index'
+import { AI } from './AI'
 import { mapService } from './map/MapService'
 import AMapLoader from './map/AMapLoader'
 import {
@@ -36,14 +25,23 @@ import {
   updateToken,
   singleLogin,
   installAuth
-} from './login'
-import { Module } from './core'
-import components from './components'
+} from './auth/login'
+import { installSpuService, Module, spuConfig, wxworkSuite } from './spu'
+import {
+  getUuid,
+  getUniqueid,
+  functionCheck,
+  setTitle,
+  isInApp,
+  isdebugger,
+  isvirtuallocation,
+  getServerTime,
+  isOnline
+} from './utils'
+import { encrypt, decrypt } from './crypt'
 import { expandexp } from './components/expandexp'
-import { installApaasSpuTrack } from './apaasSpuTrack'
-import { installWxworksuitePlugin, wxworkSuite } from './wxworksuitePlugin'
-import { installTest } from './test'
-import { installCenterHost } from './centerHost'
+import { installLitComponents } from './components-lit'
+import { litPreviewImage } from './components-lit/LitPreviewImage'
 
 // class SPUWebPlugin {
 //   static install = install
@@ -104,8 +102,6 @@ const dealOptions = (options: any) => {
   return flag
 }
 
-
-
 const install = (app: any, options: any) => {
   // console.log(app)
   // console.log(app.version)
@@ -122,20 +118,36 @@ const install = (app: any, options: any) => {
   installCenterHost()
   installAxios()
   installAxiosCache()
-  globalOptions.isspu && installSpuConfig()
-  installWxworksuitePlugin() // 安装企微第三方应用插件
-  installAuth()
+  installLitComponents() // 安装lit通用组件
+  installAuth() // 安装授权模块 包括 登录服务 token相关服务 user相服务关 环境信息服务 等等
   installOssCache()
-  globalOptions.isspu && installApaasSpuTrack()
-
-  installTest(globalOptions)
+  globalOptions.isspu && installSpuService() // 安装spu相关服务
 
   console.log(`@smart100/spu-web-plugin@${version} install!`)
   console.log(`@smart100/spu-web-plugin@${version} userOptions`, options)
   console.log(`@smart100/spu-web-plugin@${version} globalOptions`, globalOptions)
 
   // setTimeout(() => {
-  //   console.error('8877778')
+  //   console.error('99999999999999999')
+  // }, 1000)
+
+  // setTimeout(async () => {
+  //   const imgUrl = await downloadService.getUrl({
+  //     type: 'img',
+  //     source: '590184d6-f156-4792-85f6-90e408222333.png',
+  //     datetime: '1790670071186',
+  //     storagetype: 'storage'
+  //   })
+  //   // console.log(imgUrl)
+  //   // console.log(AI)
+  //   try {
+  //     const a = await AI.fakeCheck(imgUrl)
+  //     // const a = await AI.blurCheck(imgUrl)
+  //     console.log(a)
+  //   } catch (err) {
+  //     console.error(7777)
+  //     console.error(err)
+  //   }
   // }, 1000)
 
   // if (install.installed) return
@@ -163,13 +175,15 @@ export {
   globalOptions,
   lsProxy,
   ssProxy,
+  AMapLoader,
+  mapService,
   getLocation,
   getDistance,
   getAddress,
   normalAxios,
   spuAxios,
   apaasAxios,
-  apaasAxios as axios, // 兼容之前导出
+  apaasAxios as axios, // 必须保留 兼容之前导出
   decryptAxiosResponseData,
   axiosCache,
   spuConfig,
@@ -188,8 +202,6 @@ export {
   decrypt,
   setTitle,
   isInApp,
-  AMapLoader,
-  mapService,
   singleLogin,
   updateToken,
   getToken,
@@ -201,9 +213,10 @@ export {
   getUser,
   checkLogin,
   Module,
-  components,
   expandexp,
   wxworkSuite,
   isdebugger,
-  isvirtuallocation
+  isvirtuallocation,
+  AI,
+  litPreviewImage
 }

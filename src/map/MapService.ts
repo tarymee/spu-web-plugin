@@ -1,5 +1,5 @@
 import { importJS, delay } from '../utils'
-import { tenantSetting } from '../tenantSetting'
+import { tenantSetting } from '../auth/tenantSetting'
 import { AMapKey } from './AMapKey'
 import AMapLoader from '@amap/amap-jsapi-loader'
 

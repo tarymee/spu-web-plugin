@@ -3,7 +3,7 @@ import { cloneDeep, isObject } from 'lodash-es'
 import { mapService } from './MapService'
 import { getAMapKey } from './AMapKey'
 import { apaasAxios } from '../axios'
-import { delay } from '../utils'
+// import { delay } from '../utils'
 import { wgs84ToGcj02, BMapTransformBD09ToGCJ02Points, getPoiPhoneNumber } from './utils'
 
 type Location = {

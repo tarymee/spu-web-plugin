@@ -1,10 +1,10 @@
-import { Module } from '../../core'
-import { wxworkSuite } from '../../wxworksuitePlugin'
+import { Module } from '../../spu/manager'
+import { wxworkSuite } from '../../spu/wxworksuitePlugin'
 import { spuAxios, apaasAxios } from '../../axios'
-import { getUser } from '../../login'
+import { getUser } from '../../auth/login'
 import { cloneDeep, merge } from 'lodash-es'
 import { downloadService } from '../../oss'
-import { apaasSpuTrackSendLog } from '../../apaasSpuTrack'
+import { apaasSpuTrackSendLog } from '../../spu/apaasSpuTrack'
 import { getAttributes } from '../common/index'
 import renderTemplate from './template'
 import { Step } from './step'
@@ -158,7 +158,10 @@ export default class SpuExpandexp extends HTMLElement {
         }
 
         // 下载按钮显隐
-        this.vIf($exportDownload, (stepName === 'error' || stepName === 'success') && exportDataItem?.exportfileurl)
+        this.vIf(
+          $exportDownload,
+          (stepName === 'error' || stepName === 'success') && exportDataItem?.exportfileurl
+        )
 
         // 取消按钮显隐
         this.vIf(
@@ -344,29 +347,39 @@ export default class SpuExpandexp extends HTMLElement {
       this.removeSelf()
     })
 
-    this.shadow.querySelector('.export-file .export-file-r-download')!.addEventListener('click', () => {
-      this.handleDownload()
-    })
+    this.shadow
+      .querySelector('.export-file .export-file-r-download')!
+      .addEventListener('click', () => {
+        this.handleDownload()
+      })
 
-    this.shadow.querySelector('.export-file .export-file-r-cancel')!.addEventListener('click', () => {
-      // this.handleCencel()
-      const ele = this.shadow.querySelector('.spu-expandexp-confirm')
-      this.vIf(ele, true)
-    })
+    this.shadow
+      .querySelector('.export-file .export-file-r-cancel')!
+      .addEventListener('click', () => {
+        // this.handleCencel()
+        const ele = this.shadow.querySelector('.spu-expandexp-confirm')
+        this.vIf(ele, true)
+      })
 
-    this.shadow.querySelector('.spu-expandexp-confirm-modal-th-close')!.addEventListener('click', () => {
-      const ele = this.shadow.querySelector('.spu-expandexp-confirm')
-      this.vIf(ele, false)
-    })
+    this.shadow
+      .querySelector('.spu-expandexp-confirm-modal-th-close')!
+      .addEventListener('click', () => {
+        const ele = this.shadow.querySelector('.spu-expandexp-confirm')
+        this.vIf(ele, false)
+      })
 
-    this.shadow.querySelector('.spu-expandexp-confirm-modal-cancel')!.addEventListener('click', () => {
-      const ele = this.shadow.querySelector('.spu-expandexp-confirm')
-      this.vIf(ele, false)
-    })
+    this.shadow
+      .querySelector('.spu-expandexp-confirm-modal-cancel')!
+      .addEventListener('click', () => {
+        const ele = this.shadow.querySelector('.spu-expandexp-confirm')
+        this.vIf(ele, false)
+      })
 
-    this.shadow.querySelector('.spu-expandexp-confirm-modal-confirm')!.addEventListener('click', () => {
-      this.handleCencel()
-    })
+    this.shadow
+      .querySelector('.spu-expandexp-confirm-modal-confirm')!
+      .addEventListener('click', () => {
+        this.handleCencel()
+      })
 
     this.shadow.querySelector('.export-btn')!.addEventListener('click', () => {
       // console.log('导出')
@@ -474,7 +487,8 @@ export default class SpuExpandexp extends HTMLElement {
               })
               .then((res: any) => {
                 if (res.code === 200 && res?.data?.configjson) {
-                  this.data.filewatermarkGlobalConfig = JSON.parse(res.data.configjson).isWatermark === '1' ? '1' : '0'
+                  this.data.filewatermarkGlobalConfig =
+                    JSON.parse(res.data.configjson).isWatermark === '1' ? '1' : '0'
                 } else {
                   this.data.filewatermarkGlobalConfig = '0'
                 }
@@ -493,7 +507,9 @@ export default class SpuExpandexp extends HTMLElement {
 
   getExportcontentValue() {
     let result = ''
-    const eles = this.shadow.querySelectorAll('.export-sel-con input[type=radio][name=exportcontent]') as any
+    const eles = this.shadow.querySelectorAll(
+      '.export-sel-con input[type=radio][name=exportcontent]'
+    ) as any
     // console.log(eles)
     for (let i = 0, len = eles.length; i < len; i++) {
       if (eles[i].checked === true) {

@@ -1,8 +1,8 @@
 import { AliClient, ObsClient, S3Client, CosClient } from './OSSClient'
-import { v4 as uuidv4 } from 'uuid'
+import { getUuid } from '../utils'
 import dayjs from 'dayjs'
 import co from 'co'
-import { getUser } from '../login'
+import { getUser } from '../auth/login'
 import cloudServ from './cloudServ'
 import { getServToken } from './servtoken'
 import { obsMultiUpload } from './multiUpload'
@@ -35,8 +35,12 @@ const upload = async ({
   const provider = cloudServ.getProvider(storagetype)
   const tenantCode = getUser('tenantcode')
   const suffix = '.' + file.name.substring(file.name.lastIndexOf('.') + 1)
-  source = source ? source : uuidv4() + suffix
+  if (source || datetime) {
+    console.warn('upload 时不建议自定义传入 source 和 datetime')
+  }
+  source = source ? source : getUuid() + suffix
   datetime = datetime ? `${datetime}` : `${Date.now()}`
+
   const date = dayjs(+datetime).format('YYYYMMDD')
   const osskey = `${source.slice(0, 3)}/${type}/${date}/${tenantCode}/${source}`
 
@@ -90,7 +94,7 @@ const upload = async ({
             // console.log('httpUploadProgress', p)
             progress = p
             if (p === 1) {
-                p = 0.99
+              p = 0.99
             }
             onprogress && onprogress(p)
           }
@@ -111,7 +115,11 @@ const upload = async ({
         access_key_id: servToken.accesskeyid,
         secret_access_key: servToken.accesskeysecret,
         server: storageConfig.cloudserv_storage_storageendpoint,
-        security_token: servToken.securitytoken
+        security_token: servToken.securitytoken,
+        // 华为云自定义域名代理，设置path_style=true，把 bucket 从子域名挪到 URL 路径里
+        // path_style: false（SDK 默认） 请求 URL: http://{bucket}.{server}/{key} 签名资源: /{bucket}/{key}
+        // path_style: true 请求 URL: http://{server}/{bucket}/{key} 签名资源: /{bucket}/{key}
+        path_style: storageConfig.cloudserv_storage_isproxy === 'true'
       })
       // const obs = new ObsClient({
       //   access_key_id: '75ISL4GWAOOO1USWUMRG',
@@ -152,11 +160,7 @@ const upload = async ({
         Bucket: storageConfig.cloudserv_storage_storagebucket,
         Key: osskey,
         Body: file,
-        ContentDisposition: 'filename="' +
-            (file.name &&
-                encodeURIComponent(
-                    file.name
-                )) + '"' // minIo提供的下载名字
+        ContentDisposition: 'filename="' + (file.name && encodeURIComponent(file.name)) + '"' // minIo提供的下载名字
       }
       const upload = s3.upload(params, {}).on('httpUploadProgress', (e: any) => {
         const precent: any = parseInt(e.loaded, 10) / parseInt(e.total, 10)
@@ -225,7 +229,7 @@ const upload = async ({
 }
 
 const createTargetObj = (copykey: string, storagetype: StorageType = 'storage') => {
-  const uuid = uuidv4()
+  const uuid = getUuid()
   const datetime = Date.now().toString()
   const date = dayjs(Number(datetime)).format('YYYYMMDD')
   const arr = copykey.split('/')
@@ -256,7 +260,6 @@ const copy = async ({ copykey = '', storagetype = 'storage' }: any) => {
   return new Promise(async (resolve, reject) => {
     if (provider?.isAliyun) {
       const ossClient = new AliClient({
-        // region: cloudServ.cloudserv_storage_storageendpoint,
         endpoint: storageConfig.cloudserv_storage_storageendpoint,
         accessKeyId: servToken.accesskeyid,
         accessKeySecret: servToken.accesskeysecret,
@@ -287,7 +290,11 @@ const copy = async ({ copykey = '', storagetype = 'storage' }: any) => {
         access_key_id: servToken.accesskeyid,
         secret_access_key: servToken.accesskeysecret,
         server: storageConfig.cloudserv_storage_storageendpoint,
-        security_token: servToken.securitytoken
+        security_token: servToken.securitytoken,
+        // 华为云自定义域名代理，设置path_style=true，把 bucket 从子域名挪到 URL 路径里
+        // path_style: false（SDK 默认） 请求 URL: http://{bucket}.{server}/{key} 签名资源: /{bucket}/{key}
+        // path_style: true 请求 URL: http://{server}/{bucket}/{key} 签名资源: /{bucket}/{key}
+        path_style: storageConfig.cloudserv_storage_isproxy === 'true'
       })
       obs
         .copyObject({

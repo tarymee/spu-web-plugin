@@ -107,7 +107,7 @@ onBeforeUnmount(() => {
 - 类型：
 
 ```js
-function load (options?: {
+function load(options?: {
   plugins?: Array<string>
   AMapUI?: {
     plugins?: Array<string>
@@ -164,7 +164,7 @@ onBeforeUnmount(() => {
 - 类型：
 
 ```js
-function getLocation (isuseiplocation: boolean): Promise<{
+function getLocation(isuseiplocation: boolean): Promise<{
   longitude: string
   latitude: string
   address: string
@@ -217,7 +217,13 @@ console.log(address)
 - 类型：
 
 ```js
-function getDistance (p1: [number, number], p2: [number, number]): Promise<number>
+type longitudeType = number
+type latitudeType = number
+
+function getDistance(
+  p1: [longitudeType, latitudeType],
+  p2: [longitudeType, latitudeType]
+): Promise<number>
 ```
 
 - 示例：
@@ -235,6 +241,9 @@ const addressB = {
   latitude: '23.165178'
 }
 
-const distance = await getDistance([addressA.longitude, addressA.latitude], [addressB.longitude, addressB.latitude])
+const distance = await getDistance(
+  [addressA.longitude, addressA.latitude],
+  [addressB.longitude, addressB.latitude]
+)
 console.log(Math.ceil(distance))
 ```

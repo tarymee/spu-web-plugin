@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import cloudServ from './cloudServ'
 import { getServToken } from './servtoken'
 import { normalAxios } from '../axios'
-import { getUser } from '../login'
+import { getUser } from '../auth/login'
 import { isOnline } from '../utils'
 import { globalOptions } from '../index'
 import ossCache from './ossCache'
@@ -162,8 +162,8 @@ const getUrl = async ({
   const copeStr = provider?.isAliyun
     ? getAliyunCope(cope)
     : provider?.isCos
-    ? getCosCope(cope)
-    : getCope(cope)
+      ? getCosCope(cope)
+      : getCope(cope)
   const contentType = getContentType(suffix)
 
   if (provider?.isAliyun) {
@@ -204,7 +204,12 @@ const getUrl = async ({
       access_key_id: servToken.accesskeyid,
       secret_access_key: servToken.accesskeysecret,
       server: storageConfig.cloudserv_storage_storageendpoint,
-      security_token: servToken.securitytoken
+      security_token: servToken.securitytoken,
+      // 华为云自定义域名代理，设置path_style=true，把 bucket 从子域名挪到 URL 路径里
+      // path_style: false（SDK 默认） 请求 URL: http://{bucket}.{server}/{key} 签名资源: /{bucket}/{key}
+      // path_style: true 请求 URL: http://{server}/{bucket}/{key} 签名资源: /{bucket}/{key}
+      path_style: storageConfig.cloudserv_storage_isproxy === 'true'
+
     })
     // 修复地址里面有//就不能下载了
     if (objectKey && objectKey[0] === '/') {

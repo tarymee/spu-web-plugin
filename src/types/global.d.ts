@@ -18,6 +18,7 @@ interface NormalizedCloudServItem {
   cloudserv_storage_storageurl: string
   cloudserv_storage_accesskeyid?: string
   cloudserv_storage_region?: string
+  cloudserv_storage_isproxy?: string
 }
 
 type NormalizedCloudServ = {
@@ -29,8 +30,9 @@ interface IStorage {
   storagebucket: string
   storageendpoint: string
   storageurl: string
-  accesskeyid: string
-  region: string
+  region?: string
+  accesskeyid?: string
+  isproxy?: string
 }
 
 type ICloudServ = {

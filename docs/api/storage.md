@@ -38,11 +38,12 @@ ssProxy.setItem('data', 'xxx') // 会在 sessionStorage 中设置 demospu-data =
 ssProxy.getItem('data', 'xxx') // 会从 sessionStorage 中取 key 为 demospu-data 的值
 ```
 
-## 其他
+## window 部署
 
 之前的项目一般是把这两个方法部署在 `window` 上以方便调用，如果想沿用之前的用法，则需要自行部署。
 
 ```js
+// main.ts 文件入口
 import { lsProxy, ssProxy } from '@smart100/spu-web-plugin'
 window.lsProxy = lsProxy
 window.ssProxy = ssProxy

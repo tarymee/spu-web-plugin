@@ -1,7 +1,7 @@
 import VConsole from 'vconsole'
 import { ssProxy } from './storageProxy'
-import { isMobile } from './utils'
-import { getUser } from './login'
+import { isMobile, getQueryByUrl } from './utils'
+import { getUser } from './auth/login'
 
 class Urlquery {
   private isinit = false
@@ -12,6 +12,10 @@ class Urlquery {
 
   get isdebugger(): boolean {
     return ssProxy.getItem('isdebugger') === '1'
+  }
+
+  get syncdatasessionid(): string {
+    return ssProxy.getItem('syncdatasessionid') || ''
   }
 
   // 获取 web 端引擎是否开了开发者模式
@@ -38,7 +42,11 @@ class Urlquery {
 
     // 调试
     // 如果开启了 web 开发者模式 也算
-    if (location.href.indexOf('isdebugger=1') >= 0 || ssProxy.getItem('isdebugger') === '1' || (!isMobile() && this.getWebDevmodel())) {
+    if (
+      location.href.indexOf('isdebugger=1') >= 0 ||
+      ssProxy.getItem('isdebugger') === '1' ||
+      (!isMobile() && this.getWebDevmodel())
+    ) {
       ssProxy.setItem('isdebugger', '1')
       if (isMobile()) {
         new VConsole({ theme: 'dark' }) /* eslint-disable-line no-new */
@@ -48,10 +56,22 @@ class Urlquery {
     }
 
     // 虚拟定位测试
-    if (location.href.indexOf('isvirtuallocation=1') >= 0 || ssProxy.getItem('isvirtuallocation') === '1') {
+    if (
+      location.href.indexOf('isvirtuallocation=1') >= 0 ||
+      ssProxy.getItem('isvirtuallocation') === '1'
+    ) {
       ssProxy.setItem('isvirtuallocation', '1')
     } else {
       ssProxy.setItem('isvirtuallocation', '0')
+    }
+
+    if (location.href.indexOf('syncdatasessionid=')) {
+      const syncdatasessionid = getQueryByUrl('syncdatasessionid')
+      if (syncdatasessionid) {
+        ssProxy.setItem('syncdatasessionid', syncdatasessionid)
+      }
+    } else {
+      ssProxy.removeItem('syncdatasessionid')
     }
 
     // this.initDevTool()

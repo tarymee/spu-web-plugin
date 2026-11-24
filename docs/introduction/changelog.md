@@ -1,8 +1,18 @@
 # 更新日志
 
+
+## v1.0.36（2026-11-18）
+
+- feature: 支持华为云 OBS 自定义域名（反向代理）
+- feature: 优化单点登录+弱网请求不到 getaccountinfo 接口 setUser 时，tokenUser 没有 mbcode 的情况。
+
+## v1.0.34
+
+- feature: 支持小程序访销（自动在小程序中帮spu页面注入nativeapi）
+
 ## v1.0.33
 
-- other: 优化 App 切换后台获取 token 逻辑
+- feature: 优化 App 切换后台获取 token 逻辑
 
 ## v1.0.32
 
