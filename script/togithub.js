@@ -58,12 +58,13 @@ console.log('[togithub] 拷贝完成')
 
 git(['add', '-A'])
 const status = git(['status', '--porcelain'])
+const pad = n => String(n).padStart(2, '0')
 const now = new Date()
-const yyyymmdd = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}`
+const timestamp = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
 
 if (status) {
-  git(['commit', '-m', `feat: 同步${yyyymmdd}`], { stdio: 'ignore' })
-  console.log(`[togithub] 已提交: feat: 同步${yyyymmdd}`)
+  git(['commit', '-m', `feat: 同步${timestamp}`], { stdio: 'ignore' })
+  console.log(`[togithub] 已提交: feat: 同步${timestamp}`)
 } else {
   console.log('[togithub] 无变动，跳过提交')
 }

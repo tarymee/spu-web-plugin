@@ -12,8 +12,8 @@
 
 ## 3. 集成验证（用户手动执行）
 
-- [ ] 3.1 运行 `npm run togithub`：确认目标仓库 `service-plugin/` 被整体删除、目标仓库 `node_modules` 与 `docs/node_modules` 保留、`openspec/` 被同步、产生 `feat: 同步YYYYMMDD` 提交并推送到 `origin main`
-- [ ] 3.2 再次运行 `npm run togithub`：确认输出"无变动，跳过提交"，推送为 no-op 且不报错
+- [x] 3.1 运行 `npm run togithub`：确认目标仓库 `service-plugin/` 被整体删除、目标仓库 `node_modules` 与 `docs/node_modules` 保留、`openspec/` 被同步、产生 `feat: 同步YYYYMMDD` 提交并推送到 `origin main`
+- [x] 3.2 再次运行 `npm run togithub`：确认输出"无变动，跳过提交"，推送为 no-op 且不报错
 
 ## Workflow follow-up
 
